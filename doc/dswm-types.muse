@@ -1,0 +1,32 @@
+*** File: module.lisp.in
+***dswm type*** module (input prompt)
+
+*** File: modules/web.lisp
+***dswm type*** search (input prompt)
+***dswm type*** wiki (input prompt)
+***dswm type*** dict (input prompt)
+***dswm type*** hyperbookmark (input prompt)
+***dswm type*** hb-browser (input prompt)
+***dswm type*** hb-url (input url)
+
+*** File: modules/aumix.lisp
+***dswm type*** mixer-channel (input prompt)
+
+*** File: command.lisp
+	  ***dswm type***
+***dswm type*** y-or-n (input prompt)
+***dswm type*** variable (input prompt)
+***dswm type*** function (input prompt)
+***dswm type*** command (input prompt)
+***dswm type*** key-seq (input prompt)
+***dswm type*** window-number (input prompt)
+***dswm type*** number (input prompt)
+***dswm type*** string (input prompt)
+***dswm type*** key (input prompt)
+***dswm type*** window-name (input prompt)
+***dswm type*** direction (input prompt)
+***dswm type*** gravity (input prompt)
+***dswm type*** group (input prompt)
+***dswm type*** frame (input prompt)
+***dswm type*** shell (input prompt)
+***dswm type*** rest (input prompt)

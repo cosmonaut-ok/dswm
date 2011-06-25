@@ -1,0 +1,39 @@
+*** File: user.lisp
+defstruct path-cache
+
+*** File: mode-line.lisp
+defstruct mode-line
+
+*** File: dswm.lisp
+defstruct timer
+*** File: menu.lisp
+defstruct menu-state
+
+*** File: fdump.lisp
+defstruct fdump
+defstruct gdump
+defstruct fgdump
+defstruct sdump
+defstruct ddump
+
+*** File: modules/web.lisp
+defstruct hyperbookmark
+
+*** File: command.lisp
+defstruct command-alias
+defstruct command
+defstruct argument-line
+
+*** File: kmap.lisp
+defstruct key
+defstruct kmap
+defstruct binding
+
+*** File: primitives.lisp
+defstruct frame
+defstruct head
+defstruct ccontext
+defstruct modifiers
+
+*** File: input.lisp
+defstruct input-line

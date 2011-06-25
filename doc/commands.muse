@@ -1,0 +1,308 @@
+*** File: module.lisp.in
+***command*** add-modules-dir (dir) ((:string "Directory: "))
+***command*** load-module (name) ((:module "Enter module name: "))
+***command*** list-modules () ()
+
+*** File: user.lisp
+***command*** banish (&optional where) (:rest)
+***command*** ratwarp (x y) ((:number "X: ") (:number "Y: "))
+***command*** ratrelwarp (dx dy) ((:number "Delta X: ") (:number "Delta Y: "))
+***command*** ratclick (&optional (button 1)) (:number)
+***command*** run-shell-command (cmd &optional collect-output-p) ((:shell "Enter command: "))
+***command***-alias exec run-shell-command)
+***command*** eval-line (cmd) ((:rest "Eval: "))
+***command***-alias eval eval-line)
+;; (***command***-alias run run-shell-command)
+***command*** run-gnew-float (command) ((:shell "Enter command: "))
+***command*** run-gnew (command) ((:shell "Enter command: "))
+***command*** move-window-to-new-group-float (groupname) ((:string "Enter groupname: "))
+***command***-alias gmove-new-float move-window-to-new-group-float)
+***command*** move-window-to-new-group (groupname) ((:string "Enter groupname: "))
+***command***-alias gmove-new move-window-to-new-group)
+***command*** run-in-terminal (cmd) ((:shell "Enter command: "))
+;; (***command*** eval-line (cmd) ((:rest "Eval: "))
+***command*** echo (string) ((:rest "Echo: "))
+***command*** meta (key) ((:key "Key: "))
+***command*** loadrc () ()
+***command*** keyboard-quit () ()
+***command***-alias abort keyboard-quit)
+***command*** quit () ()
+***command*** restart-soft () ()
+***command*** restart-hard () ()
+***command*** reload () ()
+***command*** emacs () ()
+***command*** browser () ()
+***command*** terminal () ()
+***command*** copy-unhandled-error () ()
+     (***command*** ,name () ()
+       (***command*** (,pull-name tile-group) () ()
+***command*** show-window-properties () ()
+***command*** list-window-properties () ()
+
+*** File: screen.lisp
+***command*** snext () ()
+***command*** sprev () ()
+***command*** sother () ()
+
+*** File: bindings.lisp
+***command*** command-mode () ()
+***command*** set-prefix-key (key) ((:key "Key: "))
+***command***-alias escape set-prefix-key)
+***command*** bind (key command)
+***command*** send-escape () ()
+
+*** File: version.lisp.in
+***command*** version () ()
+
+*** File: selection.lisp
+***command*** putsel (string) ((:rest "Text: "))
+***command*** getsel () ()
+***command*** copy-last-message () ()
+
+*** File: mode-line.lisp
+***command*** mode-line () ()
+
+*** File: time.lisp
+***command*** echo-date () ()
+***command***-alias time echo-date)
+
+*** File: floating-group.lisp
+***command*** gnew-float (name) ((:rest "Group Name: "))
+***command*** gnewbg-float (name) ((:rest "Group Name: "))
+
+*** File: tile-window.lisp
+***command*** (next tile-group) () ()
+***command*** (prev tile-group) () ()
+***command*** (pull-window-by-number tile-group) (n &optional (group (current-group)))
+***command***-alias pull pull-window-by-number)
+***command*** (pull-hidden-next tile-group) () ()
+***command*** (pull-hidden-previous tile-group) () ()
+***command*** (pull-hidden-other tile-group) () ()
+***command*** (exchange-direction tile-group) (dir &optional (win (current-window)))
+***command*** (echo-frame-windows tile-group) (&optional (fmt *window-format*)) (:rest)
+***command***-alias frame-windows echo-frame-windows)
+***command*** (fullscreen tile-group) () ()
+***command*** (gravity tile-group) (gravity) ((:gravity "Gravity: "))
+***command*** (pull-marked tile-group) () ()
+***command*** (remember tile-group) (lock title)
+***command*** (remember-group tile-group) (lock title)
+***command*** (remember-desktop tile-group) (lock title)
+***command*** (forget tile-group) () ()
+***command*** (dump-window-placement-rules tile-group) (file) ((:rest "Filename: "))
+***command***-alias dump-rules dump-window-placement-rules)
+***command*** (restore-window-placement-rules tile-group) (file) ((:rest "Filename: "))
+***command***-alias restore-rules restore-window-placement-rules)
+***command*** (redisplay tile-group) () ()
+***command*** frame-windowlist (&optional (fmt *window-format*)) (:rest)
+
+*** File: message-window.lisp
+***command*** lastmsg () ()
+
+*** File: fdump.lisp
+***command*** dump-group-to-file (file) ((:rest "Dump To File: "))
+***command***-alias dump-group dump-group-to-file)
+***command*** dump-screen-to-file (file) ((:rest "Dump To File: "))
+***command***-alias dump-screen dump-screen-to-file)
+***command*** dump-desktop-to-file (file) ((:rest "Dump To File: "))
+***command***-alias dump-desktop dump-desktop-to-file)
+***command*** restore-from-file (file) ((:rest "Restore From File: "))
+***command***-alias restore restore-from-file)
+***command*** place-existing-windows () ()
+***command*** save-frame+group-rules () ()
+***command*** restore-frame+group-rules () ()
+***command*** save-all-rules () ()
+***command*** restore-all-rules () ()
+***command*** snapshot-desktop () ()
+
+*** File: window.lisp
+***command*** next-urgent () ()
+***command*** delete-window (&optional (window (current-window))) ()
+***command***-alias delete delete-window)
+***command*** kill-window (&optional (window (current-window))) ()
+***command***-alias kill kill-window)
+***command*** title (title) ((:rest "Set window's title to: "))
+***command***-alias title rename-frame)
+***command*** select-window (query) ((:window-name "Select: "))
+***command***-alias select select-window)
+***command*** select-window-by-name (name) ((:window-name "Select: "))
+***command*** select-window-by-number (num &optional (group (current-group)))
+***command*** other-window (&optional (group (current-group))) ()
+***command***-alias other other-window)
+***command*** renumber (nt &optional (group (current-group))) ((:number "Number: "))
+***command***-alias number renumber)
+***command*** repack-window-numbers (&optional preserved) ()
+***command*** windowlist (&optional (fmt *window-format*)) (:rest)
+***command*** window-send-string (string &optional (window (current-window))) ((:rest "Insert: "))
+***command***-alias insert window-send-string)
+***command*** mark () ()
+***command*** clear-window-marks (&optional (group (current-group)) (windows (group-windows group))) ()
+***command***-alias clear-marks clear-window-marks)
+***command*** echo-windows (&optional (fmt *window-format*) (group (current-group)) (windows (group-windows group))) (:rest)
+***command***-alias windows echo-windows)
+***command*** info (&optional (fmt *window-info-format*)) (:rest)
+***command*** refresh () ()
+
+*** File: modules/amixer.lisp
+  `(***command*** ,name () ()
+***command*** amixer-sense-toggle () ()
+
+*** File: modules/web.lisp
+ (***command*** web-search-with-engine (engine search)
+***command*** web-search () ()
+ (***command*** wiki-search-with-engine (engine search)
+***command*** wiki-search () ()
+***command*** dict-search-with-engine (engine search)
+***command*** dict-search () ()
+***command*** g-translate (what) ((:string "What do you want to translate? "))
+***command*** web-jump (url) ((:string "Enter URL: "))
+***command*** hb-add (name browser url open-p)
+***command*** hb-remove (name) ((:hyperbookmark "Enter hyperbookmark
+***command*** hb-open (name)
+***command*** hb-list () ()
+***command*** hb-reload () ()
+
+*** File: modules/productivity.lisp
+***command*** productivity-back-to-work () ()
+***command*** productivity-mode-toggle () ()
+
+*** File: modules/mpd.lisp
+***command*** mpd-browse-playlist (&optional current-song) ()
+***command***-alias select-song-from-playlist browse-playlist)
+***command*** mpd-browse-artists (&optional genre) ()
+***command*** mpd-browse-genres () ()
+***command*** mpd-browse-albums (&optional artist genre) ((:string "Artist: "))
+***command*** mpd-browse-tracks (album &optional artist) ((:string "Album: "))
+***command*** mpd-connect () ()
+***command*** mpd-disconnect () ()
+***command*** mpd-kill () ()
+***command*** mpd-toggle-pause () ()
+***command*** mpd-toggle-random () ()
+***command*** mpd-toggle-repeat () ()
+***command*** mpd-toggle-xfade () ()
+***command*** mpd-set-xfade (xfade) ((:number "Fade: "))
+***command*** mpd-play () ()
+***command*** mpd-play-track (track) ((:number "Track: "))
+***command*** mpd-stop () ()
+***command*** mpd-next () ()
+***command*** mpd-prev () ()
+***command*** mpd-set-volume (vol) ((:number "Set volume to: "))
+***command*** mpd-volume-up () ()
+***command*** mpd-volume-down () ()
+***command*** mpd-clear () ()
+***command*** mpd-update (&optional (path nil)) ()
+***command*** mpd-current-song () ()
+***command*** mpd-status () ()
+***command*** mpd-playlist () ()
+***command*** mpd-add-file (file) ((:rest "Add file to playlist: "))
+***command*** mpd-remove-track (track-number) ((:number "Delete track number: "))
+***command*** mpd-swap-tracks (track-1 track-2) ()
+***command*** mpd-search-and-add-artist (what &optional (exact-search nil))
+***command*** mpd-search-and-add-file (what &optional (exact-search nil))
+***command*** mpd-search-and-add-title (what &optional (exact-search nil))
+***command*** mpd-search-and-add-album (what &optional (exact-search nil))
+***command*** mpd-search-and-add-genre (what &optional (exact-search nil))
+***command*** mpd-search-artist (what) ((:rest "Search artist: "))
+***command*** mpd-search-file (what) ((:rest "Search file: "))
+***command*** mpd-search-title (what) ((:rest "Search title: "))
+***command*** mpd-search-album (what) ((:rest "Search album: "))
+***command*** mpd-search-genre (what) ((:rest "Search genre: "))
+
+*** File: modules/notifications.lisp
+***command*** notifications-add (str)
+***command*** notifications-reset ()
+***command*** notifications-delete (str)
+***command*** notifications-delete-first ()
+***command*** notifications-delete-last ()
+***command*** notifications-show ()
+
+*** File: modules/aumix.lisp
+***command*** mixer (channel opstr) ((:mixer-channel "Channel: ") (:rest "Op: "))
+
+*** File: modules/wmii-like-dswmrc.lisp
+***command*** gselect-or-create (group-number) ((:number "Group number: "))
+***command*** exec-in-terminal (cmd) ((:string "Command: "))
+
+*** File: modules/window-tags.lisp
+***command*** window-tags (&optional (argwin nil)) ()
+***command*** clear-tags (&optional (argtags nil) (argwin nil)) (:rest :rest)
+***command*** clear-all-tags () ()
+***command*** tag-window (argtag &optional (argwin nil)) ((:rest "Tag to set: ") :rest)
+***command*** all-tags () ()
+***command*** pull-tag (argtag) ((:rest "Tag(s) to pull: "))
+***command*** push-without-tag (argtag) ((:rest "Tag(s) needed to stay in the group: "))
+***command*** push-tag (argtag) ((:rest "Tag(s) to push: "))
+***command*** pull+push (argtag) ((:rest "Tag(s) to select: "))
+***command*** push-window () ()
+***command*** number-by-tags () ()
+***command*** tag-visible (&optional (argtags nil)) (:rest)
+***command*** raise-tag (tag) ((:rest "Tag to pull: "))
+
+*** File: tile-group.lisp
+***command*** (hsplit tile-group) () ()
+***command*** (vsplit tile-group) () ()
+***command*** (remove-split tile-group) (&optional (group (current-group)) (frame (tile-group-current-frame group))) ()
+***command***-alias remove remove-split)
+***command*** (only tile-group) () ()
+***command*** (curframe tile-group) () ()
+***command*** (fnext tile-group) () ()
+***command*** (sibling tile-group) () ()
+***command*** (fother tile-group) () ()
+***command*** (fselect tile-group) (frame-number) ((:frame t))
+***command*** (resize tile-group) (width height) ((:number "+ Width: ")
+***command*** (fclear tile-group) () ()
+***command*** (move-focus tile-group) (dir) ((:direction "Direction: "))
+***command*** (move-window tile-group) (dir) ((:direction "Direction: "))
+***command*** (move-window-to-frame tile-group) (frame-number) ((:frame "Frame number: "))
+***command*** (next-in-frame tile-group) () ()
+***command*** (prev-in-frame tile-group) () ()
+***command*** (other-in-frame tile-group) () ()
+***command*** (balance-frames tile-group) () ()
+
+*** File: scratchpad.lisp
+***command*** scratchpad () ()
+
+*** File: dswm.texi.in
+%%% ***command***
+@code{***command***} syntax, as in the examples below.
+***command*** test (foo bar)
+***command*** test2 () ()
+***command*** title (args) (interactive-args)
+Note that all commands defined using the @code{***command***} syntax are
+
+*** File: help.lisp
+***command*** commands () ()
+***command*** describe-key (keys) ((:key-seq "Describe Key: "))
+***command*** describe-variable (var) ((:variable "Describe Variable: "))
+***command*** describe-function (fn) ((:function "Describe Function: "))
+***command*** describe-command (com) ((:command "Describe Command: "))
+***command*** where-is (cmd) ((:command "Where is command: "))
+***command*** modifiers () ()
+
+*** File: command.lisp
+***command*** colon (&optional initial-input) (:rest)
+
+*** File: iresize.lisp
+***command*** (iresize tile-group) () ()
+***command*** (abort-iresize tile-group) () ()
+***command*** (exit-iresize tile-group) () ()
+
+*** File: group.lisp
+***command*** gnew (name) ((:string "Group Name: "))
+***command*** gnewbg (name) ((:string "Group Name: "))
+***command*** gnext () ()
+***command*** gprev () ()
+***command*** gnext-with-window () ()
+***command*** gprev-with-window () ()
+***command*** gother () ()
+***command*** grename (name) ((:string "New name for group: "))
+***command***-alias grename rename-groupи)
+***command*** groups (&optional (fmt *group-format*)) (:rest)
+***command*** vgroups (&optional gfmt wfmt) (:string :rest)
+***command*** gselect (to-group) ((:group "Select Group: "))
+***command*** grouplist (&optional (fmt *group-format*)) (:rest)
+***command*** gmove (to-group) ((:group "To Group: "))
+***command*** gmove-marked (to-group) ((:group "To Group: "))
+***command*** gkill () ()
+***command*** gmerge (from) ((:group "From Group: "))
+
+

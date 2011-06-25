@@ -1,0 +1,101 @@
+LISP=@LISP_PROGRAM@
+
+clisp_BUILDOPTS=-K full -on-error exit ./make-image.lisp
+sbcl_BUILDOPTS=--load ./make-image.lisp
+ccl_BUILDOPTS=--load ./make-image.lisp
+ecl_BUILDOPTS=-norc -shell ./make-image.lisp
+
+clisp_INFOOPTS=-K full -on-error exit -x "(require 'asdf '(\"asdf.lisp\")) (load \"dswm.asd\") (load \"@PPCRE_PATH@/cl-ppcre.asd\") (asdf:operate 'asdf:load-op :dswm) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)"
+sbcl_INFOOPTS=--eval "(progn (require 'asdf) (require 'dswm) (load \"manual.lisp\"))" --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+ccl_INFOOPTS=--eval "(progn (require 'asdf) (require 'dswm))" --load manual.lisp --eval "(progn (dswm::generate-manual) (quit))"
+ecl_INFOOPTS=-eval "(progn (require 'asdf) (load \"@PPCRE_PATH@/cl-ppcre.asd\") (require 'dswm) (load \"manual.lisp\"))" -eval "(progn (dswm::generate-manual) (ext:quit))"
+datarootdir = @datarootdir@
+prefix=@prefix@
+exec_prefix= @exec_prefix@
+bindir=@bindir@
+infodir=@infodir@
+
+params="--with-lisp=sbcl"
+root_dir=${PWD}
+dest_dir=dswm-@PACKAGE_VERSION@
+
+# You shouldn't have to edit past this
+
+# This is copied from the .asd file. It'd be nice to have the list in
+# one place, but oh well.
+FILES=dswm.asd package.lisp primitives.lisp wrappers.lisp		\
+pathnames.lisp keysyms.lisp keytrans.lisp kmap.lisp input.lisp		\
+core.lisp command.lisp menu.lisp screen.lisp head.lisp group.lisp	\
+window.lisp floating-group.lisp tile-window.lisp window-placement.lisp	\
+message-window.lisp selection.lisp user.lisp iresize.lisp		\
+bindings.lisp events.lisp help.lisp fdump.lisp mode-line.lisp		\
+time.lisp color.lisp module.lisp dswm.lisp version.lisp
+
+all: deps dswm dswm.info
+
+deps:	install-deps.lisp
+	$(LISP) $(@LISP@_BUILDOPTS)
+
+dswm.info: dswm.texi
+	makeinfo dswm.texi
+
+# FIXME: This rule is too hardcoded
+dswm.texi: dswm.texi.in
+	$(LISP) $(@LISP@_INFOOPTS)
+
+dswm: $(FILES)
+	$(LISP) $(@LISP@_BUILDOPTS)
+
+release:
+	git tag -a -m "version @PACKAGE_VERSION@" @PACKAGE_VERSION@
+	git archive --format=tar --prefix=dswm-@PACKAGE_VERSION@/ HEAD > dswm-@PACKAGE_VERSION@.tar
+	tar -xf dswm-@PACKAGE_VERSION@.tar
+	rm -rf dswm-@PACKAGE_VERSION@/.git* dswm-@PACKAGE_VERSION@/autom4te.cache dswm-@PACKAGE_VERSION@/version.lisp dswm-@PACKAGE_VERSION@/module.lisp dswm-@PACKAGE_VERSION@/make-image.lisp dswm-@PACKAGE_VERSION@/dswm.desktop
+	git log > dswm-@PACKAGE_VERSION@/ChangeLog
+	cp configure dswm-@PACKAGE_VERSION@/
+	tar -zcf dswm-@PACKAGE_VERSION@.tar.gz dswm-@PACKAGE_VERSION@
+	tar -jcf dswm-@PACKAGE_VERSION@.tar.bz2 dswm-@PACKAGE_VERSION@
+	rm -fr dswm-@PACKAGE_VERSION@/ dswm-@PACKAGE_VERSION@.tar
+release-upload:
+#	gpg -b dswm-@PACKAGE_VERSION@.tgz
+	ssh cosmonaut-ok,dswm@shell.sourceforge.net create
+	ssh cosmonaut-ok,dswm@shell.sourceforge.net test -d /home/frs/project/d/ds/dswm/@PACKAGE_VERSION@ || mkdir /home/frs/project/d/ds/dswm/@PACKAGE_VERSION@/
+	scp dswm-@PACKAGE_VERSION@.tar.gz cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/@PACKAGE_VERSION@/dswm-@PACKAGE_VERSION@.tar.gz
+	scp dswm-@PACKAGE_VERSION@.tar.bz2 cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/@PACKAGE_VERSION@/dswm-@PACKAGE_VERSION@.tar.bz2
+
+sabetts@dl.sv.nongnu.org:/releases/dswm/
+	( echo rm dswm-latest.tgz.sig && echo rm dswm-latest.tgz && echo ln dswm-@PACKAGE_VERSION@.tgz dswm-latest.tgz && echo ln dswm-@PACKAGE_VERSION@.tgz.sig dswm-latest.tgz.sig ) | sftp -b - sabetts@dl.sv.nongnu.org:/releases/dswm/
+testbuild:
+	cd $(dirname $0)
+	rm -rf ~/.cache/common-lisp/
+	test -z "/tmp/$(dest_dir).build" || rm -rf /tmp/$(dest_dir).build
+	cp -r $(root_dir) /tmp/$(dest_dir).build
+	cd /tmp/$(dest_dir).build
+	autoconf
+	./configure --prefix=/usr/local ${params}
+	printf '\n\nNow, run \"cd /tmp/$(dest_dir).build && sudo rm -rf /etc/dswm && sudo make install && cd $(root_dir)\" to install DSWM\n\n'
+clean:
+	rm -f *.fasl *.fas *.lib *.*fsl
+	rm -f *.log *.fns *.fn *.aux *.cp *.ky *.log *.toc *.pg *.tp *.vr *.vrs
+	rm -rf dswm dswm.texi dswm.info autom4te.cache  *.tar.* version.lisp module.lisp make-image.lisp dswm.desktop
+
+install: dswm.info dswm
+	test -z "$(destdir)$(bindir)" || mkdir -p "$(destdir)$(bindir)"
+	install -m 755 dswm "$(destdir)$(bindir)"
+	test -z "$(destdir)$(infodir)" || mkdir -p "$(destdir)$(infodir)"
+	install -m 644 dswm.info "$(destdir)$(infodir)"
+	install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)/dswm.info"
+	test -d "$(destdir)/etc/dswm/" || mkdir -p "$(destdir)/etc/dswm"
+	test -f "$(destdir)/etc/dswm/dswm.conf" || install -m 644 dswm.conf "$(destdir)/etc/dswm"
+	mkdir -p "$(destdir)$(datarootdir)/dswm/modules"
+	install -m 644 modules/*.lisp "$(destdir)$(datarootdir)/dswm/modules"
+	test -d "$(destdir)$(datarootdir)/xsessions" && install -m 644 dswm.desktop "$(destdir)$(datarootdir)/xsessions" || test -d "$(destdir)usr/share/xsessions" && install -m 644 dswm.desktop "$(destdir)usr/share/xsessions/" || true
+
+uninstall:
+	rm "$(destdir)$(bindir)/dswm"
+	rm -r "$(destdir)$(datarootdir)/dswm"
+	rm "/etc/dswm/dswm.conf"
+	install-info --info-dir="$(destdir)$(infodir)" --remove "$(destdir)$(infodir)/dswm.info"
+	rm "$(destdir)$(infodir)/dswm.info"
+
+# End of file

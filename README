@@ -1,0 +1,126 @@
+The Deep Space Window Manager
+------------------------
+
+DSWM is a window manager written entirely in Common Lisp. It
+attempts to be highly customizable while relying entirely on the
+keyboard for input. You will not find buttons, icons, title bars, tool
+bars, or any of the other conventional GUI widgets.
+
+DSWM is a fork of StumpWM, so have most of all features, which have
+StumpWM, but it designed for better usability and better integration with
+emacs. It is an early release, so some of it`s own features may not work
+or may work incorrect. In future releases we will fix it.
+
+These design decisions reflect the growing popularity of productive,
+customizable lisp based systems.
+
+Build & Start DSWM
+---------------------
+
+Prerequisites
+=============
+
+* a common lisp distribution. CCL, CLISP, and SBCL all work.
+* clx
+* cl-ppcre
+
+If you intend to use SBCL or CCL you need to install portable-clx. If
+you're using clisp, make sure you use at least version 2.42 and that
+clisp is compiled with new-clx. As of clisp 2.42, new-clx works fine
+with dswm. Any version before that is too buggy to run dswm.
+
+You can use asdf-install to install lisp libraries:
+  $ sbcl
+    * (require 'asdf)
+    * (require 'asdf-install)
+    * (asdf-install:install 'clx)
+    * (asdf-install:install 'cl-ppcre)
+
+If using clisp, you'll need to install asdf first to use asdf-install.
+  $ mkdir -p ~/.cl/asdf && cd ~/.cl
+  $ wget http://cclan.cvs.sourceforge.net/*checkout*/cclan/asdf/asdf.lisp -O ~/.cl/asdf/asdf.lisp
+  $ echo "(load #p\"/home/USER/.cl/asdf/asdf\")" >> ~/.clisprc.lisp
+  $ mkdir -p ~/.cl/systems
+  $ echo "(push #p\"/home/USER/.cl/systems\" asdf:*central-registry*)" >> ~/.clisprc.lisp
+  $ wget http://common-lisp.net/project/asdf-install/asdf-install_latest.tar.gz
+  $ tar xf asdf-install_latest.tar.gz
+  $ ln -s ~/.cl/asdf-install/asdf-install/asdf-install.asd ~/.cl/systems/
+  $ clisp
+    * (asdf:operate 'asdf:compile-op 'asdf-install)
+    * (asdf:operate 'asdf:load-op 'asdf-install)
+    * (asdf-install:install :cl-ppcre)
+
+CCL has asdf built in, but you will need to get asdf-install like with clisp.
+
+Your operating system distribution may also have these libraries
+available.
+
+Building
+========
+
+Building dswm from CVS requires that you build the configure script:
+
+$ autoconf
+
+If there's already a configure script then just run it.
+
+$ ./configure
+
+By default dswm elects sbcl. If you have both installed, you can
+explicitly select clisp like so:
+
+$ ./configure --with-lisp=clisp
+
+If your lisps are in strange places you may need to tell the script where to find them:
+
+$ configure --with-sbcl=/home/sabetts/opt/bin/sbcl --with-clisp=/usr/local/downstairs/to/the/left/clisp
+
+Now build it:
+
+$ make
+
+If all goes well, you should have a dswm binary now. Sorry there's
+no install yet. Just copy the binary wherever you want or run it out
+of the dswm/ directory. If autoconf worked properly, you can
+install the binary, along with the .info documentation with:
+
+$ make install
+
+Now that you have a binary, call it from your ~/.xinitrc file:
+
+$ echo /path/to/dswm >> ~/.xinitrc
+$ startx
+
+Hopefully that will put you in X running dswm!
+
+SBCL And Threads
+----------------
+
+SBCL compiled with threads causes problems with dswm. The most
+common is sluggishness. It may also cause dswm to become
+unresponsive. If you use SBCL, consider using a version built without
+threads.
+
+build.sh
+--------
+Also available script dswm-install.sh for building and installing dswm
+
+CCL And Virtual Memory
+----------------------
+
+On 64bit platforms, CCL reserves a "very large" amount of virtual
+memory. If this bothers you for some reason, you can pass the -R or
+--heap-reserve option to the binary in your ~/.xinitrc file. See
+http://ccl.clozure.com/manual/chapter15.1.html for an explanation.
+
+Help
+----
+
+There's a texinfo manual, dswm.texi. the build scripts generate an
+info file you can read in emacs or with the `info' program.
+
+For other stuff visit the stumpwm wiki:
+
+http://stump.antidesktop.net/ (dswm wiki is not prepared yet)
+
+There's a 'dswm' room at jabber conference conference.work-space.org.ua
