@@ -26,7 +26,7 @@
 ;;;
 ;;;     (load-module "disk")
 ;;;
-;;; ...into your ~/.dswmrc
+;;; ...into your ~/.dswm or ~/.dswm.d/init.lisp
 ;;;
 ;;; Then you can use "%D" in your mode line format.
 ;;; You can customize the modeline format (*disk-modeline-fmt*). See the

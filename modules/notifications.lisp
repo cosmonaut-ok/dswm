@@ -23,9 +23,9 @@
 ;; They can send messages via `dsish' which will be displayed in the
 ;; mode-line.  (Thus `dsish' has to be in your PATH.)
 ;;
-;; To use it add this to your ~/.dswmrc.lisp:
+;; To use it add this to your ~/.dswm or ~/.dswm.d/init.lisp.lisp:
 ;;
-;;   (load "/path/to/dswm/contrib/notifications.lisp")
+;;   (load-module "notifications")
 ;;
 ;; Then add the formatter %N to your mode-line spec, i.e. like this:
 ;;

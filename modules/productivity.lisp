@@ -35,7 +35,7 @@
 
 ;;; Usage:
 ;;
-;; Just add the following line to your .dswmrc file:
+;; Just add the following line to your .dswm or ~/.dswm.d/init.lisp file:
 ;;
 ;; (load-module "productivity")
 ;;
@@ -50,11 +50,11 @@
 ;; what you're supposed to be doing. To escape from this mode, just
 ;; hit the key you have `productivity-mode-toggle' bound to again.
 ;;
-;; Absolutely DO NOT start productivity-mode from your .dswmrc file
+;; Absolutely DO NOT start productivity-mode from your .dswm or ~/.dswm.d/init.lisp file
 ;; unless you (a) are absolutely *sure* you have
 ;; productivity-mode-toggle bound to a key already, (b) automatically
 ;; switch to a window capable of controlling DSWM (i.e., Emacs or a
-;; terminal) in your .dswmrc, (c) want to convince your friends
+;; terminal) in your .dswm or ~/.dswm.d/init.lisp, (c) want to convince your friends
 ;; your computer is broken, or (d) are crazy.
 
 ;;; Configuration:

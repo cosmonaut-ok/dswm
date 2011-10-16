@@ -60,8 +60,8 @@
                                   0))
 
 #+ ecl
-(when (probe-file "dswm-mono")
-  (when (probe-file "dswm") (delete-file "dswm"))
+(when (file-exists-p "dswm-mono")
+  (when (file-exists-p "dswm") (delete-file "dswm"))
   (rename-file "dswm-mono" "dswm"))
 
 #-(or sbcl clisp openmcl ecl) (error "This lisp implementation is not supported.")

@@ -26,7 +26,7 @@
 ;;;
 ;;;     (load-module "mpd")
 ;;;
-;;; ...into your ~/.dswmrc
+;;; ...into your ~/.dswm or ~/.dswm.d/init.lisp
 ;;;
 ;;; Then you can use "%m" in your mode line format, as well as various commands
 ;;; defined at the end of the file.

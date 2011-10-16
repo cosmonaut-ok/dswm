@@ -24,9 +24,9 @@
 ;;;
 ;;; Put:
 ;;;
-;;;     (load "/path/to/g15-keysyms.lisp")
+;;;     (load-module "g15-keysyms")
 ;;;     (g15-original) or (g15-revised) deppending of the model you have.
-;;; In your ~/.dswmrc
+;;; In your ~/.dswm or ~/.dswm.d/init.lisp
 ;;;
 
 (in-package #:dswm)

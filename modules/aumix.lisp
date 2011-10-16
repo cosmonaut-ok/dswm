@@ -26,7 +26,7 @@
 ;;;
 ;;;     (load-module "aumix")
 ;;;
-;;; In your ~/.dswmrc
+;;; In your ~/.dswm or ~/.dswm.d/init.lisp
 
 (in-package :dswm-user)
 

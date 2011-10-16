@@ -62,6 +62,17 @@
   ("s-9"  "select-window-by-number 9")  ;+-
   ("s-0"  "select-window-by-number 0")  ;+-
 
+  ("C-s-0"     "pull 0")
+  ("C-s-1"     "pull 1")
+  ("C-s-2"     "pull 2")
+  ("C-s-3"     "pull 3")
+  ("C-s-4"     "pull 4")
+  ("C-s-5"     "pull 5")
+  ("C-s-6"     "pull 6")
+  ("C-s-7"     "pull 7")
+  ("C-s-8"     "pull 8")
+  ("C-s-9"     "pull 9")
+
   ("s-f" "fselect")
   ("s-m" "move-window-to-frame")
   ("s-\"" "windowlist")

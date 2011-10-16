@@ -1,3 +1,4 @@
+
 ;;; This is asdf: Another System Definition Facility.  $Revision: 1.109 $
 ;;;
 ;;; Feedback, bug reports, and patches are all welcome: please mail to
@@ -367,7 +368,7 @@ and NIL NAME and TYPE components"
 			  (make-pathname
 			   :defaults defaults :version :newest
 			   :name name :type "asd" :case :local))))
-	  (if (and file (probe-file file))
+	  (if (and file (file-exists-p file))
 	      (return file)))))))
 
 (defun make-temporary-package ()
@@ -643,7 +644,7 @@ system."))
             ((not in-files) nil)
             (t
              (and
-              (every #'probe-file out-files)
+              (every #'file-exists-p out-files)
               (> (apply #'min (mapcar #'file-write-date out-files))
                  (apply #'max (mapcar #'fwd-or-return-t in-files)))))))))
 
@@ -873,7 +874,7 @@ system."))
 
 (defmethod load-preferences ((s system) (operation basic-load-op))
   (let* ((*package* (find-package :common-lisp))
-         (file (probe-file (preference-file-for-system/operation s operation))))
+         (file (file-exists-p (preference-file-for-system/operation s operation))))
     (when file 
       (when *verbose-out*
 	(format *verbose-out* 
@@ -1265,7 +1266,7 @@ output to *VERBOSE-OUT*.  Returns the shell's exit code."
                                         :case :local
                                         :version :newest)
                          home)))
-          (probe-file contrib)))))
+          (file-exists-p contrib)))))
   
   (pushnew
    '(let ((home (sb-ext:posix-getenv "SBCL_HOME")))

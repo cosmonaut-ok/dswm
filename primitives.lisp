@@ -34,6 +34,8 @@
           *frame-indicator-text*
           *frame-indicator-timer*
           *message-window-timer*
+	  *command-mode-start-hook*
+          *command-mode-end-hook*
           *urgent-window-hook*
           *new-window-hook*
           *destroy-window-hook*
@@ -43,12 +45,26 @@
           *internal-loop-hook*
           *focus-frame-hook*
           *new-frame-hook*
+	  *split-frame-hook*
           *message-hook*
           *top-level-error-hook*
           *focus-group-hook*
           *key-press-hook*
           *root-click-hook*
           *mode-line-click-hook*
+	  *mode-line-background-color*
+	  *mode-line-border-color*
+	  *mode-line-border-width*
+	  *mode-line-foreground-color*
+	  *mode-line-pad-x*
+	  *mode-line-pad-y*
+	  *mode-line-position*
+	  *mode-line-timeout*
+	  *hidden-window-color*
+	  *screen-mode-line-format*
+	  *screen-mode-line-formatters*
+	  *screen-widget-line-format*
+	  *screen-window-list-line-format*
           *display*
           *shell-program*
           *maxsize-border-width*
@@ -76,7 +92,7 @@
           *debug-level*
           *debug-expose-events*
           *debug-stream*
-          *window-frmatters*
+          *window-formatters*
           *window-format*
           *group-formatters*
           *group-format*
@@ -111,10 +127,9 @@
           *default-group-name*
           *window-border-style*
           *data-dir*
-	  *old-group*
           add-hook
 	  add-to-list
-          clear-window-placement-rules
+	  concat
           data-dir-file
           dformat
           define-frame-preference
@@ -123,6 +138,9 @@
           remove-hook
           run-hook
           run-hook-with-args
+          ;; command-mode-start-message ;; New stumpwm code
+          ;; command-mode-end-message ;; New stumpwm code
+	  *mode*
           split-string
 	  with-restarts-menu
           with-data-file
@@ -152,7 +170,17 @@ be an integer.")
 (defvar *message-window-timer* nil
   "Keep track of the timer that hides the message window.")
 
+;; New stuwmpwm code
+(defvar *grab-pointer-count* 0
+  "The number of times the pointer has been grabbed")
+
 ;;; Hooks
+
+(defvar *command-mode-start-hook* '(command-mode-start-message)
+  "A hook called whenever command mode is started")
+
+(defvar *command-mode-end-hook* '(command-mode-end-message)
+  "A hook called whenever command mode is ended")
 
 (defvar *urgent-window-hook* '()
   "A hook called whenever a window sets the property indicating that
@@ -194,6 +222,10 @@ called with 2 arguments: the current frame and the last frame.")
   "A hook called when a new frame is created. the hook is called with
 the frame as an argument.")
 
+(defvar *split-frame-hook* '()
+  "A hook called when a frame is split. the hook is called with
+the old frame (window is removed), and two new frames as arguments.")
+
 (defvar *message-hook* '()
   "A hook called whenever dswm displays a message. The hook
 function is passed any number of arguments. Each argument is a
@@ -220,6 +252,93 @@ window, the button clicked, and the x and y of the pointer.")
 (defvar *mode-line-click-hook* '()
   "Called whenever the mode-line is clicked. It is called with 4 arguments,
 the mode-line, the button clicked, and the x and y of the pointer.")
+
+(defvar *mode-line-position* :top
+  "Specifies where the mode line is displayed. Valid values are :top and :bottom.")
+
+(defvar *mode-line-border-width* 1
+  "Specifies how thick the mode line's border will be. Integer value.")
+
+(defvar *mode-line-pad-x* 5
+  "Specifies the number of padding pixels between the text and the side of the mode line. Integer value.")
+
+(defvar *mode-line-pad-y* 1
+  "The number of padding pixels between the modeline text and the top/bottom of the modeline? Integer value.")
+
+(defvar *mode-line-background-color* "SteelBlue"
+  "The mode line background color.")
+
+(defvar *mode-line-foreground-color* "White"
+  "The mode line foreground color.")
+
+(defvar *mode-line-border-color* "Black"
+  "The mode line border color.")
+
+(defvar *hidden-window-color* "^5*"
+  "Color command for hidden windows when using the
+fmt-head-window-list-hidden-windows formatter. To disable coloring
+hidden windows, set this to an empty string.")
+
+(defvar *screen-widget-line-format* "%d[%g]")
+
+(defvar *screen-window-list-line-format* "%U%W")
+
+(defvar *screen-mode-line-format* nil
+  "DEPRECATED. Use *screen-widget-line-format* and *screen-window-list-line-format*
+This variable describes what will be displayed on the modeline for each screen.
+Turn it on with the function TOGGLE-MODE-LINE or the mode-line command.
+
+It is a list where each element may be a string, a symbol, or a list.
+
+For a symbol its value is used.
+
+For a list of the form (:eval FORM) FORM is evaluated and the
+result is used as a mode line element.
+
+If it is a string the string is printed with the following formatting
+options:
+
+@table @asis
+@item %h
+List the number of the head the mode-line belongs to
+
+@item %w
+List all windows in the current group windows using @var{*window-format*}
+
+@item %W
+List all windows on the current head of the current group using
+@var{*window-format*}
+
+@item %g
+List the groups using @var{*group-format*}
+@end table")
+
+(defvar *mode-line-timeout* 1
+  "The modeline updates after each command, when a new window appears or
+an existing one disappears, and on a timer. This variable controls how
+many seconds elapse between each update. If this variable is changed
+while the modeline is visible, you must toggle the modeline to update
+timer.")
+
+(defvar *mode-line-timer* nil
+  "The timer that updates the modeline
+FIXME: do it around builtin timers")
+
+(defvar *mode-line-blinker* nil
+  "Variable for blink urgent windows, or widgets")
+
+(defvar *screen-mode-line-formatters* '((#\w fmt-window-list)
+                                        (#\g fmt-group-list)
+                                        (#\h fmt-head)
+                                        (#\n fmt-group)
+                                        (#\W fmt-head-window-list)
+                                        (#\u fmt-urgent-window-list)
+					(#\U fmt-blink-urgent-window-list)
+                                        (#\v fmt-head-window-list-hidden-windows)
+                                        (#\d fmt-modeline-time))
+  "An alist containing format character format function pairs for
+formatting screen mode-lines. functions are passed the screen's
+current group.")
 
 ;; Data types and globals used by dswm
 
@@ -250,6 +369,13 @@ the mode-line, the button clicked, and the x and y of the pointer.")
 (defvar *text-color* "white"
   "The color of message text.")
 
+(defvar *menu-maximum-height* nil
+  "Defines the maxium number of lines to display in the menu before enabling
+   scrolling. If NIL scrolling is disabled.")
+
+(defvar *menu-scrolling-step* 1
+  "Number of lines to scroll when hitting the menu list limit.")
+
 (defparameter +netwm-supported+
   '(:_NET_SUPPORTING_WM_CHECK
     :_NET_NUMBER_OF_DESKTOPS
@@ -268,6 +394,7 @@ the mode-line, the button clicked, and the x and y of the pointer.")
     :_NET_CLIENT_LIST
     :_NET_CLIENT_LIST_STACKING
     :_NET_ACTIVE_WINDOW
+    :_NET_WM_DESKTOP
     :_KDE_NET_SYSTEM_TRAY_WINDOW_FOR)
   "Supported NETWM properties.
 Window types are in +WINDOW-TYPES+.")
@@ -379,6 +506,21 @@ Use the window's resource class.
 Use the window's resource name.
 @end table")
 
+(defvar *show-tip-of-the-day-p* t
+  "Set, if needed to show tip of the day")
+
+(defvar *scratchpad-group* nil
+  "For scratchpad group")
+
+(defvar *mode* '()
+  "EXPERIMENTAL: Set enabled modes list
+Available modes: session-transparent, interactive
+session-transparent: set dswm behavior wich transparent throuth working
+                     sessions. All configurations have to be reverted
+                     after new logon
+interactive:         set behavior, which will propose alternative, actions
+                     instead errors, when you do something wrong")
+
 (defstruct frame
   (number nil :type integer)
   x
@@ -432,7 +574,7 @@ exist, in which case they go into the current group.")
    (frame-outline-gc :initform nil :accessor screen-frame-outline-gc)
    ;; color contexts
    (message-cc :initform nil :accessor screen-message-cc)
-   (mode-line-cc :initform nil :accessor screen-mode-line-cc)
+
    ;; color maps
    (color-map-normal :initform nil :accessor screen-color-map-normal)
    (color-map-bright :initform nil :accessor screen-color-map-bright)
@@ -466,7 +608,13 @@ exist, in which case they go into the current group.")
   (format stream "#S(frame ~d ~a ~d ~d ~d ~d)"
           (frame-number object) (frame-window object) (frame-x object) (frame-y object) (frame-width object) (frame-height object)))
 
-(defvar *frame-number-map* "123456789abcdefghijklmnopqrstuvxwyz"
+(defvar *window-number-map* "0123456789"
+  "Set this to a string to remap the window numbers to something more convenient.")
+
+(defvar *group-number-map* "123456789"
+  "Set this to a string to remap the group numbers to something more convenient.")
+
+(defvar *frame-number-map* "123456789"
   "Set this to a string to remap the frame numbers to more convenient keys.
 For instance,
 
@@ -703,7 +851,8 @@ output directly to a file.")
                                  (if (typep ch 'standard-char)
                                      ch #\?))
                        (apply 'format nil fmt args))
-                  *debug-stream*)))
+                  *debug-stream*)
+    (force-output *debug-stream*)))
 
 (defvar *redirect-stream* nil
   "This variable Keeps track of the stream all output is sent to when
@@ -769,7 +918,7 @@ do:
             (setf output (concatenate 'string output (string (car cur)))
                   cur (cdr cur)))))))
 
-(defvar *window-formatters* '((#\n window-number)
+(defvar *window-formatters* '((#\n window-map-number)
                               (#\s fmt-window-status)
                               (#\t window-name)
                               (#\c window-class)
@@ -787,7 +936,8 @@ with the following formatting options:
 
 @table @asis
 @item %n
-Substitute the window number.
+Substitutes the windows number translated via *window-number-map*, if there
+are more windows than *window-number-map* then will use the window-number.
 @item %s
 Substitute the window's status. * means current window, + means last
 window, and - means any other window.
@@ -805,10 +955,10 @@ Note, a prefix number can be used to crop the argument to a specified
 size. For instance, @samp{%20t} crops the window's title to 20
 characters.")
 
-(defvar *window-info-format* "%wx%h %n (%t)"
+(defvar *window-info-format* (format nil "Size~15t:~t%wx%h~%Window number~15t:~t%n~%Title~15t:~t%t)")
   "The format used in the info command. @xref{*window-format*} for formatting details.")
 
-(defvar *group-formatters* '((#\n group-number)
+(defvar *group-formatters* '((#\n group-map-number)
                              (#\s fmt-group-status)
                              (#\t group-name))
   "An alist of characters and formatter functions. The character can be
@@ -955,18 +1105,16 @@ window, and returns the preferred frame or a list of the above preferences.")
   (with-output-to-string (*standard-output*)
     (print-backtrace)))
 
-(defvar *startup-message* "^7*Welcome to The ^BD^beep ^BS^bpace ^BW^bindow ^BM^banager!
-Press ^5*~a ?^7* for help."
-  "This is the message DSWM displays when it starts. Set it to NIL to
-suppress.")
-
 (defvar *default-package* (find-package '#:dswm-user)
   "This is the package eval reads and executes in. You might want to set
 this to @code{:dswm} if you find yourself using a lot of internal
 dswm symbols. Setting this variable anywhere but in your rc file
 will have no effect.")
 
-
+(defun concat (&rest strings)
+  "Concatenates strings, like the Unix command 'cat'.
+A short for (concatenate 'string foo bar)."
+  (apply 'concatenate 'string strings))
 
 (defvar *window-placement-rules* '()
   "List of rules governing window placement. Use define-frame-preference to
@@ -1026,10 +1174,6 @@ The window's title must match @var{title}.
          (push (list* ,target-group frame-number raise lock keys)
                *window-placement-rules*)))))
 
-(defun clear-window-placement-rules ()
-  "Clear all window placement rules."
-  (setf *window-placement-rules* nil))
-
 (defvar *mouse-focus-policy* :sloppy
   "The mouse focus policy decides how the mouse affects input
 focus. Possible values are :ignore, :sloppy, and :click. :ignore means
@@ -1037,7 +1181,7 @@ dswm ignores the mouse. :sloppy means input focus follows the
 mouse; the window that the mouse is in gets the focus. :click means
 input focus is transfered to the window you click on.")
 
-(defvar *root-click-focuses-frame* nil
+(defvar *root-click-focuses-frame* t
   "Set to NIL if you don't want clicking the root window to focus the frame
   containing the pointer when *mouse-focus-policy* is :click.")
 
@@ -1110,6 +1254,13 @@ The directory used by dswm to store data between sessions.")
   (ensure-directories-exist (data-dir))
   (make-pathname :name name :type type :defaults (data-dir)))
 
+;; Names of dump files
+(defvar *desktop-dump-file* (data-dir-file "desktop" "rules")
+  "Default filename for dump group placement rules")
+
+(defvar *window-placement-dump-file* (data-dir-file "window-placement" "rules")
+    "Default filename for dump window placement rules")
+
 (defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) &body body)
   "Open a file in DSWM's data directory. keyword arguments are sent
 directly to OPEN. Note that IF-EXISTS defaults to :supersede, instead
@@ -1142,16 +1293,12 @@ of :error."
      (:invert (string-downcase thing)))
    package))
 
-(defun unix-getenv (name &optional default)
-  #+CMU
-  (let ((x (assoc name ext:*environment-list*
-		  :test #'string=)))
-    (if x (cdr x) default))
-  #-CMU
-  (or
-   #+Allegro (sys:getenv name)
-   #+CLISP (ext:getenv name)
-   #+ECL (si:getenv name)
-   #+SBCL (sb-unix::posix-getenv name)
-   #+LISPWORKS (lispworks:environment-variable name)
-   default))
+(defun command-mode-start-message ()
+  (message "Press C-g to exit command-mode."))
+
+(defun command-mode-end-message ()
+  (message "Exited command-mode."))
+
+(defun interactive (&rest body)
+  "For emacs themes compability"
+  t)

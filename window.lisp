@@ -49,6 +49,7 @@
    (parent                    :accessor window-parent)
    (title   :initarg :title   :accessor window-title)
    (user-title :initform nil  :accessor window-user-title)
+   (tags    :initform nil     :accessor window-tags)
    (class   :initarg :class   :accessor window-class)
    (type    :initarg :type    :accessor window-type)
    (res     :initarg :res     :accessor window-res)
@@ -58,7 +59,8 @@
    (normal-hints :initarg :normal-hints :accessor window-normal-hints)
    (marked  :initform nil     :accessor window-marked)
    (plist   :initarg :plist   :accessor window-plist)
-   (fullscreen :initform nil  :accessor window-fullscreen)))
+   (fullscreen :initform nil  :accessor window-fullscreen)
+   (hints :initform nil :initarg :wm-hints :accessor window-hints)))
 
 (defmethod print-object ((object window) stream)
   (format stream "#S(~a ~s #x~x)" (type-of object) (window-name object) (window-id object)))
@@ -254,6 +256,12 @@ _NET_WM_STATE_DEMANDS_ATTENTION set"
                    :format 32
                    :data data))
 
+(defun window-map-number (window)
+  (let ((num (window-number window)))
+    (or (and (< num (length *window-number-map*))
+             (elt *window-number-map* num))
+        num)))
+
 (defun fmt-window-status (window)
   (let ((group (window-group window)))
     (cond ((eq window (group-current-window group))
@@ -376,7 +384,7 @@ _NET_WM_STATE_DEMANDS_ATTENTION set"
   (setf (xlib:drawable-border-width win) width))
 
 (defun default-border-width-for-type (window)
-  (or (and (xwin-maxsize-p (window-xwin window))
+  (or (and (window-maxsize-p (window-xwin window))
            *maxsize-border-width*)
       (ecase (window-type window)
         (:dock 0)
@@ -412,23 +420,25 @@ _NET_WM_STATE_DEMANDS_ATTENTION set"
         (setf (gethash ,attr (window-plist ,win))) ,val))))
 
 (defun sort-windows (group)
-  "Return a copy of the screen's window list sorted by number."
-  ;;(sort1 (group-windows group) '< :key 'window-number)
-  ;;Experimental windows sorting
+  "Return a copy of the screen's window list sorted by usage (emacs-like behavior)"
   (let ((win-list
 	 (sort1 (group-windows group) '< :key 'window-state)))
     (cond
      ((< 2 (length win-list))
       (cons (cadr win-list)
     	    (cons (car win-list) (cddr win-list))))
-    ((> 2 (length win-list))
-     win-list)
-    (t
-     (reverse win-list)))))
+     ((> 2 (length win-list))
+      win-list)
+     (t
+      (reverse win-list)))))
+
+(defun sort-windows-by-number (group)
+  "Return a copy of the screen's window list sorted by number."
+  (sort1 (group-windows group) '< :key 'window-number))
 
 (defun marked-windows (group)
   "Return the marked windows in the specified group."
-  (loop for i in (sort-windows group)
+  (loop for i in (sort-windows-by-number group)
         when (window-marked i)
         collect i))
 
@@ -497,7 +507,7 @@ _NET_WM_STATE_DEMANDS_ATTENTION set"
       (when (eq window (current-window))
         (group-lost-focus (window-group window))))))
 
-(defun xwin-maxsize-p (win)
+(defun window-maxsize-p (win)
   "Returns T if WIN specifies maximum dimensions."
   (let ((hints (get-normalized-normal-hints win)))
     (and hints (or (xlib:wm-size-hints-max-width hints)
@@ -573,7 +583,7 @@ and bottom_end_x."
 
 (defun gravity-for-window (win)
   (or (window-gravity win)
-      (and (xwin-maxsize-p (window-xwin win)) *maxsize-gravity*)
+      (and (window-maxsize-p (window-xwin win)) *maxsize-gravity*)
       (ecase (window-type win)
         (:dock *normal-gravity*)
         (:normal *normal-gravity*)
@@ -924,9 +934,9 @@ window. Default to the current window. if
       (message "No Focused Window")))
 
 ; Emacs-like
-(defcommand-alias title rename-frame)
+(defcommand-alias rename-window title)
 
-(defcommand select-window (query) ((:window-name "Select: "))
+(defcommand select-window (query) ((:window-name "Select window: "))
   "Switch to the first window that starts with @var{query}."
   (let (match)
     (labels ((match (win)
@@ -940,7 +950,7 @@ window. Default to the current window. if
 
 (defcommand-alias select select-window)
 
-(defcommand select-window-by-name (name) ((:window-name "Select: "))
+(defcommand select-window-by-name (name) ((:window-name "Select window: "))
   "Switch to the first window whose name is exactly @var{name}."
   (let ((win (find name (group-windows (current-group))
                    :test #'string= :key #'window-name)))
@@ -948,7 +958,7 @@ window. Default to the current window. if
       (group-focus-window (current-group) win))))
 
 (defcommand select-window-by-number (num &optional (group (current-group)))
-  ((:window-number "Select: "))
+  ((:window-number "Select window: "))
   "Find the window with the given number and focus it in its frame."
   (labels ((match (win)
 		  (= (window-number win) num)))
@@ -990,7 +1000,7 @@ is using the number, then the windows swap numbers. Defaults to current group."
 (defcommand repack-window-numbers (&optional preserved) ()
   "Ensure that used window numbers do not have gaps; ignore PRESERVED window numbers."
   (let* ((group (current-group))
-	 (windows (sort-windows group)))
+	 (windows (sort-windows-by-number group)))
     (loop for w in windows
 	  do (unless (find (window-number w) preserved)
 	       (setf
@@ -1015,7 +1025,9 @@ override the default window formatting."
             (throw 'error :abort)))))
 
 
-(defcommand window-send-string (string &optional (window (current-window))) ((:rest "Insert: "))
+(defcommand window-send-string (string &optional (window
+						  (current-window)))
+  ((:rest "Insert string to send: "))
   "Send the string of characters to the current window as if they'd been typed."
   (when window
     (map nil (lambda (ch)
@@ -1083,3 +1095,7 @@ be used to override the default window formatting."
     (set-window-geometry window
                          :width w
                          :height h)))
+
+(defcommand place-existing-windows () ()
+  "Re-arrange existing windows according to placement rules."
+  (sync-window-placement))

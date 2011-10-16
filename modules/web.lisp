@@ -82,6 +82,14 @@ inn - for international
      (ua "http://uk.wikipedia.org/wiki/" "")
      (nl "http://nl.wikipedia.org/w/index.php?search=" "")
      (ru "http://ru.wikipedia.org/wiki/" ""))
+    (citizendium wiki
+     (inn "http://en.citizendium.org/wiki/Special:Search?search=" "&fulltext=Search"))
+    (startrek wiki
+      (inn "http://memory-alpha.org/index.php?title=Special%3ASearch&redirs=1&search=" "&fulltext=Search&ns0=1&ns1=1&ns2=1&ns3=1&ns4=1&ns5=1&ns6=1&ns7=1&ns8=1&ns9=1&ns10=1&ns11=1&ns12=1&ns13=1&ns14=1&ns15=1&ns102=1&ns103=1&ns110=1&ns111=1&redirs=1&title=Special%3ASearch&advanced=1&fulltext=Advanced+search"))
+    (physics wiki
+     (inn "http://www.physics.thetangentbundle.net/wiki/Special:Search?ns0=1&ns4=1&search=" "&searchx=Search"))
+    (mathematics wiki
+     (inn "http://www.mathematics.thetangentbundle.net/wiki/Special:Search?ns0=1&ns4=1&search=" "&searchx=Search"))
     (progpedia wiki
      (ru "http://progopedia.ru/search/?cx=partner-pub-6767755207614565%3Ah93dnl-b2so&cof=FORID%3A10&ie=UTF-8&q="
          "&sa=%D0%9F%D0%BE%D0%B8%D1%81%D0%BA&siteurl=progopedia.ru%2F#974")
@@ -157,11 +165,11 @@ inn - for international
                                                name *engines-list*)))))
       (if (null
            (find-by-car 'inn (cddar (find-by-cdr type (find-by-car name *engines-list*)))))
-          (message "NIL-aaaaa")
-;;           "No such ~a engine with name ~a. Check value of
+          (message "NIL")
+;;        FIXME:   "No such ~a engine with name ~a. Check value of
 ;;                variable *default-~a-engine* and your location variable
 ;;                (*default-geolocation*)" type name type)
-          (cdar
+        (cdar
            (find-by-car 'inn
                         (cddar (find-by-cdr type
                                             (find-by-car name *engines-list*))))))
@@ -188,7 +196,7 @@ inn - for international
     )))
 
  (defcommand web-search-with-engine (engine search)
-  ((:search "Search with what? ") (:string "Search for what? "))
+  ((:search "Search with what? ") (:string-with-clipboard "Search for what? "))
   (run-engine-with-key
    (find-engine-parameters (intern (string-upcase engine)) 'search
                            (get-current-location)) search))
@@ -199,7 +207,7 @@ inn - for international
    (dswm::concat "web-search-with-engine " *default-search-engine*)))
 
  (defcommand wiki-search-with-engine (engine search)
-  ((:wiki "Search with what? ") (:string "Search for what? "))
+  ((:wiki "Search with what? ") (:string-with-clipboard "Search for what? "))
   (run-engine-with-key
    (find-engine-parameters (intern (string-upcase engine)) 'wiki
                            (get-current-location)) search))
@@ -210,7 +218,7 @@ inn - for international
    (dswm::concat "wiki-search-with-engine " *default-wiki-engine*)))
 
 (defcommand dict-search-with-engine (engine search)
-  ((:dict "Search with what? ") (:string "Search for what? "))
+  ((:dict "Search with what? ") (:string-with-clipboard "Search for what? "))
   (run-engine-with-key
    (find-engine-parameters (intern (string-upcase engine)) 'dict
                            (get-current-location)) search))
@@ -220,12 +228,12 @@ inn - for international
   (run-commands
    (dswm::concat "dict-search-with-engine " *default-dict-engine*)))
 
-(defcommand g-translate (what) ((:string "What do you want to translate? "))
-    "It`s just temporary, whether we don`t make good translate engine"
-    (run-shell-command
-     (dswm::concat *browser* " \"http://translate.google.com/#"
-                   (car *google-translate-languages*) "|"
-                   (cadr *google-translate-languages*) "|" what "\"")))
+(defcommand g-translate (what) ((:string-with-clipboard "What do you want to translate? "))
+  "It`s just temporary, whether we don`t make good translate engine"
+  (run-shell-command
+   (dswm::concat *browser* " \"http://translate.google.com/#"
+		 (car *google-translate-languages*) "|"
+		 (cadr *google-translate-languages*) "|" what "\"")))
 
 (defcommand web-jump (url) ((:string "Enter URL: "))
   "Open URL in default web-browser"
@@ -239,7 +247,7 @@ inn - for international
 (defvar *hyperbookmarks-browsers-list* '("firefox" "chromium" "opera"
   "dillo" "conkeror" "swiftfox" "iceape" "iceweacel" "seamonkey"
   "galeon" "arora" "epiphany" "konqueror" "rekonq" "midori" "omniweb"
-  "owb" "rockmelt" "Safari" "shiira" "sputnik" "uzbl")
+  "owb" "rockmelt" "Safari" "shiira" "uzbl")
   "Defines list of avaliable webbrowsers")
 
 (defvar *hyperbookmarks-file* (data-dir-file "hyperbookmarks" "list")
@@ -263,11 +271,15 @@ inn - for international
 
 (define-dswm-type :hb-url (input url)
   (or (argument-pop input)
-      (read-one-line (current-screen) url)))
+      (read-one-line (current-screen) url :initial-input (get-x-selection))))
                      ;; (if (not
                      ;;      (cl-ppcre:scan-to-strings "^http\:\/\/|^https\:\/\/" url)
                      ;;      (concat "http://" prompt)
                      ;;      prompt)))))
+
+(define-dswm-type :string-with-clipboard (input prompt)
+  (or (argument-pop input)
+      (read-one-line (current-screen) prompt :initial-input (get-x-selection))))
 
 (defun get-hyperbookmark-names-list (&optional (list *hyperbookmarks-list*))
   (cond
@@ -276,7 +288,7 @@ inn - for international
              (get-hyperbookmark-names-list (cdr list))))))
 
 (defun get-browsers-list ()
-  (let ((path (cl-ppcre:split ":" (dswm::unix-getenv "PATH")))
+  (let ((path (cl-ppcre:split ":" (dswm::getenv "PATH")))
         (browsers-list))
     (dolist (i *hyperbookmarks-browsers-list*)
       (dolist (j path)
@@ -316,8 +328,6 @@ inn - for international
 
 (defun dump-hyperbookmarks (&optional (hbdump *hyperbookmarks-list*))
   (dswm::dump-to-file hbdump *hyperbookmarks-file*))
-
-
 
 (defcommand hb-add (name browser url open-p)
   ((:string "Enter hyperbookmark name: ")
@@ -373,9 +383,14 @@ inn - for international
 
 ;; Initialization
 (hb-reload)
-(add-to-list *hyperbookmarks-list*
-             #S(DSWM-USER::HYPERBOOKMARK :NAME "dswm"
-                                         :BROWSER *browser*
-                                         :URL"http://dss-de.sourceforge.net/doku.php/dswm:en:index"))
+
+(defkeys-root
+    ("u" "hb-open")
+    ("M-s" "web-search")
+    ("M-w" "wiki-search")
+    ("M-d" "dict-search")
+    ("M-j" "web-jump")
+    ("M-g" "g-translate"))
+
 ;;; web.lisp ends here
 

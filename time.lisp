@@ -1,5 +1,4 @@
 ;; Copyright (C) 2003-2008 Ivy Foster
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -40,6 +39,7 @@
 
 (export '(*time-format-string-default*
 	  *time-modeline-string*
+	  time-format
 	  echo-date
 	  time))
 
@@ -71,7 +71,7 @@
     ;; (#\g)   last two digits of year of ISO week number (see %G)
     ;; (#\G)   year of ISO week  number (see %V); normally useful only with %V
     (#\h time-month-shortname)
-    (#\H time-hour)
+    (#\H time-hour-zero)
     (#\I time-hour-12hr-zero)
     ;; (#\j)   day of year (001..366)
     (#\k time-hour)
@@ -106,8 +106,7 @@
 
 (defcommand echo-date () ()
   "Display the date and time."
-  (message "~a" (format-expand *time-format-string-alist*
-			       *time-format-string-default*)))
+  (message "~a" (time-format *time-format-string-default*)))
 
 (defcommand-alias time echo-date)
 
@@ -212,21 +211,24 @@
 	     (encode-universal-time 0 0 0 1 1 1970 0))))
 
 (defun time-date-and-time ()
-  (format-expand *time-format-string-alist* "%a %h %d %H:%M:%S %Y"))
+  (time-format "%a %h %d %H:%M:%S %Y"))
 
 (defun time-date ()
-  (format-expand *time-format-string-alist* "%m/%d/%y"))
+  (time-format "%m/%d/%y"))
 
 (defun time-date-full ()
-  (format-expand *time-format-string-alist* "%Y-%m-%d"))
+  (time-format "%Y-%m-%d"))
 
 (defun time-12hr-time ()
-  (format-expand *time-format-string-alist* "%I:%M:%S %P"))
+  (time-format "%I:%M:%S %P"))
 
 (defun time-24hr-and-minute ()
-  (format-expand *time-format-string-alist* "%H:%M"))
+  (time-format "%H:%M"))
 
 (defun time-24hr-time ()
-  (format-expand *time-format-string-alist* "%H:%M:%S"))
+  (time-format "%H:%M:%S"))
+
+(defun time-format (str)
+  (format-expand *time-format-string-alist* str))
 
 ;;; End of file

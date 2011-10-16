@@ -194,13 +194,15 @@ then call (update-color-map).")
     (loop for s in strings
           ;; We need this so we can track the row for each element
           for i from 0 to (length strings)
-          do (let ((x 0) (off 0))
+          do (let ((x 0) (off 0) (len (length s)))
                (loop
                 for st = 0 then (+ en (1+ off))
                 as en = (position #\^ s :start st)
                 do (progn
-                     (let ((en (if (and en (eq #\^ (elt s (1+ en)))) (1+ en) en)))
-                       (when draw
+		     (let ((en (cond ((and en (= (1+ en) len)) nil)
+				     ((and en (char= #\^ (char s (1+ en)))) (1+ en))
+				     (t en))))
+		       (when draw
                          (xlib:draw-image-glyphs px gc
                                                  (+ padx x)
                                                  (+ pady (* i height)
@@ -208,11 +210,22 @@ then call (update-color-map).")
                                                  (subseq s st en)
                                                  :translate #'translate-id
                                                  :size 16))
-                       (setf x (+ x (xlib:text-width (screen-font screen) (subseq s st en) :translate #'translate-id))))
-                     (when en
-                       (setf off (set-color screen cc s (1+ en))))
-                     (setf width (max width x)))
-                while en))
+		       (setf x (+ x (xlib:text-width (screen-font screen) (subseq s st en) :translate #'translate-id))
+			     width (max width x)))
+		     (when (and en (< (1+ en) len))
+		       ;; right-align rest of string?
+		       (if (char= #\> (char s (1+ en)))
+			   (progn
+			     (when draw
+			       (setf x (- (xlib:drawable-width px) (* 2 padx)
+					  ;; get width of rest of s
+					  (render-strings screen cc padx pady
+							  (list (subseq s (+ en 2)))
+							  '() nil))
+				     width (- (xlib:drawable-width px) (* 2 padx))))
+			     (setf off 1))
+			   (setf off (set-color screen cc s (1+ en))))))
+		  while en))
           when (find i highlights :test 'eql)
           do (when draw (invert-rect screen px
                                      0 (* i height)
@@ -222,6 +235,84 @@ then call (update-color-map).")
       (xlib:copy-area px gc 0 0 (xlib:drawable-width px) (xlib:drawable-height px) win 0 0))
     (set-color screen cc "n" 0)
     width))
+
+;; (defun render-strings (screen cc padx pady strings highlights &optional (draw t))
+;;   (let* ((height (+ (xlib:font-descent (screen-font screen))
+;;                     (xlib:font-ascent (screen-font screen))))
+;;          (width 0)
+;;          (gc (ccontext-gc cc))
+;;          (win (ccontext-win cc))
+;;          (px (ccontext-px cc))
+;;          (*foreground* nil)
+;;          (*background* nil)
+;;          (*reverse* nil)
+;;          (*color-stack* '())
+;;          (*color-map* (screen-color-map-normal screen)))
+;;     (when draw
+;;       (when (or (not px)
+;;                 (/= (xlib:drawable-width px) (xlib:drawable-width win))
+;;                 (/= (xlib:drawable-height px) (xlib:drawable-height win)))
+;;         (when px (xlib:free-pixmap px))
+;;         (setf px (xlib:create-pixmap :drawable win
+;;                                      :width (xlib:drawable-width win)
+;;                                      :height (xlib:drawable-height win)
+;;                                      :depth (xlib:drawable-depth win))
+;;               (ccontext-px cc) px))
+;;       (xlib:with-gcontext (gc :foreground (xlib:gcontext-background gc))
+;;         (xlib:draw-rectangle px gc 0 0 (xlib:drawable-width px) (xlib:drawable-height px) t)))
+;;     (loop for s in strings
+;;           ;; We need this so we can track the row for each element
+;;           for i from 0 to (length strings)
+;;           do (let ((x 0) (off 0))
+;;                (loop
+;;                 for st = 0 then (+ en (1+ off))
+;;                 as en = (position #\^ s :start st)
+;;                 do (progn
+;;                      (let
+;; 			 ;; DIFF stump-14571fc4b5deec581e1c9be663dbdc7a69db3dc0
+;; 			 ((en (cond ((and en (= (1+ en) len)) nil)
+;; 				    ((and en (char= #\^ (char s (1+ en)))) (1+ en))
+;; 				    (t en))))
+;; ;;			 ((en (if (and en (eq #\^ (elt s (1+ en)))) (1+ en) en)))
+
+;; 		       (when draw
+;;                          (xlib:draw-image-glyphs px gc
+;;                                                  (+ padx x)
+;;                                                  (+ pady (* i height)
+;;                                                     (xlib:font-ascent (screen-font screen)))
+;;                                                  (subseq s st en)
+;;                                                  :translate #'translate-id
+;;                                                  :size 16))
+;;                        (setf x (+ x (xlib:text-width (screen-font screen) (subseq s st en) :translate #'translate-id))))
+;; 		     ;; DIFF stump-14571fc4b5deec581e1c9be663dbdc7a69db3dc0
+;; 		     (when (and en (< (1+ en) len))
+;; 		       ;; right-align rest of string?
+;; 		       (if (char= #\> (char s (1+ en)))
+;; 			   (progn
+;; 			     (when draw
+;; 			       (setf x (- (xlib:drawable-width px) (* 2 padx)
+;; 					  ;; get width of rest of s
+;; 					  (render-strings screen cc padx pady
+;; 							  (list (subseq s (+ en 2)))
+;; 							  '() nil))
+;; 				     width (- (xlib:drawable-width px) (* 2 padx))))
+;; 			     (setf off 1))
+;; 			   (setf off (set-color screen cc s (1+ en))))))
+;; 		  while en))
+;;                 ;;      (when en
+;;                 ;;        (setf off (set-color screen cc s (1+ en))))
+;;                 ;;      (setf width (max width x)))
+;;                 ;; while en))
+
+;;           when (find i highlights :test 'eql)
+;;           do (when draw (invert-rect screen px
+;;                                      0 (* i height)
+;;                                      (xlib:drawable-width px)
+;;                                      height)))
+;;     (when draw
+;;       (xlib:copy-area px gc 0 0 (xlib:drawable-width px) (xlib:drawable-height px) win 0 0))
+;;     (set-color screen cc "n" 0)
+;;     width))
 
 ;;; FIXME: It would be nice if the output of this parser was used to
 ;;; draw the text, but the current drawing implementation is probably

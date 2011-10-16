@@ -39,6 +39,7 @@
    :res (xwin-res-name xwin)
    :role (xwin-role xwin)
    :type (xwin-type xwin)
+   :wm-hints (xlib:wm-hints xwin)
    :normal-hints (get-normalized-normal-hints xwin)
    :state +iconic-state+
    :plist (make-hash-table)
@@ -96,7 +97,7 @@
             (cond (group
                    (when (and restore (stringp restore))
                      (let ((restore-file (data-dir-file restore)))
-                       (if (probe-file restore-file)
+                       (if (file-exists-p restore-file)
                            (restore-group group
                                           (read-dump-from-file restore-file))
                            (message "^B^1*Can't restore group \"^b~a^B\" with \"^b~a^B\"."
@@ -108,7 +109,7 @@
                                            (data-dir-file create)
                                            (data-dir-file group-name))))
                      (if (and new-group
-                              (probe-file restore-file))
+                              (file-exists-p restore-file))
                          (restore-group new-group
                                         (read-dump-from-file restore-file))
                          (when (stringp create)
@@ -183,30 +184,57 @@ housekeeping."
       ;; simply fall back to the default then.
       ((and (listp preferred-frame)
             (every #'keywordp preferred-frame))
-       (loop for i in preferred-frame
-          thereis (case i
-                    (:last
-                     ;; last-frame can be stale
-                     (and (> (length frames) 1)
-                          (tile-group-last-frame group)))
-                    (:unfocused
-                     (find-if (lambda (f)
-                                (not (eq f (tile-group-current-frame group))))
-                              frames))
-                    (:empty
-                     (find-if (lambda (f)
-                                (null (frame-window f)))
-                              frames))
-                    (:choice
-                     ;; Transient windows sometimes specify a location
-                     ;; relative to the TRANSIENT_FOR window. Just ignore
-                     ;; these hints.
-                     (unless (find (window-type window) '(:transient :dialog))
-                       (let ((hints (window-normal-hints window)))
-                         (when (and hints (xlib:wm-size-hints-user-specified-position-p hints))
-                           (find-frame group (window-x window) (window-y window))))))
-                    (t                  ; :focused or not recognized keyword
-                     default))))
+              (or
+        (loop for i in preferred-frame
+           thereis (case i
+                     (:last
+                      ;; last-frame can be stale
+                      (and (> (length frames) 1)
+                           (tile-group-last-frame group)))
+                     (:unfocused
+                      (find-if (lambda (f)
+                                 (not (eq f (tile-group-current-frame group))))
+                               frames))
+                     (:empty
+                      (find-if (lambda (f)
+                                 (null (frame-window f)))
+                               frames))
+                     (:choice
+                      ;; Transient windows sometimes specify a location
+                      ;; relative to the TRANSIENT_FOR window. Just ignore
+                      ;; these hints.
+                      (unless (find (window-type window) '(:transient :dialog))
+                        (let ((hints (window-normal-hints window)))
+                          (when (and hints (xlib:wm-size-hints-user-specified-position-p hints))
+                            (find-frame group (window-x window) (window-y window))))))))
+        default))
+
+       ;; Old dswm code
+       ;; (loop for i in preferred-frame
+       ;;    thereis (case i
+       ;;              (:last
+       ;;               ;; last-frame can be stale
+       ;;               (and (> (length frames) 1)
+       ;;                    (tile-group-last-frame group)))
+       ;;              (:unfocused
+       ;;               (find-if (lambda (f)
+       ;;                          (not (eq f (tile-group-current-frame group))))
+       ;;                        frames))
+       ;;              (:empty
+       ;;               (find-if (lambda (f)
+       ;;                          (null (frame-window f)))
+       ;;                        frames))
+       ;;              (:choice
+       ;;               ;; Transient windows sometimes specify a location
+       ;;               ;; relative to the TRANSIENT_FOR window. Just ignore
+       ;;               ;; these hints.
+       ;;               (unless (find (window-type window) '(:transient :dialog))
+       ;;                 (let ((hints (window-normal-hints window)))
+       ;;                   (when (and hints (xlib:wm-size-hints-user-specified-position-p hints))
+       ;;                     (find-frame group (window-x window) (window-y window))))))
+       ;;              (t                  ; :focused or not recognized keyword
+       ;;               default))))
+      
       ;; Not well formed `*new-window-preferred-frame*'.  Message an error and
       ;; return the default.
       (t (message "^1*^BInvalid ^b^3**new-window-preferred-frame*^1*^B: ^n~a"

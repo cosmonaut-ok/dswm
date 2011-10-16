@@ -90,7 +90,7 @@
 
 ;;; Commands
 
-(defcommand putsel (string) ((:rest "Text: "))
+(defcommand putsel (string) ((:rest "Enter text to put it: "))
   "Stuff the string @var{string} into the X selection."
   (set-x-selection string))
 

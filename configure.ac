@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(Deep Space Window Manager (part of Deep Space Style project), 0.0.3-1, cosmonaut.ok@gmail.com)
+AC_INIT(Deep Space Window Manager (part of Deep Space Style project), 0.0.4, cosmonaut.ok@gmail.com)
 
 AC_SUBST(MODULES_DIR)
 AC_SUBST(LISP_PROGRAM)
@@ -32,22 +32,6 @@ if test -x "$CLISP_PATH"; then
    AC_MSG_RESULT($CLISP)
 else
    AC_PATH_PROG([CLISP],clisp,"")
-fi
-
-if test -x "$CCL_PATH"; then
-   CCL=$CCL_PATH
-   AC_MSG_CHECKING([for ccl])
-   AC_MSG_RESULT($CCL)
-else
-   AC_PATH_PROG([CCL],ccl,"")
-fi
-
-if test -x "$ECL_PATH"; then
-   ECL=$ECL_PATH
-   AC_MSG_CHECKING([for ecl])
-   AC_MSG_RESULT($ECL)
-else
-   AC_PATH_PROG([ECL], ecl,"")
 fi
 
 if test "x$LISP" = "xclisp"; then
@@ -118,7 +102,8 @@ fi
 # Checks for library functions.
 AC_OUTPUT(Makefile)
 AC_OUTPUT(make-image.lisp)
-AC_OUTPUT(version.lisp)
 AC_OUTPUT(module.lisp)
+AC_OUTPUT(help.lisp)
 AC_OUTPUT(dswm.desktop)
 AC_OUTPUT(dswm.texi)
+AC_OUTPUT(dswm.asd)

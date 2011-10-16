@@ -79,11 +79,9 @@
 (defmethod update-decoration ((window float-window))
   (let ((group (window-group window)))
     (setf (xlib:window-background (window-parent window))
-          (xlib:alloc-color (xlib:screen-default-colormap (screen-number (window-screen window)))
-                            (if (eq (group-current-window group) window)
-				;; FIXME: realize not through constants
-				+default-focus-color+
-			      +default-unfocus-color+)))
+	  (if (eq (group-current-window group) window)
+	      (screen-focus-color (window-screen window))
+	    (screen-unfocus-color (window-screen window))))
     (xlib:clear-area (window-parent window))))
 
 (defmethod window-sync ((window float-window) hint)
@@ -196,7 +194,16 @@
 (defmethod group-root-exposure ((group float-group))
   )
 
-(defmethod group-add-head ((group float-group))
+(defmethod group-add-head ((group float-group) head)
+  (declare (ignore head)))
+
+(defmethod group-remove-head ((group float-group) head)
+  (declare (ignore head)))
+
+(defmethod group-resize-head ((group float-group) oh nh)
+  (declare (ignore oh nh)))
+
+(defmethod group-sync-all-heads ((group float-group))
   )
 
 (defmethod group-sync-head ((group float-group) head)
@@ -260,21 +267,40 @@
                                                      :discard-p t)
                      until (eq ev :done))
                (ungrab-pointer))
+	     (update-configuration window)
              ;; don't forget to update the cache
              (setf (window-x window) (xlib:drawable-x (window-parent window))
                    (window-y window) (xlib:drawable-y (window-parent window)))))))
       (t
-       (when (eq *mouse-focus-policy* :click)
+       (unless (eq *mouse-focus-policy* :sloppy)
          (focus-window window))))))
 
 (defmethod group-button-press ((group float-group) x y where)
   (declare (ignore x y where))
   )
 
-(defcommand gnew-float (name) ((:rest "Group Name: "))
+(defcommand gnew-float (name) ((:string "Input group name: "))
 "Create a floating window group with the specified name and switch to it."
   (add-group (current-screen) name :type 'float-group))
 
-(defcommand gnewbg-float (name) ((:rest "Group Name: "))
+(defcommand gnewbg-float (name) ((:string "Input group name: "))
 "Create a floating window group with the specified name, but do not switch to it."
   (add-group (current-screen) name :background t :type 'float-group))
+
+(defcommand gnew-float-with-window (name) ((:string "Input group name: "))
+  "Move current window to new float group"
+  (let ((group (gnewbg-float name)))
+    (gmove group)
+    (gselect group)))
+
+(defcommand gnew-float-with-marked (name) ((:string "Input group name: "))
+  "Move marked windows to new float group"
+  (let ((group (gnewbg-float name)))
+    (gmove-marked group)
+    (gselect group)))
+
+(defcommand grun-new-float (command) ((:shell "Input command to run program: "))
+  "Run shell command in new float group with same name with command"
+  (check-type command string)
+  (gnew-float command)
+  (run-shell-command command))

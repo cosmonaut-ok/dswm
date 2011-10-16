@@ -43,10 +43,10 @@
            #:*wireless-device*))
 (in-package :dswm.contrib.wifi)
 
-(defvar *iwconfig-path* "/sbin/iwconfig"
-  "Location if iwconfig, defaults to /sbin/iwconfig.")
+(defvar *iwconfig-path*  nil
+  "Location of iwconfig, if set to NIL try to guess.")
 
-(defvar *wireless-device* nil
+(defvar *wireless-device* nil 
   "Set to the name of the wireless device you want to monitor. If set
   to NIL, try to guess.")
 
@@ -71,6 +71,10 @@ prev-val."
              (setf ,prev-val (locally ,@body)))
            ,prev-val)))))
 
+(defun guess-iwconfig-path()
+  (with-output-to-string (asdf::*verbose-out*)
+    (asdf:run-shell-command "which iwconfig")))
+
 (defun guess-wireless-device ()
   (or (loop
          for path in (list-directory "/sys/class/net/")
@@ -92,22 +96,21 @@ prev-val."
   (parse-integer (read-wifi-info device what)))
 
 
-(defun-cached fmt-wifi 5 (ml)
+(defun fmt-wifi  (ml)
   "Formatter for wifi status. Displays the ESSID of the access point
 you're connected to as well as the signal strength. When no valid data
 is found, just displays nil."
   (declare (ignore ml))
   (handler-case
       (let* ((device (or *wireless-device* (guess-wireless-device)))
+	     (iwconfig (or *iwconfig-path* (guess-iwconfig-path)))
              (essid (multiple-value-bind (match? sub)
                         (cl-ppcre:scan-to-strings "ESSID:\"(.*)\""
-                                                  (run-shell-command (format nil "~A ~A 2>/dev/null"
-                                                                             *iwconfig-path*
-                                                                             device)
-                                                                     t))
+                                                  (with-output-to-string (asdf::*verbose-out*)
+						    (asdf:run-shell-command (format nil "~A ~A" iwconfig device))))
                       (if match?
                           (aref sub 0)
-                          (return-from fmt-wifi "no link")))))
+                          (return-from fmt-wifi (format nil "no link[~A]" device))))))
         (let* ((qual (read-wifi-info-int device "link")))
           (format nil "~A ^[~A~D%^]"
                   essid (bar-zone-color qual 40 30 15 t) qual)))

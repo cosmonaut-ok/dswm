@@ -26,7 +26,7 @@
 ;;;
 ;;;     (load-module "maildir")
 ;;;
-;;; ...into your ~/.dswmrc
+;;; ...into your ~/.dswm or ~/.dswm.d/init.lisp
 ;;;
 ;;; Then you can use "%M" in your mode line format.
 ;;; You can customize the modeline format (*maildir-modeline-fmt*). See the

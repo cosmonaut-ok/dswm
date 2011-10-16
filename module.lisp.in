@@ -19,11 +19,11 @@
 
 ;; Commentary:
 ;;
-;; Use `set-contrib-dir' to set the location dswm searches for modules.
+;; Use `add-modules-dir' to add the location dswm searches for modules.
 
 ;; Directories with external modules:
 ;;
-;; * $PREFIX/share
+;; * $PREFIX/share/modules
 ;; * ~/.dswm.d/modules
 ;; * user-defined-dir
 
@@ -34,7 +34,7 @@
 (export '(load-module
           modules-list
 	  *user-modules-dir*
-	  set-contrib-dir
+	  add-modules-dir
           find-module))
 
 (defvar *list-modules-dir* (list (string-as-directory "@prefix@/share/dswm/modules"))
@@ -60,26 +60,24 @@
     mod-list))
 
 (defun find-module (name)
-  "Find module from list avaliable modules
-FIXME: fucking imperative style"
-  (let ((module nil)
-	(file nil))
-    (dolist (md (reverse *list-modules-dir*))
-      (setf file
-	    (probe-file (make-pathname :defaults md
-				       :name name
-				       :type "lisp")))
-      (when file
-	  (setf module file)))
-    module))
+  "Find module from list avaliable modules FIXME: test"
+  (labels
+      ((module-p (dir-list name)
+	 (cond
+	   ((null dir-list) nil)
+	   ((file-exists-p (make-pathname :defaults (car dir-list) :name name :type "lisp"))
+	    (make-pathname :defaults (car dir-list) :name name :type "lisp"))
+	   (t (module-p (cdr dir-list) name)))))
+    (module-p (reverse *list-modules-dir*) name)))
 
-(defcommand add-modules-dir (dir) ((:string "Directory: "))
+
+(defcommand add-modules-dir (dir) ((:string "Input directory name: "))
   ;; TODO: define dswm type pathname with autocomplete and automatic
   ;; directories creation
     "Add the location of the contrib modules"
     (add-to-list *list-modules-dir* (string-as-directory dir)))
 
-(defcommand load-module (name) ((:module "Enter module name: "))
+(defcommand load-module (name) ((:module "Input module name: "))
   "Loads the contributed module with the given NAME."
   ;; FIXME: This should use ASDF in the future. And maybe there should
   ;; be an extra dswm-contrib repository.

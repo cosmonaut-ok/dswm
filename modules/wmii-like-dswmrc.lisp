@@ -1,7 +1,7 @@
 ;;; -*- Mode: Lisp -*-
 ;;; Written by Julian Stecklina, based on sample-dswmrc.lisp.
 
-;;; This is a sample Wmii-like .dswmrc file using Super as modifier
+;;; This is a sample Wmii-like .dswm or ~/.dswm.d/init.lisp file using Super as modifier
 ;;; (which happens to be the Windows key on my keyboard). It doesn't
 ;;; cover the whole Wmii command set, but it will ease the transition
 ;;; to DSWM for people coming from Wmii.

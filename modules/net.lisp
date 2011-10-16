@@ -24,9 +24,9 @@
 ;;;
 ;;; Put:
 ;;;
-;;;     (load "/path/to/net.lisp")
+;;;     (load-module "net")
 ;;;
-;;; In your ~/.dswmrc
+;;; In your ~/.dswm or ~/.dswm.d/init.lisp
 ;;;
 ;;; Then you can use "%l" in your mode line format.
 ;;;

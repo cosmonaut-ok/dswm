@@ -127,7 +127,7 @@
              (if new-heads
                  (progn
                    (scale-screen screen new-heads)
-                   (mapc 'group-add-head (screen-groups screen))
+		   (mapc 'group-sync-all-heads (screen-groups screen))
                    (update-mode-lines screen))
                  (dformat 1 "Invalid configuration! ~S~%" new-heads)))))))))
 
@@ -351,6 +351,7 @@ converted to an atom is removed."
      (dformat 4 "new hints: ~s~%" (window-normal-hints window))
      (window-sync window :normal-hints))
     (:wm_hints
+     (setf (window-hints window) (xlib:wm-hints (window-xwin window)))
      (maybe-set-urgency window))
     (:wm_class
      (setf (window-class window) (xwin-class (window-xwin window))

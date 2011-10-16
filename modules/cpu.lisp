@@ -24,9 +24,9 @@
 ;;;
 ;;; Put:
 ;;;
-;;;     (load "/path/to/cpu.lisp")
+;;;     (load-module "cpu")
 ;;;
-;;; In your ~/.dswmrc
+;;; In your ~/.dswm or ~/.dswm.d/init.lisp
 ;;;
 ;;; Then you can use "%c %t" in your mode line format.
 ;;;

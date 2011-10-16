@@ -1,5 +1,4 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -73,24 +72,33 @@
 ;; work with overlapping heads. Would it be better to walk
 ;; up the frame tree?
 (defun frame-head (group frame)
-  (dolist (head (screen-heads (group-screen group)))
-    (when (and
-           (>= (frame-x frame) (frame-x head))
-           (>= (frame-y frame) (frame-y head))
-           (<= (+ (frame-x frame) (frame-width frame))
-               (+ (frame-x head) (frame-width head)))
-           (<= (+ (frame-y frame) (frame-height frame))
-               (+ (frame-y head) (frame-height head))))
-      (return head))))
+  (let ((center-x (+ (frame-x frame) (ash (frame-width frame) -1)))
+       (center-y (+ (frame-y frame) (ash (frame-height frame) -1))))
+    (dolist (head (screen-heads (group-screen group)))
+      (when (and
+            (>= center-x (frame-x head))
+            (>= center-y (frame-y head))
+            (<= center-x
+                (+ (frame-x head) (frame-width head)))
+            (<= center-y
+                (+ (frame-y head) (frame-height head))))
+       (return head)))))
 
 (defun group-heads (group)
   (screen-heads (group-screen group)))
 
-(defun tile-group-frame-head (group head)
-  (elt (tile-group-frame-tree group) (position head (group-heads group))))
-
-(defun (setf tile-group-frame-head) (frame group head)
-  (setf (elt (tile-group-frame-tree group) (position head (group-heads group))) frame))
+(defun resize-head (number x y width height)
+  "Resize head number `number' to given dimension."
+  (let* ((screen (current-screen))
+         (oh (find number (screen-heads screen) :key 'head-number))
+         (nh (make-head :number number
+                        :x x :y y
+                        :width width
+                        :height height
+                        :window nil)))
+    (scale-head screen oh nh)
+    (dolist (group (screen-groups screen)) (group-sync-head group oh))
+    (update-mode-lines screen)))
 
 (defun current-head (&optional (group (current-group)))
   (group-current-head group))
@@ -109,43 +117,21 @@
   (dformat 1 "Adding head #~D~%" (head-number head))
   (setf (screen-heads screen) (sort (push head (screen-heads screen)) #'< :key 'head-number))
   (dolist (group (screen-groups screen))
-    (let ((new-frame-num (find-free-frame-number group)))
-      (setf (tile-group-frame-tree group)
-            (insert-before (tile-group-frame-tree group)
-                           (copy-frame head)
-                           (head-number head)))
-      ;; Try to put something in the new frame and give it an unused number
-      (let ((frame (tile-group-frame-head group head)))
-        (setf (frame-number frame) new-frame-num)
-        (choose-new-frame-window frame group)
-        (when (frame-window frame)
-          (unhide-window (frame-window frame)))))))
+    (group-add-head group head)))
 
 (defun remove-head (screen head)
   (dformat 1 "Removing head #~D~%" (head-number head))
   (when (head-mode-line head)
     (toggle-mode-line screen head))
   (dolist (group (screen-groups screen))
-    ;; Hide its windows.
-    (let ((windows (head-windows group head)))
-      ;; Remove it from the frame tree.
-      (setf (tile-group-frame-tree group) (delete (tile-group-frame-head group head) (tile-group-frame-tree group)))
-      ;; Just set current frame to whatever.
-      (let ((frame (first (group-frames group))))
-        (setf (tile-group-current-frame group) frame
-              (tile-group-last-frame group) nil)
-        (dolist (window windows)
-          (hide-window window)
-          (setf (window-frame window) frame))))
-    ;; Try to do something with the orphaned windows
-    (populate-frames group))
+    (group-remove-head group head))
   ;; Remove it from SCREEN's head list.
   (setf (screen-heads screen) (delete head (screen-heads screen))))
 
 (defun scale-head (screen oh nh)
   "Scales head OH to match the dimensions of NH."
   (dolist (group (screen-groups screen))
-    (resize-tree (tile-group-frame-head group oh) (head-width nh) (head-height nh) (head-x nh) (head-y nh)))
+    (group-resize-head group oh nh))
   (setf (head-x oh) (head-x nh)
         (head-y oh) (head-y nh)
         (head-width oh) (head-width nh)

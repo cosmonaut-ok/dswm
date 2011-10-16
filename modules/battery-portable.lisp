@@ -30,7 +30,7 @@
 ;;;
 ;;;     (load-module "battery-portable")
 ;;;
-;;; in your .dswmrc. Battery information is then available via %B
+;;; in your .dswm or ~/.dswm.d/init.lisp. Battery information is then available via %B
 ;;; in your mode-line config.
 ;;;
 ;;; If you have an older kernel and the above doesn't work, add
@@ -209,7 +209,9 @@
           (if (string= (sysfs-field path "present") "0")
               :unknown
               (let* ((state (sysfs-field path "status"))
-                     (consumption (sysfs-int-field path "current_now"))
+		     (consumption (or (sysfs-int-field-or-nil path "power_now")
+				      (sysfs-int-field-or-nil path "current_now")
+				      (return-from state-of :unknown)))
                      (curr (or (sysfs-int-field-or-nil path "energy_now")
                                ;; energy_* seems not to be there on
                                ;; some boxes. Strange...

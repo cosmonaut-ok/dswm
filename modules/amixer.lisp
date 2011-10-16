@@ -25,9 +25,9 @@
 ;;; Make sure you have your media keys (or whatever) mapped to the appropriate
 ;;; keysyms (using xmodmap), then put:
 ;;;
-;;;     (load "/path/to/amixer.lisp")
+;;;     (load-module "amixer")
 ;;;
-;;; ...in your ~/.dswmrc, followed by some keybindings (according
+;;; ...in your ~/.dswm or ~/.dswm.d/init.lisp, followed by some keybindings (according
 ;;; to your preference)
 
 ;;; TODO:
@@ -43,6 +43,8 @@
 ;;; Code:
 
 (in-package :dswm)
+
+(export '(defvolcontrol volcontrol))
 
 (defun volcontrol (channel amount)
   (let ((percent (parse-integer

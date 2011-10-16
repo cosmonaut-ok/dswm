@@ -41,8 +41,10 @@
   t)
 
 (defcommand scratchpad () ()
-  (cond
-   ((eq (current-group) *scratchpad-group*)
-    (gother))
-   (t
-    (switch-to-group *scratchpad-group*))))
+  (let ((groups (screen-groups (current-screen))))
+    (when (and
+	   (> (length groups) 1)
+	   (member *scratchpad-group* groups))
+      (if (eq (current-group) *scratchpad-group*)
+	  (switch-to-group (nth 1 groups))
+	(switch-to-group *scratchpad-group*)))))

@@ -109,23 +109,6 @@
   (with-output-to-string (s)
     (run-prog prog :args args :output s :wait t)))
 
-(defun getenv (var)
-  "Return the value of the environment variable."
-  #+allegro (sys::getenv (string var))
-  #+clisp (ext:getenv (string var))
-  #+(or cmu scl)
-  (cdr (assoc (string var) ext:*environment-list* :test #'equalp
-              :key #'string))
-  #+gcl (si:getenv (string var))
-  #+lispworks (lw:environment-variable (string var))
-  #+lucid (lcl:environment-variable (string var))
-  #+mcl (ccl::getenv var)
-  #+sbcl (sb-posix:getenv (string var))
-  #+openmcl (ccl:getenv (string var))
-  #+ecl (ext:getenv (string var))
-  #-(or allegro clisp cmu gcl lispworks lucid mcl sbcl scl openmcl ecl)
-  (error 'not-implemented))
-
 (defun (setf getenv) (val var)
   "Set the value of the environment variable, @var{var} to @var{val}."
   #+allegro (setf (sys::getenv (string var)) (string val))
@@ -146,36 +129,7 @@
   #-(or allegro clisp cmu gcl lispworks lucid sbcl scl openmcl ecl)
   (error 'not-implemented))
 
-(defun pathname-is-executable-p (pathname)
-  "Return T if the pathname describes an executable file."
-  (declare (ignorable pathname))
-  #+sbcl
-  (let ((filename (coerce (sb-ext:native-namestring pathname) 'string)))
-    (and (or (pathname-name pathname)
-             (pathname-type pathname))
-         (sb-unix:unix-access filename sb-unix:x_ok)))
-  ;; FIXME: this is not exactly perfect
-  #+clisp
-  (logand (posix:convert-mode (posix:file-stat-mode (posix:file-stat pathname)))
-          (posix:convert-mode '(:xusr :xgrp :xoth)))
-  #-(or sbcl clisp) t)
 
-(defun probe-path (path)
-  "Return the truename of a supplied path, or nil if it does not exist."
-  (handler-case
-      (truename
-       (let ((pathname (pathname path)))
-         ;; If there is neither a type nor a name, we have a directory
-         ;; pathname already. Otherwise make a valid one.
-         (if (and (not (pathname-name pathname))
-                  (not (pathname-type pathname)))
-             pathname
-             (make-pathname
-              :directory (append (or (pathname-directory pathname)
-                                     (list :relative))
-                                 (list (file-namestring pathname)))
-              :name nil :type nil :defaults pathname))))
-    (file-error () nil)))
 
 (defun portable-file-write-date (pathname)
   ;; clisp errors out if you run file-write-date on a directory.

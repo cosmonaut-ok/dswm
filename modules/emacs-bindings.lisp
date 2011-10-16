@@ -1,52 +1,40 @@
-;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexender aka CosmonauT Vynnyk
+;;; -*- Mode: LISP; Syntax: Common-lisp; Package: dswm.web -*-
+
+;; Copyright 2011 Alexander aka 'CosmonauT' Vynnyk
 ;;
-;;  This file is part of dswm.
-;;
-;; dswm is free software; you can redistribute it and/or modify
+;; Author: Alexander aka CosmonauT Vynnyk <cosmonaut.ok@gmail.com>
+;; Version: id: web,v 0.1 14 Aug 2011 cosmonaut.ok@gmail.com
+;; Keywords:
+;; X-URL: not distributed yet
+
+;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 2, or (at your option)
 ;; any later version.
-
-;; dswm is distributed in the hope that it will be useful,
+;;
+;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
-
+;;
 ;; You should have received a copy of the GNU General Public License
-;; along with this software; see the file COPYING.  If not, write to
-;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-;; Boston, MA 02111-1307 USA
+;; along with this program; if not, write to the Free Software
+;; Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-;; Commentary:
+;;; Commentary:
+
+;;;==================================================================
+;;; Filename: emacs-bindings.lisp
+;;; emacs keybindings for dswm
+;;;==================================================================
 ;;
-;; define standard key bindings
 ;;
-;; Code:
+;;; Code:
 
 (in-package #:dswm)
 
-(export '(*groups-map*
-          *help-map*
-          *root-map*
-	  set-prefix-key))
-
-(defvar *escape-key* (kbd "C-j")
-  "The escape key. Any keymap that wants to hang off the escape key
-should use this specific key struct instead of creating their own
-c-j.")
-
 (defvar *escape-fake-key* (kbd "j")
   "The binding that sends the fake escape key to the current window.")
-
-(defvar *root-map* nil
-  "This is the keymap by default bound to @kbd{c-j}. It is known as the @dfn{prefix map}.")
-
-(defvar *groups-map* nil
-  "The keymap that group related key bindings sit on. It is bound to @kbd{c-j g} by default.")
-
-(defvar *help-map* nil
-  "Help related bindings hang from this keymap")
 
 (defvar *group-top-maps* '((tile-group *tile-group-top-map*)
                            (float-group *float-group-top-map*)
@@ -59,12 +47,15 @@ Order is important. Each map is seached in the order they appear in
 the list (inactive maps being skipped). In general the order should go
 from most specific groups to most general groups.")
 
-(defvar *group-top-map* nil)
-(defvar *group-root-map* nil)
-(defvar *tile-group-top-map* nil)
-(defvar *tile-group-root-map* nil)
-(defvar *float-group-top-map* nil)
-(defvar *float-group-root-map* nil)
+(setf *groups-map* nil
+      *help-map* nil
+      *root-map* nil
+      *group-top-map* nil
+      *group-root-map* nil
+      *tile-group-top-map* nil
+      *tile-group-root-map* nil
+      *float-group-top-map* nil
+      *float-group-root-map* nil)
 
 ;; Do it this way so its easier to wipe the map and get a clean one.
 (defmacro fill-keymap (map &rest bindings)
@@ -85,18 +76,18 @@ from most specific groups to most general groups.")
   (kbd "C-c") "terminal"
   (kbd "e")   "emacs"
   (kbd "C-e") "emacs"
-  (kbd "b")   "browser"
-  (kbd "C-b") "browser"
-  (kbd "C-B") "banish"
-  (kbd "B") "banish"
+  (kbd "b")   "windowlist" ;+
+  (kbd "C-b") "windows" ;+
+  (kbd "C-B") "browser"
+  (kbd "B")   "browser"
   (kbd "a")   "time"
   (kbd "C-a") "time"
+  (kbd ";")   "colon"
+  (kbd ":")   "eval"
   (kbd "!")   "exec"
   (kbd "t")   "run-in-terminal"
   (kbd "C-g") "abort"
   *escape-fake-key* "send-escape"
-  (kbd ";")   "colon"
-  (kbd ":")   "eval"
   (kbd "v")   "version"
   (kbd "m")   "move-window-to-frame"
   (kbd "C-m") "lastmsg"
@@ -120,8 +111,8 @@ from most specific groups to most general groups.")
 
 (fill-keymap *group-root-map*
   (kbd "C-u") "next-urgent"
-  (kbd "w")   "windows"
-  (kbd "C-w") "windows"
+  ;; (kbd "w")   "windows" ;+
+  ;; (kbd "C-w") "windows" ;+
   (kbd "k")   "delete"
   (kbd "C-k") "delete"
   (kbd "K")   "kill"
@@ -242,8 +233,7 @@ current window. To exit command mode, type @key{C-g}."
   (message "Press C-g to exit command-mode.")
   (push-top-map *root-map*))
 
-(defcommand set-prefix-key (key)
-  ((:key "What key do you want to set as prefix? "))
+(defcommand set-prefix-key (key) ((:key "Key: "))
   "Change the dswm prefix key to KEY.
 @example
 \(dswm:set-prefix-key (dswm:kbd \"C-M-H-s-z\"))
@@ -266,8 +256,8 @@ great example."
 (defcommand-alias escape set-prefix-key)
 
 (defcommand bind (key command)
-                 ((:string "Key chord to bind on: ")
-                  (:rest "Command to bind: "))
+                 ((:string "Key Chord: ")
+                  (:rest "Command: "))
   "Hang a key binding off the escape key."
   (define-key *root-map* (kbd key) command))
 

@@ -52,7 +52,7 @@
 (defun make-sparse-keymap ()
   "Create an empty keymap. If you want to create a new list of bindings
 in the key binding tree, this is where you start. To hang frame
-related bindings off @kbd{C-t C-f} one might use the following code:
+related bindings off @kbd{c-j C-f} one might use the following code:
 
 @example
 \(defvar *my-frame-bindings*
@@ -186,7 +186,7 @@ exising binding.  For example,
 \(dswm:define-key dswm:*root-map* (dswm:kbd \"C-z\") \"echo Zzzzz...\")
 @end example
 
-Now when you type C-t C-z, you'll see the text ``Zzzzz...'' pop up."
+Now when you type c-j C-z, you'll see the text ``Zzzzz...'' pop up."
   (declare (type kmap map) (type (or key (eql t)) key))
   (let ((binding (find key (kmap-bindings map) :key 'binding-key :test 'equalp)))
   (if command

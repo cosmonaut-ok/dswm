@@ -24,9 +24,9 @@
 ;;;
 ;;; Put:
 ;;;
-;;;     (load "/path/to/mem.lisp")
+;;;     (load-module "mem")
 ;;;
-;;; In your ~/.dswmrc
+;;; In your ~/.dswm or ~/.dswm.d/init.lisp
 ;;;
 ;;; Then you can use "%M" and/or "%N in your mode line format.
 ;;;

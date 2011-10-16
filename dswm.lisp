@@ -37,12 +37,12 @@
 doesn't exist. Returns a values list: whether the file loaded (t if no
 rc files exist), the error if it didn't, and the rc file that was
 loaded. When CATCH-ERRORS is nil, errors are left to be handled further up. "
-  (let* ((user-rc (probe-file (data-dir-file "init" "lisp")))
-	 (user-initrc (probe-file (merge-pathnames (user-homedir-pathname)
+  (let* ((user-rc (file-exists-p (data-dir-file "init" "lisp")))
+	 (user-initrc (file-exists-p (merge-pathnames (user-homedir-pathname)
 						   #p".dswm")))
-         (etc-rc (probe-file #p"/etc/dswm/dswm.conf"))
+         (etc-rc (file-exists-p #p"/etc/dswm/dswm.conf"))
          (rc (or user-initrc user-rc))
-	 (startup-cmd (probe-file (data-dir-file "startup" "lisp"))))
+	 (startup-cmd (file-exists-p (data-dir-file "startup" "lisp"))))
     (progn
       (if etc-rc
 	  (if catch-errors
@@ -215,6 +215,19 @@ of those expired."
 	    :local)
 	   (t :internet)))))
 
+(defun engage-on-startup ()
+  "Runs many intresting things on startup (dswm-spacific)"
+  (progn
+    ;; Switch on mode-line
+    (if (not (head-mode-line (current-head)))
+	(toggle-mode-line (current-screen) (current-head)))
+    ;; FIXME: fix tip-of-the-day and (first-start)
+    (first-start)
+    ;; (if (and *show-tip-of-the-day-p*
+    ;; 	     (file-exists-p (data-dir-file "started" "p")))
+    ;;     (tip-of-the-day))
+    ))
+
 (defun dswm-internal (display-str)
   (multiple-value-bind (host display screen protocol) (parse-display-string display-str)
     (declare (ignore screen))
@@ -244,7 +257,7 @@ of those expired."
 		   (if (not (head-mode-line (current-head)))
 		       (toggle-mode-line (current-screen) (current-head)))
                    (if success
-                       (and *startup-message* (message *startup-message* (print-key *escape-key*)))
+		       (engage-on-startup)
                        (message "^B^1*Error loading ^b~A^B: ^n~A" rc err))))
                (when *last-unhandled-error*
                  (message-no-timeout "^B^1*DSWM Crashed With An Unhandled Error!~%Copy the error to the clipboard with the 'copy-unhandled-error' command.~%^b~a^B^n~%~%~a"

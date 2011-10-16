@@ -24,9 +24,9 @@
 ;;;
 ;;; Put:
 ;;;
-;;;     (load "/path/to/battery.lisp")
+;;;     (load-module "battery")
 ;;;
-;;; In your ~/.dswmrc
+;;; In your ~/.dswm or ~/.dswm.d/init.lisp
 ;;;
 ;;; Then you can use "%b" in your mode line format.
 ;;;
