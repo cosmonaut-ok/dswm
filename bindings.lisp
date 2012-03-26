@@ -267,7 +267,7 @@ great example."
 
 (defcommand bind (key command)
                  ((:string "Key chord to bind on: ")
-                  (:rest "Command to bind: "))
+                  (:command "Command to bind: "))
   "Hang a key binding off the escape key."
   (define-key *root-map* (kbd key) command))
 
