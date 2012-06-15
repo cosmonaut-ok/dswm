@@ -1,5 +1,5 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -1075,12 +1075,6 @@ be used to override the default window formatting."
         (echo-string-list (group-screen group) names highlight))))
 
 (defcommand-alias windows echo-windows)
-
-(defcommand info (&optional (fmt *window-info-format*)) (:rest)
-  "Display information about the current window."
-  (if (current-window)
-      (message "~a" (format-expand *window-formatters* fmt (current-window)))
-      (message "No Current Window")))
 
 (defcommand refresh () ()
   "Refresh current window without changing its size."

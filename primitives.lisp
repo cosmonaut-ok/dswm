@@ -1238,27 +1238,33 @@ Like :tight but no border is ever visible.
 After changing this variable you may need to call
 sync-all-frame-windows to see the change.")
 
-(defvar *data-dir* (make-pathname :directory (append (pathname-directory (user-homedir-pathname))
-                                                     (list ".dswm.d")))
-  "BUG: Static, based on user, which compile source
-DEPRECATED
-The directory used by dswm to store data between sessions.")
+(defvar *data-dir* nil
+  "Set default data directory")
 
-(defun data-dir ()
-  "The directory used by dswm to store data between sessions."
-  (make-pathname :directory (append (pathname-directory (user-homedir-pathname))
-                                                     (list ".dswm.d"))))
-
-(defun data-dir-file (name &optional type)
+(defun data-dir-file (name &key type subdir)
   "Return a pathname inside dswm's data dir with the specified name and type"
-  (ensure-directories-exist (data-dir))
-  (make-pathname :name name :type type :defaults (data-dir)))
+  (let ((data-dir (or
+		   *data-dir*
+		   (make-pathname :directory (append
+					      (pathname-directory (user-homedir-pathname))
+					      (pathname-directory subdir)
+					      (list ".dswm.d"))))))
+    (ensure-directories-exist data-dir)
+    (make-pathname :name name :type type :defaults data-dir)))
+
+
+(defvar *modules-dirs* nil
+  "Set list of modules dirs")
+
+;; (defun module-file (name &optional path)
+;;   "Return a pathname to module ASDF-file"
+;;   (let ((
 
 ;; Names of dump files
-(defvar *desktop-dump-file* (data-dir-file "desktop" "rules")
+(defvar *desktop-dump-file* (data-dir-file "desktop" :type "rules")
   "Default filename for dump group placement rules")
 
-(defvar *window-placement-dump-file* (data-dir-file "window-placement" "rules")
+(defvar *window-placement-dump-file* (data-dir-file "window-placement" :type "rules")
     "Default filename for dump window placement rules")
 
 (defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) &body body)

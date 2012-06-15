@@ -1,5 +1,5 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexender aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexender aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -77,7 +77,7 @@ from most specific groups to most general groups.")
              m))))
 
 (fill-keymap *top-map*
-  (kbd "M-`") "scratchpad"
+;;  (kbd "M-`") "scratchpad"
   *escape-key* '*root-map*)
 
 (fill-keymap *root-map*
@@ -125,7 +125,7 @@ from most specific groups to most general groups.")
   (kbd "k")   "delete"
   (kbd "C-k") "delete"
   (kbd "K")   "kill"
-  (kbd "'")   "select"
+;;  (kbd "'")   "select"
   (kbd "\"")  "windowlist"
   (kbd "0")   "select-window-by-number 0"
   (kbd "1")   "select-window-by-number 1"
@@ -208,7 +208,7 @@ from most specific groups to most general groups.")
   (kbd "C-p")   "gprev"
   (kbd "P")     "gprev-with-window"
   (kbd "o")     "gother"
-  (kbd "'")     "gselect"
+;;  (kbd "'")     "gselect"
   (kbd "\"")    "grouplist"
   (kbd "m")     "gmove"
   (kbd "M")     "gmove-marked"

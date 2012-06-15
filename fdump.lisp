@@ -1,5 +1,5 @@
 ;; Copyright (C) 2007-2008 Jonathan Liles, Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -278,20 +278,9 @@
       (when screen
         (restore-screen screen sdump)))))
 
-(defun restore-all ()
-  "Restore all rules. Useful at startup"
-  (progn
-    (when (file-exists-p (data-dir-file "desktop" "rules"))
-      (restore-from-file
-       (data-dir-file "desktop" "rules")))
-    (when (file-exists-p (data-dir-file "window-placement" "rules"))
-      (setf *window-placement-rules*
-	    (read-dump-from-file
-	     (data-dir-file "window-placement" "rules"))))
-    ;; Add function for restore all programs, running in last session
-    ))
 
-(defcommand restore-from-file (file) ((:rest "Restore From File: "))
+
+(defun restore-from-file (file)
   "Restores screen, groups, or frames from named file, depending on file's contents."
   (let ((dump (read-dump-from-file file)))
     (typecase dump
@@ -307,48 +296,32 @@
       (t
        (message "Don't know how to restore ~a" dump)))))
 
-;; (defcommand-alias restore restore-from-file)
-
 (defcommand place-existing-windows () ()
   "Re-arrange existing windows according to placement rules."
   (sync-window-placement))
 
-(defcommand dump-group-to-file (file) ((:rest "Dump To File: "))
-  "Dumps the frames of the current group of the current screen to the
-named file."
-  (eval-with-message :body
-		     (dump-group (current-group) :to-fs t :file file)
-		     :message-if-done "Group saved"
-		     :message-if-false "Cannot save group"))
-
 (defcommand remember-group () ()
   "Dumps the frames of the current group of the current screen to the
 default dump file."
-  (dump-group-to-file *desktop-dump-file*))
-
-(defcommand dump-screen-to-file (file) ((:rest "Dump To File: "))
-  "Dumps the frames of all groups of the current screen to the named
-file"
-  (eval-with-message :body
-		     (dump-screen (current-screen) :to-fs t :file file)
-		     :message-if-done "Screen saved"
-		     :message-if-false "Can't save screen"))
+    (eval-with-message :body
+		     (dump-group (current-group) :to-fs t :file *desktop-dump-file*)
+		     :message-if-done "Group saved"
+		     :message-if-false "Cannot save group"))
 
 (defcommand remember-screen () ()
   "Dumps the frames of all groups of the current screen to the default
 dump file"
-  (dump-screen-to-file *desktop-dump-file*))
-
-(defcommand dump-desktop-to-file (file) ((:rest "Dump To File: "))
-  "Dumps the frames of all groups of all screens to the named file"
-  (eval-with-message :body
-		     (dump-desktop :to-fs t :file file)
-		     :message-if-done "Desktop saved"
-		     :message-if-false "Can't save desktop"))
+    (eval-with-message :body
+		     (dump-screen (current-screen) :to-fs t :file *desktop-dump-file*)
+		     :message-if-done "Screen saved"
+		     :message-if-false "Can't save screen"))
 
 (defcommand remember-desktop () ()
   "Dumps the frames of all groups of all screens to the default dump file"
-  (dump-desktop-to-file *desktop-dump-file*))
+    (eval-with-message :body
+		     (dump-desktop :to-fs t :file *desktop-dump-file*)
+		     :message-if-done "Desktop saved"
+		     :message-if-false "Can't save desktop"))
 
 ;; TODO: defcommand forgot-desktop () ()
   
@@ -364,12 +337,21 @@ data dir"
 		     :message-if-done "Snapshot created"
 		     :message-if-false "Can't create snapshot"))
 
-(defcommand restore-desktop-snapshot () ()
+(defcommand recall-desktop-snapshot () ()
   "Restores frame and group placement rules (like numbers, names,
 splitting rules etc) and window placement rules of all groups and
 frames of the current desktop from frame-froup-placement.rules and
 window-placement.rules file in data dir"
   (eval-with-message :body
-		     (restore-all)
+		     (progn
+		       (when (file-exists-p (data-dir-file "desktop" "rules"))
+			 (restore-from-file
+			  (data-dir-file "desktop" "rules")))
+		       (when (file-exists-p (data-dir-file "window-placement" "rules"))
+			 (setf *window-placement-rules*
+			       (read-dump-from-file
+				(data-dir-file "window-placement" "rules"))))
+		       ;; Add function for restore all programs, running in last session
+		       )
 		     :message-if-done "Snapshot restored"
 		     :message-if-false "Can't restore snapshot"))

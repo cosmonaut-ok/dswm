@@ -446,7 +446,7 @@ frame. Possible values are:
   "Local macro. Forget or remember windows placement rules"
   `(eval-with-message :body (progn ,body (dump-structure
 					  *window-placement-rules* t
-					  (data-dir-file "window-placement" "rules")))
+					  (data-dir-file "window-placement" :type "rules")))
 		      :message-if-done ,message
 		      :message-if-false ,message-false))
 

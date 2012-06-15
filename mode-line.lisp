@@ -1,5 +1,5 @@
 ;; Copyright (C) 2006-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -259,6 +259,9 @@ critical."
    :background (alloc-color screen *mode-line-background-color*)
    :border (alloc-color screen *mode-line-border-color*)
    :border-width *mode-line-border-width*
+   ;; (when *mode-line-autohide*
+   ;; DEBUG: test, can we make real pup-up window
+   :save-under :on
    ;; You can click the modeline
    :event-mask (xlib:make-event-mask :button-press :exposure)
    ;; these windows are not controlled by the window manager
@@ -471,8 +474,14 @@ critical."
            (xlib:unmap-window (mode-line-window ml)))
           (:hidden
            ;; Show it.
-           (setf (mode-line-mode ml) :visible)
-           (xlib:map-window (mode-line-window ml)))
+	   ;; (setf (mode-line-mode ml) :visible)
+           ;; (xlib:map-window (mode-line-window ml))
+	   ;; Hide it, when authhiding enabled
+	   (when *mode-line-autohide*
+	     ;; (echo-string (current-screen) (apply 'format nil fmt args)))
+	     ;; (mode-line-mode ml) :hidden)
+	     ;; (xlib:map-window (mode-line-window ml))
+	     (message format)))
           (:ds
            ;; Delete it
            (xlib:destroy-window (mode-line-window ml))

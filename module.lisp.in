@@ -53,9 +53,10 @@
     (dolist (i *list-modules-dir*)
       (dolist (element
 	       (mapcar 'pathname-name
-		       (directory (make-pathname :defaults i
+		       (directory (make-pathname :defaults
+						 (pathname (concat (princ-to-string i) "/system/"))
 						 :name :wild
-						 :type "lisp"))))
+						 :type "asd"))))
 	(add-to-list mod-list element)))
     mod-list))
 
@@ -66,7 +67,7 @@
 	 (cond
 	   ((null dir-list) nil)
 	   ((file-exists-p (make-pathname :defaults (car dir-list) :name name :type "lisp"))
-	    (make-pathname :defaults (car dir-list) :name name :type "lisp"))
+	    (make-pathname :defaults (pathname (concat (princ-to-string (car dir-list)) "/system/")) :name name :type "asd"))
 	   (t (module-p (cdr dir-list) name)))))
     (module-p (reverse *list-modules-dir*) name)))
 
@@ -93,5 +94,32 @@
 	  (if (not (null list))
 	      (message (format nil "~a" list))
 	    (message "No modules found"))))
+
+
+(defcommand module-description (name) ((:module "Input module name: "))
+	    ;; class-based
+	    (let ((module (find-system name)))
+	      (when (class-p module 'system)
+		(system-description module))))
+
+(defcommand module-description (name) ((:module "Input module name: "))
+	    ;; class-based
+	    (let ((module (find-system name)))
+	      (when (class-p module 'system)
+		(system-description module))))
+
+(defcommand module-description (name) ((:module "Input module name: "))
+	    ;; class-based
+	    (let ((module (find-system name)))
+	      (when (class-p module 'system)
+		(system-description module))))
+
+(defcommand module-description (name) ((:module "Input module name: "))
+	    ;; class-based
+	    (let ((module (find-system name)))
+	      (when (class-p module 'system)
+		(system-description module))))
+
+
 
 ;; End of file

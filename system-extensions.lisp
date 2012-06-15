@@ -1,4 +1,4 @@
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -30,7 +30,7 @@
 #+:sbcl (require :sb-executable)
 #+:sbcl (require :sb-posix)
 
-(export '(get-env
+(export '(getenv
  	  where-is
 	  directory-pathname-p
 	  file-exists-p
@@ -56,7 +56,7 @@
   #+clisp
   (logand (posix:convert-mode (posix:file-stat-mode (posix:file-stat pathname)))
           (posix:convert-mode '(:xusr :xgrp :xoth)))
-  #-(or sbcl clisp) t)
+  #-(or sbcl clisp) (error "Not implemented"))
 
 (defun probe-path (path)
   "Return the truename of a supplied path, or nil if it does not exist."
@@ -99,11 +99,11 @@
 
 ;;        /usr/local/{X386,TeX,X11,include,lib,man,etc,bin,games,emacs}
 ;; "
+;;  FIXME: do it!
 ;;   (let ((path (cl-ppcre:split ":" (dswm::unix-getenv "PATH"))))
 ;;     (dolist (j path)
 ;;       (if (probe-file (concat j "/" name))
 ;; 	  (concat j "/" name)))
-
 ;;     ))
 
 (defun cat (file)
@@ -147,65 +147,53 @@ form."
                           :defaults pathname))
           (t pathname))))
 
-;; ;; (defun directory-wildcard (dirname)
-;; ;;   "Returns a wild pathname designator that designates all files within
-;; ;; the directory named by the non-wild pathname designator DIRNAME."
-;; ;;   (when (wild-pathname-p dirname)
-;; ;;     (error "Can only make wildcard directories from non-wildcard directories."))
-;; ;;   (make-pathname :name #-:cormanlisp :wild #+:cormanlisp "*"
-;; ;;                  :type #-(or :clisp :cormanlisp) :wild
-;; ;;                        #+:clisp nil
-;; ;;                        #+:cormanlisp "*"
-;; ;;                  :defaults (pathname-as-directory dirname)))
+(defun directory-wildcard (dirname)
+  "Returns a wild pathname designator that designates all files within
+the directory named by the non-wild pathname designator DIRNAME."
+  (when (wild-pathname-p dirname)
+    (error "Can only make wildcard directories from non-wildcard directories."))
+  (make-pathname :name  :wild
+                 :type #-:clisp :wild
+		       #+:clisp nil
+                 :defaults (pathname-as-directory dirname)))
 
-;; ;; #+:clisp
-;; ;; (defun clisp-subdirectories-wildcard (wildcard)
-;; ;;   "Creates a wild pathname specifically for CLISP such that
-;; ;; sub-directories are returned by DIRECTORY."
-;; ;;   (make-pathname :directory (append (pathname-directory wildcard)
-;; ;;                                     (list :wild))
-;; ;;                  :name nil
-;; ;;                  :type nil
-;; ;;                  :defaults wildcard))
+#+:clisp
+(defun clisp-subdirectories-wildcard (wildcard)
+  "Creates a wild pathname specifically for CLISP such that
+sub-directories are returned by DIRECTORY."
+  (make-pathname :directory (append (pathname-directory wildcard)
+                                    (list :wild))
+                 :name nil
+                 :type nil
+                 :defaults wildcard))
 
-;; ;; (defun list-directory (dirname)
-;; ;;   "Returns a fresh list of pathnames corresponding to the truenames of
-;; ;; all files within the directory named by the non-wild pathname
-;; ;; designator DIRNAME.  The pathnames of sub-directories are returned in
-;; ;; directory form - see PATHNAME-AS-DIRECTORY."
-;; ;;   (when (wild-pathname-p dirname)
-;; ;;     (error "Can only list concrete directory names."))
-;; ;;   #+:ecl 
-;; ;;   (let ((dir (pathname-as-directory dirname)))
-;; ;;     (concatenate 'list
-;; ;;                  (directory (merge-pathnames (pathname "*/") dir))
-;; ;;                  (directory (merge-pathnames (pathname "*.*") dir))))
-;; ;;   #-:ecl 
-;; ;;   (let ((wildcard (directory-wildcard dirname)))
-;; ;;     #+:abcl (system::list-directory dirname)
-;; ;;     #+(or :sbcl :cmu :scl :lispworks) (directory wildcard)
-;; ;;     #+(or :openmcl :digitool) (directory wildcard :directories t)
-;; ;;     #+:allegro (directory wildcard :directories-are-files nil)
-;; ;;     #+:clisp (nconc (directory wildcard :if-does-not-exist :keep)
-;; ;;                     (directory (clisp-subdirectories-wildcard wildcard)))
-;; ;;     #+:cormanlisp (nconc (directory wildcard)
-;; ;;                          (cl::directory-subdirs dirname)))
-;; ;;   #-(or :sbcl :cmu :scl :lispworks :openmcl :allegro :clisp :cormanlisp :ecl :abcl :digitool)
-;; ;;   (error "LIST-DIRECTORY not implemented"))
+(defun list-directory (dirname)
+  "Returns a fresh list of pathnames corresponding to the truenames of
+all files within the directory named by the non-wild pathname
+designator DIRNAME.  The pathnames of sub-directories are returned in
+directory form - see PATHNAME-AS-DIRECTORY."
+  (when (wild-pathname-p dirname)
+    (error "Can only list concrete directory names."))
+  (let ((wildcard (directory-wildcard dirname)))
+    #+:sbcl (directory wildcard)
+    #+:clisp (nconc (directory wildcard :if-does-not-exist :keep)
+                    (directory (clisp-subdirectories-wildcard wildcard))))
+  #-(or :sbcl :clisp)
+  (error "Not implemented"))
 
-;; ;; (defun pathname-as-file (pathspec)
-;; ;;   "Converts the non-wild pathname designator PATHSPEC to file form."
-;; ;;   (let ((pathname (pathname pathspec)))
-;; ;;     (when (wild-pathname-p pathname)
-;; ;;       (error "Can't reliably convert wild pathnames."))
-;; ;;     (cond ((directory-pathname-p pathspec)
-;; ;;            (let* ((directory (pathname-directory pathname))
-;; ;;                   (name-and-type (pathname (first (last directory)))))
-;; ;;              (make-pathname :directory (butlast directory)
-;; ;;                             :name (pathname-name name-and-type)
-;; ;;                             :type (pathname-type name-and-type)
-;; ;;                             :defaults pathname)))
-;; ;;           (t pathname))))
+(defun pathname-as-file (pathspec)
+  "Converts the non-wild pathname designator PATHSPEC to file form."
+  (let ((pathname (pathname pathspec)))
+    (when (wild-pathname-p pathname)
+      (error "Can't reliably convert wild pathnames."))
+    (cond ((directory-pathname-p pathspec)
+           (let* ((directory (pathname-directory pathname))
+                  (name-and-type (pathname (first (last directory)))))
+             (make-pathname :directory (butlast directory)
+                            :name (pathname-name name-and-type)
+                            :type (pathname-type name-and-type)
+                            :defaults pathname)))
+          (t pathname))))
 
 (defun file-exists-p (pathspec)
   "Checks whether the file named by the pathname designator PATHSPEC
@@ -290,9 +278,8 @@ checked for compatibility of their types."
   (let ((buf (make-array *stream-buffer-size*
                          :element-type (stream-element-type from))))
     (loop
-       (let ((pos #-(or :clisp :cmu) (read-sequence buf from)
-                  #+:clisp (ext:read-byte-sequence buf from :no-hang nil)
-                  #+:cmu (sys:read-n-bytes from buf 0 *stream-buffer-size* nil)))
+       (let ((pos #-:clisp (read-sequence buf from)
+                  #+:clisp (ext:read-byte-sequence buf from :no-hang nil)))
          (when (zerop pos) (return))
          (write-sequence buf to :end pos))))
   (values))
@@ -301,22 +288,13 @@ checked for compatibility of their types."
   "Copies the file designated by the non-wild pathname designator FROM
 to the file designated by the non-wild pathname designator TO.  If
 OVERWRITE is true overwrites the file designtated by TO if it exists."
-  #+:allegro (excl.osi:copy-file from to :overwrite overwrite)
-  #-:allegro
-  (let ((element-type #-:cormanlisp '(unsigned-byte 8)
-                      #+:cormanlisp 'unsigned-byte))
+  (let ((element-type '(unsigned-byte 8)))
     (with-open-file (in from :element-type element-type)
       (with-open-file (out to :element-type element-type
                               :direction :output
                               :if-exists (if overwrite
-                                           :supersede
-                                           #-:cormanlisp :error
-                                           #+:cormanlisp nil))
-        #+:cormanlisp
-        (unless out
-          (error (make-condition 'file-error
-                                 :pathname to
-                                 :format-control "File already exists.")))
+					     :supersede
+					     :error))
         (copy-stream in out))))
   (values))
 
@@ -336,3 +314,10 @@ DIRNAME does not exist."
 		  :if-does-not-exist if-does-not-exist)
   (values))
 
+;;;; /Code from cl-fad
+
+(defun get-uid ()
+  "get uid"
+  #+sbcl (sb-unix:unix-getuid)
+  #+clisp (posix:uid)
+  #-(or sbcl clisp) (error "Not implemented"))
