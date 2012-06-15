@@ -37,7 +37,7 @@
 	  add-modules-dir
           find-module))
 
-(defvar *list-modules-dir* (list (string-as-directory "@prefix@/share/dswm/modules"))
+(defvar *list-modules-dir* (list (string-as-directory "/usr/local/share/dswm/modules"))
   "The location of the contrib modules on your system.")
 
 ;; Add users home directory

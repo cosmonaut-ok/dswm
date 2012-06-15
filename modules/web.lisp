@@ -250,7 +250,7 @@ inn - for international
   "owb" "rockmelt" "Safari" "shiira" "uzbl")
   "Defines list of avaliable webbrowsers")
 
-(defvar *hyperbookmarks-file* (data-dir-file "hyperbookmarks" "list")
+(defvar *hyperbookmarks-file* (data-dir-file "hyperbookmarks" :type "list")
   "Defines default hyperbookmark file")
 
 (defstruct hyperbookmark

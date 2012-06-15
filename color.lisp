@@ -1,5 +1,5 @@
 ;; Copyright (C) 2007-2008 Jonathan Moore Liles
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;

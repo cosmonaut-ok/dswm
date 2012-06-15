@@ -1,5 +1,5 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;

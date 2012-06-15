@@ -30,7 +30,7 @@
 
 ;; Version
 (defparameter *version*
-  #.(concat "@PACKAGE_VERSION@" " Compiled On "
+  #.(concat "0.0.4" " Compiled On "
 	    (format-expand *time-format-string-alist*
 			   *time-format-string-default*)))
 
@@ -76,7 +76,7 @@
                         (columnize data cols))))
 
 (defun first-start (&optional show)
-  (let ((not-firststart-p (data-dir-file "started" :type "p"))
+  (let ((not-firststart-p (data-dir-file "started" "p"))
 	(*message-window-gravity* :center)
 	(firststart-message (format nil
 				    "
@@ -194,11 +194,11 @@ command prints the command bound to the specified key sequence."
 
 ;; (defcommand help-license () ()
 ;;   (message-no-timeout (cat (merge-pathnames
-;; 			    (string-as-directory "@prefix@/share/dswm/")
+;; 			    (string-as-directory "/usr/local/share/dswm/")
 ;; 			    "COPYING"))))
 
 ;; (defcommand help-authors () ()
 ;;   (message-no-timeout (cat (merge-pathnames
-;; 			    (string-as-directory "@prefix@/share/dswm/")
+;; 			    (string-as-directory "/usr/local/share/dswm/")
 ;; 			    "AUTHORS"))))
 

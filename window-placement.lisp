@@ -1,5 +1,5 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -145,14 +145,17 @@ housekeeping."
   (setf (xwin-state (window-xwin window)) +iconic-state+)
   (netwm-set-group window))
 
-(defun place-window (screen window)
+(defun place-window (screen window &optional ignore-rules)
   "Pick a group WINDOW and return the group-specific placement hints, if any."
   (let* ((netwm-group (netwm-group window screen))
          (placement (multiple-value-list (get-window-placement screen window)))
          (placement-group (first placement))
          (group (or (when *processing-existing-windows*
                       netwm-group)
-                    placement-group
+		    ;; TODO: realize through closure!
+		    ;;     \/\/
+		    (when (not ignore-rules)
+		      placement-group)
                     netwm-group
                     (screen-current-group screen))))
     (assign-window window group (if *processing-existing-windows* :head :tail))
