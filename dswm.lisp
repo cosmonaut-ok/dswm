@@ -45,7 +45,7 @@ Useful for run programs on startup etc."
 doesn't exist. Returns a values list: whether the file loaded (t if no
 rc files exist), the error if it didn't, and the rc file that was
 loaded. When CATCH-ERRORS is nil, errors are left to be handled further up. "
-  (let* ((user-rc (file-exists-p (data-dir-file "init" "lisp")))
+  (let* ((user-rc (file-exists-p (data-dir-file "init" :type "lisp")))
 	 (user-initrc (file-exists-p (merge-pathnames (user-homedir-pathname)
 						   #p".dswm")))
          (etc-rc (file-exists-p #p"/etc/dss/dswm/dswm.lisp"))

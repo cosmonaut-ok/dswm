@@ -27,6 +27,12 @@
 
 (export '(current-head))
 
+(defstruct (head (:include frame))
+  ;; point back to the screen this head belongs to
+  screen
+  ;; a bar along the top or bottom that displays anything you want.
+  mode-line)
+
 (defun head-by-number (screen n)
   (find n (screen-heads screen) :key 'head-number))
 

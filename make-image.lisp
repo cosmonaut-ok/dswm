@@ -1,0 +1,67 @@
+;;; SBCL
+#+sbcl
+(progn
+  (require 'asdf)
+  (require 'dswm))
+#+sbcl
+(progn
+  (load "dswm.asd")
+  (sb-ext:save-lisp-and-die "dswm" :toplevel (lambda ()
+                                                  ;; asdf requires sbcl_home to be set, so set it to the value when the image was built
+                                                  (sb-posix:putenv (format nil "SBCL_HOME=~A" #.(sb-ext:posix-getenv "SBCL_HOME")))
+                                                  (dswm:dswm)
+                                                  0)
+                            :executable t))
+
+;;; CLISP
+
+;; Is there a better way to use asdf.lisp than including it with dswm?
+#+clisp
+(progn
+  (require 'asdf '("asdf.lisp"))
+  (load "dswm.asd")
+  (load "/home/cosmonaut/dev/dss/dswm/cl-ppcre/cl-ppcre.asd"))
+#+clisp
+(progn
+  (asdf:oos 'asdf:load-op 'dswm))
+#+clisp
+(progn
+  (ext:saveinitmem "dswm" :init-function (lambda ()
+                                              (dswm:dswm)
+                                              (ext:quit))
+                   :executable t :keep-global-handlers t :norc t :documentation "The DSWM Executable"))
+
+
+;;; OPENMCL
+
+;; Is there a better way to use asdf.lisp than including it with dswm?
+#+openmcl
+(progn
+  (require 'asdf)
+  (load "dswm.asd"))
+#+openmcl
+(progn
+  (asdf:oos 'asdf:load-op 'dswm))
+#+openmcl
+(progn
+  (ccl:save-application "dswm" :prepend-kernel t :toplevel-function #'dswm:dswm))
+
+;;; ECL
+
+#+ ecl
+(progn
+  (require 'asdf)
+  (load "/home/cosmonaut/dev/dss/dswm/cl-ppcre/cl-ppcre.asd"))
+#+ ecl
+(asdf:make-build 'dswm :type :program :monolithic t
+                 :move-here t
+                 :epilogue-code '(progn
+                                  (funcall (intern "DSWM" (find-package "DSWM")))
+                                  0))
+
+#+ ecl
+(when (file-exists-p "dswm-mono")
+  (when (file-exists-p "dswm") (delete-file "dswm"))
+  (rename-file "dswm-mono" "dswm"))
+
+#-(or sbcl clisp openmcl ecl) (error "This lisp implementation is not supported.")
