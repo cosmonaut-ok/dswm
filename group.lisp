@@ -292,24 +292,22 @@ Groups are known as \"virtual desktops\" in the NETWM standard."
   (check-type screen screen)
   (check-type name string)
   (if (or (string= name "")
-          (string= name ".")
-	  ;; FIXME. Groups must have numbers in its names
-	  (cl-ppcre:scan-to-strings "[0-9]" name))
-      (message "^B^1*Error:^n Groups must have a name and not contain numbers.")
-    (let ((ng (or (find-group screen name)
-		  (let ((ng (make-instance type
-					   :screen screen
-					   :number (if (char= (char name 0) #\.)
-						       (find-free-hidden-group-number screen)
-						     (find-free-group-number screen))
-					   :name name)))
-		    (setf (screen-groups screen) (append (screen-groups screen) (list ng)))
-		    (netwm-set-group-properties screen)
-		    (netwm-update-groups screen)
-		    ng))))
-      (unless background
-	(switch-to-group ng))
-      ng)))
+          (string= name "."))
+      (message "^B^1*Error:^n Groups must have a name.")
+      (let ((ng (or (find-group screen name)
+		    (let ((ng (make-instance type
+					     :screen screen
+					     :number (if (char= (char name 0) #\.)
+							 (find-free-hidden-group-number screen)
+							 (find-free-group-number screen))
+					     :name name)))
+		      (setf (screen-groups screen) (append (screen-groups screen) (list ng)))
+		      (netwm-set-group-properties screen)
+		      (netwm-update-groups screen)
+		      ng))))
+	(unless background
+	  (switch-to-group ng))
+	ng)))
 
 (defun find-group (screen name)
   "Return the group with the name, NAME. Or NIL if none exists."

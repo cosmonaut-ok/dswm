@@ -138,8 +138,6 @@
           remove-hook
           run-hook
           run-hook-with-args
-          ;; command-mode-start-message ;; New stumpwm code
-          ;; command-mode-end-message ;; New stumpwm code
 	  *mode*
           split-string
 	  with-restarts-menu
@@ -170,7 +168,6 @@ be an integer.")
 (defvar *message-window-timer* nil
   "Keep track of the timer that hides the message window.")
 
-;; New stuwmpwm code
 (defvar *grab-pointer-count* 0
   "The number of times the pointer has been grabbed")
 
@@ -529,64 +526,6 @@ interactive:         set behavior, which will propose alternative, actions
   height
   window)
 
-(defstruct (head (:include frame))
-  ;; point back to the screen this head belongs to
-  screen
-  ;; a bar along the top or bottom that displays anything you want.
-  mode-line)
-
-(defclass screen ()
-  ((id :initform nil :accessor screen-id)
-   (host :initform nil :accessor screen-host)
-   (number :initform nil :accessor screen-number)
-   (heads :initform nil :accessor screen-heads :documentation
-    "heads of screen")
-   (groups :initform nil :accessor screen-groups :documentation
-    "the list of groups available on this screen")
-   (current-group :initform nil :accessor screen-current-group)
-   ;; various colors (as returned by alloc-color)
-   (border-color :initform nil :accessor screen-border-color)
-   (fg-color :initform nil :accessor screen-fg-color)
-   (bg-color :initform nil :accessor screen-bg-color)
-   (win-bg-color :initform nil :accessor screen-win-bg-color)
-   (focus-color :initform nil :accessor screen-focus-color)
-   (unfocus-color :initform nil :accessor screen-unfocus-color)
-   (msg-border-width :initform nil :accessor screen-msg-border-width)
-   (frame-outline-width :initform nil :accessor screen-frame-outline-width)
-   (font :initform nil :accessor screen-font)
-   (mapped-windows :initform nil :accessor screen-mapped-windows :documentation
-    "A list of all mapped windows. These are the raw xlib:window's. window structures are stored in groups.")
-   (withdrawn-windows :initform nil :accessor screen-withdrawn-windows :documentation
-    "A list of withdrawn windows. These are of type dswm::window
-and when they're mapped again they'll be put back in the group
-they were in when they were unmapped unless that group doesn't
-exist, in which case they go into the current group.")
-   (urgent-windows :initform nil :accessor screen-urgent-windows :documentation
-    "a list of windows for which (window-urgent-p) currently true.")
-   (input-window :initform nil :accessor screen-input-window)
-
-   (key-window :initform nil :accessor screen-key-window :documentation
-    "the window that accepts further keypresses after a toplevel key has been pressed.")
-   (focus-window :initform nil :accessor screen-focus-window :documentation
-    "The window that gets focus when no window has focus")
-   ;;
-   (frame-window :initform nil :accessor screen-frame-window)
-   (frame-outline-gc :initform nil :accessor screen-frame-outline-gc)
-   ;; color contexts
-   (message-cc :initform nil :accessor screen-message-cc)
-
-   ;; color maps
-   (color-map-normal :initform nil :accessor screen-color-map-normal)
-   (color-map-bright :initform nil :accessor screen-color-map-bright)
-   (ignore-msg-expose :initform nil :accessor screen-ignore-msg-expose :documentation
-    "used to ignore the first expose even when mapping the message window.")
-   ;; the window that has focus
-   (focus :initform nil :accessor screen-focus)
-   (current-msg :initform nil :accessor screen-current-msg)
-   (current-msg-highlights :initform nil :accessor screen-current-msg-highlights)
-   (last-msg :initform nil :accessor screen-last-msg)
-   (last-msg-highlights :initform nil :accessor screen-last-msg-highlights)))
-
 (defstruct ccontext
   win
   px
@@ -594,15 +533,6 @@ exist, in which case they go into the current group.")
   default-fg
   default-bright
   default-bg)
-
-(defun screen-message-window (screen)
-  (ccontext-win (screen-message-cc screen)))
-
-(defun screen-message-pixmap (screen)
-  (ccontext-px (screen-message-cc screen)))
-
-(defun screen-message-gc (screen)
-  (ccontext-gc (screen-message-cc screen)))
 
 (defmethod print-object ((object frame) stream)
   (format stream "#S(frame ~d ~a ~d ~d ~d ~d)"
@@ -646,9 +576,6 @@ alphanumeric characters, starting with numbers 0-9.")
 
 (defvar *modifiers* nil
   "A mapping from modifier type to x11 modifier.")
-
-(defmethod print-object ((object screen) stream)
-  (format stream "#S<screen ~s>" (screen-number object)))
 
 (defvar *screen-list* '()
   "The list of screens managed by dswm.")
@@ -785,13 +712,6 @@ Useful for re-using the &REST arg after removing some options."
       (push (pop plist) copy))
     (setq plist (cddr plist))))
 
-(defun screen-display-string (screen &optional (assign t))
-  (format nil
-          (if assign "DISPLAY=~a:~d.~d" "~a:~d.~d")
-          (screen-host screen)
-          (xlib:display-display *display*)
-          (screen-id screen)))
-
 (defun split-seq (seq separators &key test default-value)
   "split a sequence into sub sequences given the list of seperators."
   (let ((seps separators))
@@ -821,7 +741,6 @@ at the end of STRING, we don't include a null substring for that.
 
 Modifies the match data; use `save-match-data' if necessary."
   (split-seq string separators :test #'char= :default-value '("")))
-
 
 (defun insert-before (list item nth)
   "Insert ITEM before the NTH element of LIST."
@@ -905,14 +824,14 @@ do:
                                     ((char= (car cur) #\%)
                                      (string #\%))
                                     (t
-                                     (concatenate 'string (string #\%) (string (car cur)))))))
+                                     (concat (string #\%) (string (car cur)))))))
                     ;; crop string if needed
-                    (setf output (concatenate 'string output
-                                              (cond ((null len) str)
-                                                    ((not from-left-p) ; Default behavior
-                                                     (subseq str 0 (min len (length str))))
-                                                    ;; New behavior -- trim from the left
-                                                    (t (subseq str (max 0 (- (length str) len)))))))
+                    (setf output (concat output
+					 (cond ((null len) str)
+					       ((not from-left-p) ; Default behavior
+						(subseq str 0 (min len (length str))))
+					       ;; New behavior -- trim from the left
+					       (t (subseq str (max 0 (- (length str) len)))))))
                     (setf cur (cdr cur))))))
            (t
             (setf output (concatenate 'string output (string (car cur)))
@@ -1241,42 +1160,38 @@ sync-all-frame-windows to see the change.")
 (defvar *data-dir* nil
   "Set default data directory")
 
+(defun data-dir (&optional subdir)
+  (let ((directory
+	 (if (not (null *data-dir*))
+	     (make-pathname :directory (concat *data-dir* "/" subdir))
+	   (make-pathname
+	    :directory (append
+			(pathname-directory (user-homedir-pathname))
+			(list (concat ".dswm.d"	"/" subdir)))))))
+    (when (ensure-directories-exist directory)
+      directory)))
+
 (defun data-dir-file (name &key type subdir)
   "Return a pathname inside dswm's data dir with the specified name and type"
-  (let ((data-dir (or
-		   *data-dir*
-		   (make-pathname :directory (append
-					      (pathname-directory (user-homedir-pathname))
-					      (pathname-directory subdir)
-					      (list ".dswm.d"))))))
-    (ensure-directories-exist data-dir)
-    (make-pathname :name name :type type :defaults data-dir)))
+  (if (not (null type))
+      (make-pathname :name name :type type :defaults (data-dir))
+    (make-pathname :name name :defaults (data-dir))))
 
-
-(defvar *modules-dirs* nil
-  "Set list of modules dirs")
-
-;; (defun module-file (name &optional path)
-;;   "Return a pathname to module ASDF-file"
-;;   (let ((
+(defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) type subdir &body body)
+  "Open a file in DSWM's data directory. keyword arguments are sent
+directly to OPEN. Note that IF-EXISTS defaults to :supersede, instead
+of :error."
+  (declare (ignorable if-exists))
+  `(with-open-file (,s ,(data-dir-file file :type type :subdir subdir)
+		       ,@keys) ,@body))
 
 ;; Names of dump files
 (defvar *desktop-dump-file* (data-dir-file "desktop" :type "rules")
   "Default filename for dump group placement rules")
 
 (defvar *window-placement-dump-file* (data-dir-file "window-placement" :type "rules")
-    "Default filename for dump window placement rules")
+  "Default filename for dump window placement rules")
 
-(defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) &body body)
-  "Open a file in DSWM's data directory. keyword arguments are sent
-directly to OPEN. Note that IF-EXISTS defaults to :supersede, instead
-of :error."
-  (declare (ignorable if-exists))
-  `(progn
-     (ensure-directories-exist (data-dir))
-     (with-open-file (,s ,(merge-pathnames (data-dir) file)
-                         ,@keys)
-       ,@body)))
 
 (defmacro move-to-head (list elt)
    "Move the specified element in in LIST to the head of the list."
@@ -1304,7 +1219,3 @@ of :error."
 
 (defun command-mode-end-message ()
   (message "Exited command-mode."))
-
-(defun interactive (&rest body)
-  "For emacs themes compability"
-  t)

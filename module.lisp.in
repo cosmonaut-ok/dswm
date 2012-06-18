@@ -33,15 +33,16 @@
 
 (export '(load-module
           modules-list
-	  *user-modules-dir*
 	  add-modules-dir
           find-module))
 
-(defvar *list-modules-dir* (list (string-as-directory "@prefix@/share/dswm/modules"))
-  "The location of the contrib modules on your system.")
+(defun add-modules-dir (dir)
+  "Add the location of the contrib modules"
+  (push (string-as-directory dir) asdf:*central-registry*))
 
-;; Add users home directory
-(add-to-list *list-modules-dir* (merge-pathnames #p"modules/" (data-dir)))
+;; Add default modules directories
+(add-modules-dir "@datarootdir@/dswm/modules/")
+(push (data-dir "/modules/") asdf:*central-registry*)
 
 (define-dswm-type :module (input prompt)
   (or (argument-pop-rest input)
@@ -49,77 +50,60 @@
 
 (defun modules-list ()
   "Return a list of the available modules."
-  (let ((mod-list '()))
-    (dolist (i *list-modules-dir*)
-      (dolist (element
-	       (mapcar 'pathname-name
-		       (directory (make-pathname :defaults
-						 (pathname (concat (princ-to-string i) "/system/"))
-						 :name :wild
-						 :type "asd"))))
-	(add-to-list mod-list element)))
+  (let ((mod-list nil))
+    (dolist (module-path asdf:*central-registry*)
+      (dolist (subpath (list-directory module-path))
+	(let ((local-name (car (last (pathname-directory subpath)))))
+	  (when (and (not (member local-name mod-list))
+		     (file-exists-p (make-pathname :defaults subpath :name local-name :type "asd")))
+	    (push local-name mod-list)))))
     mod-list))
 
-(defun find-module (name)
+(defun find-system-file (name)
   "Find module from list avaliable modules FIXME: test"
-  (labels
-      ((module-p (dir-list name)
-	 (cond
-	   ((null dir-list) nil)
-	   ((file-exists-p (make-pathname :defaults (car dir-list) :name name :type "lisp"))
-	    (make-pathname :defaults (pathname (concat (princ-to-string (car dir-list)) "/system/")) :name name :type "asd"))
-	   (t (module-p (cdr dir-list) name)))))
-    (module-p (reverse *list-modules-dir*) name)))
-
-
-(defcommand add-modules-dir (dir) ((:string "Input directory name: "))
-  ;; TODO: define dswm type pathname with autocomplete and automatic
-  ;; directories creation
-    "Add the location of the contrib modules"
-    (add-to-list *list-modules-dir* (string-as-directory dir)))
+  (labels ((system-p (dir-list name)
+	     (let ((system
+		    (make-pathname :directory (concat (princ-to-string (car dir-list)) "/" name)
+				   :name name :type "asd")))
+	       (cond ((null dir-list) nil)
+		     ((file-exists-p system) system)
+		     (t (system-p (cdr dir-list) name))))))
+    (system-p asdf:*central-registry* name)))
 
 (defcommand load-module (name) ((:module "Input module name: "))
   "Loads the contributed module with the given NAME."
-  ;; FIXME: This should use ASDF in the future. And maybe there should
-  ;; be an extra dswm-contrib repository.
-  (when name
-    (let ((module (find-module name)))
-      (when module
-          (load module)))))
+  (let ((dir (dirname (find-system-file name))))
+    (push dir asdf:*central-registry*)
+    (require name)))
 
 (defcommand list-modules () ()
   (let ((list nil))
-	  (dolist (w (modules-list))
-	    (setf list (concat w "~%" list)))
-	  (if (not (null list))
-	      (message (format nil "~a" list))
-	    (message "No modules found"))))
+    (dolist (w (modules-list))
+      (setf list (concat w "~%" list)))
+    (if (not (null list))
+	(message (format nil "~a" list))
+	(message "No modules found"))))
 
-
-(defcommand module-description (name) ((:module "Input module name: "))
-	    ;; class-based
-	    (let ((module (find-system name)))
-	      (when (class-p module 'system)
-		(system-description module))))
-
-(defcommand module-description (name) ((:module "Input module name: "))
-	    ;; class-based
-	    (let ((module (find-system name)))
-	      (when (class-p module 'system)
-		(system-description module))))
-
-(defcommand module-description (name) ((:module "Input module name: "))
-	    ;; class-based
-	    (let ((module (find-system name)))
-	      (when (class-p module 'system)
-		(system-description module))))
-
-(defcommand module-description (name) ((:module "Input module name: "))
-	    ;; class-based
-	    (let ((module (find-system name)))
-	      (when (class-p module 'system)
-		(system-description module))))
-
-
+(defcommand module-info (name) ((:module "Input module name: "))
+  "Shows full information about module"
+  (load (find-system-file name))
+  (let* ((module (asdf:find-system name))
+	 (module-description
+	  (handler-case (format nil "No description")
+	    (unbound-slot () (asdf:system-description module))))
+	 (module-author
+	  (handler-case (format nil "Unknown")
+	    (unbound-slot () (asdf:system-author module))))
+	 (module-maintainer
+	  (handler-case (format nil "Unknown")
+	    (unbound-slot () (asdf:system-maintainer module))))
+	 ;; (module-version
+	 ;;  (handler-case (format nil "Unknown")
+	 ;;    (unbound-slot () (asdf:system-version module))))
+	 (module-licence
+	  (handler-case (format nil "No one defined (`as is'?)")
+	    (unbound-slot () (asdf:system-licence module)))))
+    (message (format nil "Name:~20t~a~%Description:~20t~a~%Author:~20t~a~%Maintainer:~20t~a~%Licence:~20t~a~%"
+		     name module-description module-author module-maintainer module-licence))))
 
 ;; End of file

@@ -736,7 +736,7 @@
 ***function*** clear-window-placement-rules ()
 ***macro*** with-focus (xwin &body body)
 ***function*** data-dir ()
-***function*** data-dir-file (name &optional type)
+***function*** data-dir-file (name &key type subdir)
 ***macro*** with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) &body body)
 ***macro*** move-to-head (list elt)
 ***function*** intern1 (thing &optional (package *package*) (rt *readtable*))

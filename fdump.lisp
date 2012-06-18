@@ -98,7 +98,7 @@
 			 (to-fs nil)
 			 (file
 			  (data-dir-file
-			   (concat "group-" (prin1-to-string (group-name group))) "rules"))
+			   (concat "group-" (prin1-to-string (group-name group))) :type "rules"))
 			 (backup-p nil))
   (labels ((dump (f)
 		 (make-fdump
@@ -134,7 +134,7 @@
 			   (to-fs nil)
 			   (file (data-dir-file
 				  (concat "screen-" (prin1-to-string
-						     (screen-id screen))) "rules"))
+						     (screen-id screen))) :type "rules"))
 			   (backup-p nil))
   "Makes dump of given screen"
   (let
@@ -146,7 +146,7 @@
 
 (defun dump-desktop (&key
 		     (to-fs nil)
-		     (file (data-dir-file "desktop" "rules"))
+		     (file (data-dir-file "desktop" :type "rules"))
 		     (backup-p nil))
   "Makes full dump of desktop"
   (let ((desktop-dump
@@ -344,13 +344,13 @@ frames of the current desktop from frame-froup-placement.rules and
 window-placement.rules file in data dir"
   (eval-with-message :body
 		     (progn
-		       (when (file-exists-p (data-dir-file "desktop" "rules"))
+		       (when (file-exists-p (data-dir-file "desktop" :type "rules"))
 			 (restore-from-file
-			  (data-dir-file "desktop" "rules")))
-		       (when (file-exists-p (data-dir-file "window-placement" "rules"))
+			  (data-dir-file "desktop" :type "rules")))
+		       (when (file-exists-p (data-dir-file "window-placement" :type "rules"))
 			 (setf *window-placement-rules*
 			       (read-dump-from-file
-				(data-dir-file "window-placement" "rules"))))
+				(data-dir-file "window-placement" :type "rules"))))
 		       ;; Add function for restore all programs, running in last session
 		       )
 		     :message-if-done "Snapshot restored"
