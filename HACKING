@@ -1,2 +1,8 @@
 See the DSWM Texinfo manual.
 NOTE: build DSWM with '--with-manual' option first
+
+git:
+Branches:
+master - stable branch. You can pull from at any moment
+dev - development branch. New features are commits there
+once a month we will merge some changed from trunk to master
