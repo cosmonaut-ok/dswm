@@ -97,13 +97,13 @@
 	 (module-maintainer
 	  (handler-case (format nil "Unknown")
 	    (unbound-slot () (asdf:system-maintainer module))))
-	 ;; (module-version
-	 ;;  (handler-case (format nil "Unknown")
-	 ;;    (unbound-slot () (asdf:system-version module))))
+	 (module-version
+	  (handler-case (format nil "Unknown")
+	    (unbound-slot () (slot-value module 'asdf:version))))
 	 (module-licence
 	  (handler-case (format nil "No one defined (`as is'?)")
 	    (unbound-slot () (asdf:system-licence module)))))
-    (message (format nil "Name:~20t~a~%Description:~20t~a~%Author:~20t~a~%Maintainer:~20t~a~%Licence:~20t~a~%"
-		     name module-description module-author module-maintainer module-licence))))
+    (message (format nil "Name:~20t~a~%Description:~20t~a~%Author:~20t~a~%Maintainer:~20t~a~%Licence:~20t~a~%Version:~20t~%"
+		     name module-description module-author module-maintainer module-licence module-version))))
 
 ;; End of file

@@ -134,7 +134,7 @@ kbd-parse if the key failed to parse."
   (let* ((p (when (> (length string) 2)
               (position #\- string :from-end t :end (- (length string) 1))))
          (mods (parse-mods string (if p (1+ p) 0)))
-         (keysym (dswm-name->keysym (subseq string (if p (1+ p) 0)))))
+         (keysym (car (dswm-name->keysyms (subseq string (if p (1+ p) 0))))))
     (if keysym
         (apply 'make-key :keysym keysym mods)
         (signal 'kbd-parse-error :string string))))
@@ -194,7 +194,9 @@ Now when you type c-j C-z, you'll see the text ``Zzzzz...'' pop up."
             (append (if binding
                         (delete binding (kmap-bindings map))
                         (kmap-bindings map))
+		    ;; TODO: HERE! we have to make a cycle for keys:
                     (list (make-binding :key key :command command))))
+      		    ;; /TODO: HERE! we have to make a cycle for keys
       (setf (kmap-bindings map) (delete binding (kmap-bindings map))))
     ;; We need to tell the X server when changing the top-map bindings.
     (when (eq map *top-map*)

@@ -1036,9 +1036,9 @@ override the default window formatting."
                (let ((sym (cond ((<= 32 (char-code ch) 127)
                                  (char-code ch))
                                 ((char= ch #\Tab)
-                                 (dswm-name->keysym "TAB"))
+                                 (car (dswm-name->keysyms "TAB")))
                                 ((char= ch #\Newline)
-                                 (dswm-name->keysym "RET"))
+                                 (car (dswm-name->keysyms "RET")))
                                 (t nil))))
                  (when sym
                    (send-fake-key window

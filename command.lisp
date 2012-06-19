@@ -335,15 +335,27 @@ then describes the symbol."
   (let ((n (or (argument-pop input)
                (completing-read (current-screen)
                                 prompt
-                                (mapcar 'prin1-to-string
-                                        (mapcar 'window-number
-                                                (group-windows (current-group))))))))
+                                ;; (mapcar 'prin1-to-string
+                                ;;         (mapcar 'window-number
+                                ;;                 (group-windows (current-group))))))))
+;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                                (mapcar 'window-map-number
+                                        (group-windows (current-group)))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (when n
-      (handler-case
-          (parse-integer n)
-        (parse-error (c)
-          (declare (ignore c))
-          (throw 'error "Number required."))))))
+      ;; (handler-case
+      ;;     (parse-integer n)
+      ;;   (parse-error (c)
+      ;;     (declare (ignore c))
+      ;;     (throw 'error "Number required."))))))
+;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+      (let ((win (find n (group-windows (current-group))
+                       :test #'string=
+                       :key #'window-map-number)))
+        (if win
+            (window-number win)
+	  (throw 'error "No Such Window."))))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-dswm-type :number (input prompt)
   (let ((n (or (argument-pop input)
@@ -403,7 +415,7 @@ then describes the symbol."
 (defun select-group (screen query)
   "Attempt to match string QUERY against group number or partial name."
   (labels ((match-num (grp)
-             (string-equal (princ-to-string (group-map-number grp)) query))
+             (string-equal (group-map-number grp) query))
            (match-whole (grp)
              (string-equal (group-name grp) query))
            (match-partial (grp)

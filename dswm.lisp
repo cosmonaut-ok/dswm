@@ -27,6 +27,7 @@
 (export '(cancel-timer
 	  run-with-timer
 	  dswm
+	  startup-only
 	  timer-p))
 
 
@@ -36,9 +37,7 @@
   "function, which runs code, just when DSWM starting.
 Not when command loadrc runs, reinit runs after crash etc.
 Useful for run programs on startup etc."
-  `(defun run-code-just-when-start ()
-     (progn
-       ,@body)))
+  `(setf *startup-only-code* (cons 'list ',body)))
 
 (defun load-rc-file (&optional (catch-errors t) (reload nil))
   "Load the user's .dswm file or the system wide one if that
@@ -72,7 +71,7 @@ loaded. When CATCH-ERRORS is nil, errors are left to be handled further up. "
 	      (values t nil rc)))
 	(values t nil nil))
       (when (not reload)
-	(run-code-just-when-start)))))
+	(eval *startup-only-code*)))))
 
 (defun error-handler (display error-key &rest key-vals &key asynchronous &allow-other-keys)
   "Handle X errors"
@@ -229,7 +228,7 @@ of those expired."
     ;; FIXME: fix tip-of-the-day and (first-start)
     (first-start)
     ;; (if (and *show-tip-of-the-day-p*
-    ;; 	     (file-exists-p (data-dir-file "started" "p")))
+    ;; 	     (file-exists-p (data-dir-file "started" :type "p")))
     ;;     (tip-of-the-day))
     ))
 

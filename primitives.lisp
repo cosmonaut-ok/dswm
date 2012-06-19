@@ -665,6 +665,10 @@ display a message whenever you switch frames:
 		      (rm-from-list (cdr list) arg))))))
     (setf ,list (rm-from-list ,list ,arg))))
 
+(defmacro when-not-null (value body)
+  `(when (not (null ,value))
+     ,body))
+
 (defun sort1 (list sort-fn &rest keys &key &allow-other-keys)
   "Return a sorted copy of list."
   (let ((copy (copy-list list)))
@@ -956,6 +960,9 @@ raise/map denial messages will be seen.")
 
 (defvar *resize-hides-windows* nil
   "Set to T to hide windows during interactive resize")
+
+(defvar *startup-only-code* nil
+  "Set code, which run only on startup")
 
 (defun deny-request-p (window deny-list)
   (or (eq deny-list t)

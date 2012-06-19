@@ -1,5 +1,5 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -104,7 +104,8 @@ menu, the error is re-signalled."
 
 (defcommand ratclick (&optional (button 1)) (:number)
   "Simulate a pointer button event at the current pointer
-location. Note: this function rarely works."
+location. Note: this function is unlikely to work unless
+your X server and CLX implementation support XTEST."
   (when (current-window)
     (send-fake-click (current-window) button)))
 
@@ -233,8 +234,11 @@ such a case, kill the shell command to resume DSWM."
 (defcommand keyboard-quit () ()
     ""
   ;; This way you can exit from command mode
-  (when (pop-top-map)
-    (message "Exited.")))
+  (let ((in-command-mode (eq *top-map* *root-map*)))
+    (when (pop-top-map)
+      (if in-command-mode
+        (run-hook *command-mode-end-hook*)
+        (message "Exited.")))))
 
 (defcommand-alias abort keyboard-quit)
 
@@ -357,18 +361,6 @@ current frame instead of switching to the window."
 "Run default terminal"
   (run-commands (concat "exec " *terminal*)))
 
-(defcommand copy-unhandled-error () ()
-  "When an unhandled error occurs, DSWM restarts and attempts to
-continue. Unhandled errors should be reported to the mailing list so
-they can be fixed. Use this command to copy the unhandled error and
-backtrace to the X11 selection so you can paste in your email when
-submitting the bug report."
-  (if *last-unhandled-error*
-      (progn
-        (set-x-selection (format nil "~a~%~a" (first *last-unhandled-error*) (second *last-unhandled-error*)))
-        (message "Copied to clipboard."))
-      (message "There was no unhandled error!")))
-
 (defmacro defprogram-shortcut (name &key (command (string-downcase (string name)))
                                          (props `'(:class ,(string-capitalize command)))
                                          (map *top-map*)
@@ -387,46 +379,3 @@ pull the program."
        (defcommand (,pull-name tile-group) () ()
           (run-or-pull ,command ,props))
        (define-key ,map ,pull-key ,(string-downcase (string pull-name))))))
-
-(defcommand show-window-properties () ()
-  "Shows the properties of the current window. These properties can be
-used for matching windows with run-or-raise or window placement
-rules."
-  (let ((w (current-window)))
-    (message-no-timeout "class: ~A~%instance: ~A~%type: :~A~%role: ~A~%title: ~A"
-                        (window-class w)
-                        (window-res w)
-                        (string (window-type w))
-                        (window-role w)
-                        (window-title w))))
-
-(defcommand list-window-properties () ()
-  "List all the properties of the current window and their values,
-like xprop."
-  (message-no-timeout
-   "~{~30a: ~a~^~%~}"
-   (let ((win (if (current-window)
-                  (window-xwin (current-window))
-                  (screen-root (current-screen)))))
-     (loop for i in (xlib:list-properties win)
-        collect i
-        collect (multiple-value-bind (values type)
-                    (xlib:get-property win i)
-                  (case type
-                    (:wm_state (format nil "~{~a~^, ~}"
-                                       (loop for v in values
-                                          collect (case v (0 "Iconic") (1 "Normal") (2 "Withdrawn") (t "Unknown")))))
-                    (:window i)
-                    ;; _NET_WM_ICON is huuuuuge
-                    (:cardinal (if (> (length values) 20)
-                                   (format nil "~{~d~^, ~}..." (subseq values 0 15))
-                                   (format nil "~{~d~^, ~}" values)))
-                    (:atom (format nil "~{~a~^, ~}"
-                                   (mapcar (lambda (v) (xlib:atom-name *display* v)) values)))
-                    (:string (format nil "~{~s~^, ~}"
-                                     (mapcar (lambda (x) (coerce (mapcar 'xlib:card8->char x) 'string))
-                                             (split-seq values '(0)))))
-                    (:utf8_string (format nil "~{~s~^, ~}"
-                                          (mapcar 'utf8-to-string
-                                                  (split-seq values '(0)))))
-                    (t values)))))))

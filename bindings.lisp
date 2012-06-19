@@ -34,16 +34,16 @@
 (defvar *escape-key* (kbd "C-j")
   "The escape key. Any keymap that wants to hang off the escape key
 should use this specific key struct instead of creating their own
-c-j.")
+C-j.")
 
 (defvar *escape-fake-key* (kbd "j")
   "The binding that sends the fake escape key to the current window.")
 
 (defvar *root-map* nil
-  "This is the keymap by default bound to @kbd{c-j}. It is known as the @dfn{prefix map}.")
+  "This is the keymap by default bound to @kbd{C-j}. It is known as the @dfn{prefix map}.")
 
 (defvar *groups-map* nil
-  "The keymap that group related key bindings sit on. It is bound to @kbd{c-j g} by default.")
+  "The keymap that group related key bindings sit on. It is bound to @kbd{C-j g} by default.")
 
 (defvar *help-map* nil
   "Help related bindings hang from this keymap")
@@ -77,7 +77,7 @@ from most specific groups to most general groups.")
              m))))
 
 (fill-keymap *top-map*
-;;  (kbd "M-`") "scratchpad"
+  (kbd "M-`") "scratchpad"
   *escape-key* '*root-map*)
 
 (fill-keymap *root-map*
@@ -125,7 +125,7 @@ from most specific groups to most general groups.")
   (kbd "k")   "delete"
   (kbd "C-k") "delete"
   (kbd "K")   "kill"
-;;  (kbd "'")   "select"
+  (kbd "'")   "select"
   (kbd "\"")  "windowlist"
   (kbd "0")   "select-window-by-number 0"
   (kbd "1")   "select-window-by-number 1"
@@ -208,15 +208,15 @@ from most specific groups to most general groups.")
   (kbd "C-p")   "gprev"
   (kbd "P")     "gprev-with-window"
   (kbd "o")     "gother"
-;;  (kbd "'")     "gselect"
+  (kbd "'")     "gselect"
   (kbd "\"")    "grouplist"
   (kbd "m")     "gmove"
   (kbd "M")     "gmove-marked"
   (kbd "k")     "gkill"
   (kbd "A")     "grename"
   (kbd "r")     "grename"
-  (kbd "!")     "run-gnew"
-  (kbd "@")     "run-gnew-float"
+  (kbd "!")     "grun-new"
+  (kbd "@")     "grun-new-float"
   (kbd "1")     "gselect 1"
   (kbd "2")     "gselect 2"
   (kbd "3")     "gselect 3"
@@ -237,8 +237,9 @@ from most specific groups to most general groups.")
 
 (defcommand command-mode () ()
 "Command mode allows you to type ratpoison commands without needing the
-@key{c-j} prefix. Keys not bound in StumpWM will still get sent to the
+@key{C-j} prefix. Keys not bound in StumpWM will still get sent to the
 current window. To exit command mode, type @key{C-g}."
+  (run-hook *command-mode-start-hook*)
   (message "Press C-g to exit command-mode.")
   (push-top-map *root-map*))
 
