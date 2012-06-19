@@ -1,5 +1,5 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -412,8 +412,9 @@ frame. Possible values are:
 
 (defun make-rules-for-group (group &optional lock title)
   "Guess at a placement rule for all WINDOWS in group and add it to the current set."
-  (dolist (i (group-windows group))
-    (make-rule-for-window i lock title)))
+  (if (> (length (group-windows (current-group))) 0)
+    (dolist (i (group-windows group))
+      (make-rule-for-window i lock title)) t))
 
 (defun make-rules-for-screen (screen &optional lock title)
   "Guess at a placement rule for all WINDOWS in all groups in current screen and add it to the current set."

@@ -119,8 +119,17 @@ Help
 There's a texinfo manual, dswm.texi. the build scripts generate an
 info file you can read in emacs or with the `info' program.
 
-For other stuff visit the stumpwm wiki:
+For other stuff visit the dswm wiki:
 
-http://stump.antidesktop.net/ (dswm wiki is not prepared yet)
+http://dss-project.org/wiki/doku.php/dswm:en:index
 
-There's a 'dswm' room at jabber conference conference.work-space.org.ua
+But, it's not properly completed now, so, you can wisit to stumpwm wiki too:
+
+http://antidesktop.net/cgi-bin/wiki.pl
+
+There is a #dswm channel on irc.freenoode.net for issues directly related to dswm
+
+Mailing lists: dswm-user@lists.sourceforge.net and dswm-devel@lists.sourceforge.net
+
+Also we have some useful forums here: http://dss-project.org/?q=forum
+

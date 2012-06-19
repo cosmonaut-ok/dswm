@@ -1,3 +1,27 @@
+;; Copyright (C) 2003-2008 Shawn Betts
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
+;;
+;;  This file is part of dswm.
+;;
+;; dswm is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 2, or (at your option)
+;; any later version.
+
+;; dswm is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this software; see the file COPYING.  If not, write to
+;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+;; Boston, MA 02111-1307 USA
+
+;; Commentary:
+;;
+;; Code:
+
 ;;; SBCL
 #+sbcl
 (progn
@@ -18,9 +42,10 @@
 ;; Is there a better way to use asdf.lisp than including it with dswm?
 #+clisp
 (progn
-  (require 'asdf '("asdf.lisp"))
-  (load "dswm.asd")
-  (load "@PPCRE_PATH@/cl-ppcre.asd"))
+  (load "asdf.lisp")
+  (require 'asdf)
+  (load "dswm.asd"))
+;  (load "@PPCRE_PATH@/cl-ppcre.asd"))
 #+clisp
 (progn
   (asdf:oos 'asdf:load-op 'dswm))
@@ -31,37 +56,4 @@
                                               (ext:quit))
                    :executable t :keep-global-handlers t :norc t :documentation "The DSWM Executable"))
 
-
-;;; OPENMCL
-
-;; Is there a better way to use asdf.lisp than including it with dswm?
-#+openmcl
-(progn
-  (require 'asdf)
-  (load "dswm.asd"))
-#+openmcl
-(progn
-  (asdf:oos 'asdf:load-op 'dswm))
-#+openmcl
-(progn
-  (ccl:save-application "dswm" :prepend-kernel t :toplevel-function #'dswm:dswm))
-
-;;; ECL
-
-#+ ecl
-(progn
-  (require 'asdf)
-  (load "@PPCRE_PATH@/cl-ppcre.asd"))
-#+ ecl
-(asdf:make-build 'dswm :type :program :monolithic t
-                 :move-here t
-                 :epilogue-code '(progn
-                                  (funcall (intern "DSWM" (find-package "DSWM")))
-                                  0))
-
-#+ ecl
-(when (file-exists-p "dswm-mono")
-  (when (file-exists-p "dswm") (delete-file "dswm"))
-  (rename-file "dswm-mono" "dswm"))
-
-#-(or sbcl clisp openmcl ecl) (error "This lisp implementation is not supported.")
+#-(or sbcl clisp) (error "This lisp implementation is not supported.")

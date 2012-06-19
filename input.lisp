@@ -46,7 +46,7 @@
 
 (when (null *input-map*)
   (setf *input-map*
-        (let ((map (make-sparse-keymap)))
+	(let ((map (make-sparse-keymap)))
           (define-key map (kbd "DEL") 'input-delete-backward-char)
           (define-key map (kbd "M-DEL") 'input-backward-kill-word)
           (define-key map (kbd "C-d") 'input-delete-forward-char)
@@ -74,8 +74,8 @@
           (define-key map (kbd "C-y") 'input-yank-selection)
           (define-key map (kbd "TAB") 'input-complete-forward)
           (define-key map (kbd "ISO_Left_Tab") 'input-complete-backward)
-          (define-key map t 'input-self-insert)
-          map)))
+	  (define-key map t 'input-self-insert)
+	  map)))
 
 (defvar *input-history* nil
   "History for the input line.")

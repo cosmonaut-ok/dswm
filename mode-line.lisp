@@ -471,7 +471,7 @@ critical."
            (xlib:unmap-window (mode-line-window ml)))
           (:hidden
            ;; Show it.
-	   (setf (mode-line-mode ml) :visible)
+           (setf (mode-line-mode ml) :visible)
            (xlib:map-window (mode-line-window ml)))
           (:ds
            ;; Delete it

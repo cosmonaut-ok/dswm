@@ -2,20 +2,20 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(Deep Space Window Manager (part of Deep Space Style project), 0.0.4, cosmonaut.ok@gmail.com)
+AC_INIT(Deep Space Window Manager, esyscmd(grep :version dswm.asd | cut -d\" -f2 | tr -d \\n), esyscmd(grep :author dswm.asd | cut -d\< -f2 | cut -d\> -f1 | tr -d \\n))
 
+AC_SUBST(MAKE_ALL_DEPS)
 AC_SUBST(MODULES_DIR)
 AC_SUBST(LISP_PROGRAM)
 AC_SUBST(LISP)
-AC_SUBST(PPCRE_PATH)
+# AC_SUBST(PPCRE_PATH)
 AC_SUBST(DSWM_BIN_DIR)
 
 # Checks for programs.
 AC_ARG_WITH(lisp,    [  --with-lisp=IMPL        use the specified lisp (sbcl, clisp, ccl or ecl)], LISP=$withval, LISP="sbcl")
 AC_ARG_WITH(sbcl,    [  --with-sbcl=PATH        specify location of sbcl], SBCL_PATH=$withval, SBCL_PATH="")
 AC_ARG_WITH(clisp,   [  --with-clisp=PATH       specify location of clisp], CLISP_PATH=$withval, CLISP_PATH="")
-AC_ARG_WITH(ccl,     [  --with-ccl=PATH         specify location of ccl], CCL_PATH=$withval, CCL_PATH="")
-AC_ARG_WITH(ecl,     [  --with-ecl=PATH         specify location of ecl], ECL_PATH=$withval, ECL_PATH="")
+AC_ARG_WITH(manual,  [  --with-manual		compile with manual for DSWM (need cl-ppcre)], MANUAL="true", MANUAL="")
 AC_ARG_WITH(ppcre,   [  --with-ppcre=PATH       specify location of cl-ppcre], PPCRE_PATH=$withval, PPCRE_PATH="`pwd`/cl-ppcre")
 
 if test -x "$SBCL_PATH"; then
@@ -48,21 +48,6 @@ elif test "x$LISP" = "xsbcl"; then
    else
       LISP_PROGRAM=$SBCL
    fi
-elif test "x$LISP" = "xccl"; then
-   if test "x$CCL" = "x"; then
-      LISP=sbcl
-      LISP_PROGRAM=$SBCL
-   else
-      LISP_PROGRAM=$CCL
-   fi
-elif test "x$LISP" = "xecl"; then
-   if test "x$ECL" = "x"; then
-      LISP=sbcl
-      LISP_PROGRAM=$SBCL
-   else
-      LISP_PROGRAM=$ECL
-   fi
-
 fi
 
 if test "x$LISP_PROGRAM" = "x"; then
@@ -71,26 +56,25 @@ fi
 
 AC_MSG_NOTICE([Using $LISP at $LISP_PROGRAM])
 
-# check for makeinfo
+if test "$MANUAL" = "true"; then
+   MAKE_ALL_DEPS="dswm dswm.info"
 
-AC_CHECK_PROG(MAKEINFO,makeinfo,yes,no)
+   if test "$LISP" = "clisp"; then
+      AC_CHECK_FILE([$PPCRE_PATH/cl-ppcre.asd],,AC_MSG_ERROR([Cannot find ppcre. When using clisp you must specify its location using --with-ppcre]))
+   fi
 
-if test "$MAKEINFO" = "no"; then
-   AC_MSG_ERROR([Please install makeinfo for the manual.])
+   # check for makeinfo
+   AC_CHECK_PROG(MAKEINFO,makeinfo,yes,no)
+   if test "$MAKEINFO" = "no"; then
+      AC_MSG_ERROR([Please install makeinfo for the manual.])
+   fi
+else
+   MAKE_ALL_DEPS="dswm"
 fi
 
 AC_CHECK_PROG(XDPYINFO,xdpyinfo,yes,no)
 if test "$XDPINFO" = "no"; then
    AC_MSG_WARN([xdpyinfo is needed for xinerama support.])
-fi
-
-if test "$LISP" = "clisp"; then
-   AC_CHECK_FILE([$PPCRE_PATH/cl-ppcre.asd],,AC_MSG_ERROR([Cannot find ppcre. When using clisp you must specify its location using --with-ppcre]))
-fi
-
-# XXX How to do an OR ?
-if test "$LISP" = "ecl"; then
-   AC_CHECK_FILE([$PPCRE_PATH/cl-ppcre.asd],,AC_MSG_ERROR([Cannot find ppcre. When using ecl you must specify its location using --with-ppcre]))
 fi
 
 # Checks for libraries.
@@ -106,4 +90,4 @@ AC_OUTPUT(module.lisp)
 AC_OUTPUT(help.lisp)
 AC_OUTPUT(dswm.desktop)
 AC_OUTPUT(dswm.texi)
-AC_OUTPUT(dswm.asd)
+

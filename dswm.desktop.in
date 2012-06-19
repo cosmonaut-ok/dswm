@@ -4,5 +4,4 @@ Name=DSWM
 Comment=Log in using the Deep Space Window Manager
 Exec=@prefix@/bin/dswm
 TryExec=@prefix@/bin/dswm
-Icon=openbox.png
 Type=XSession

@@ -38,28 +38,21 @@
         (let ((m (make-sparse-keymap)))
           (define-key m (kbd "C-p") 'menu-up)
           (define-key m (kbd "Up") 'menu-up)
-          (define-key m (kbd "k") 'menu-up)
           (define-key m (kbd "S-Up") 'menu-scroll-up)
           (define-key m (kbd "SunPageUp") 'menu-page-up)
-          (define-key m (kbd "K") 'menu-page-up)
-	  
           (define-key m (kbd "C-n") 'menu-down)
           (define-key m (kbd "Down") 'menu-down)
-          (define-key m (kbd "j") 'menu-down)
 	  (define-key m (kbd "S-Down") 'menu-scroll-down)
           (define-key m (kbd "SunPageDown") 'menu-page-down)
-          (define-key m (kbd "J") 'menu-page-down)
-	  
+	  (define-key m (kbd "DEL") 'menu-backspace)	  
           (define-key m (kbd "C-g") 'menu-abort)
           (define-key m (kbd "ESC") 'menu-abort)
           (define-key m (kbd "RET") 'menu-finish)
           m)))
 
-(defvar *current-menu-input* nil) ; it's removed from new stumpwm
-				  ; version (?)
-
 (defstruct menu-state
-  table prompt selected view-start view-end current-input)
+  table prompt selected view-start view-end
+  (current-input (make-array 10 :element-type 'character :adjustable t :fill-pointer 0)))
 
 (defun bound-check-menu (menu)
   "Adjust the menu view and selected item based
@@ -91,36 +84,50 @@ on current view and new selection."
                              (menu-state-view-end menu)))))))))
 
 (defun menu-up (menu)
-  (setf (menu-state-current-input menu) "")
+  (setf (fill-pointer (menu-state-current-input menu)) 0)
   (decf (menu-state-selected menu))
   (bound-check-menu menu))
 
 (defun menu-down (menu)
-  (setf (menu-state-current-input menu) "")
+  (setf (fill-pointer (menu-state-current-input menu)) 0)
   (incf (menu-state-selected menu))
   (bound-check-menu menu))
 
 (defun menu-scroll-up (menu)
-  (setf (menu-state-current-input menu) "")
+  (setf (fill-pointer (menu-state-current-input menu)) 0)
   (decf (menu-state-selected menu) *menu-scrolling-step*)
   (bound-check-menu menu))
 
 (defun menu-scroll-down (menu)
-  (setf (menu-state-current-input menu) "")
+  (setf (fill-pointer (menu-state-current-input menu)) 0)
   (incf (menu-state-selected menu) *menu-scrolling-step*)
   (bound-check-menu menu))
 
 (defun menu-page-up (menu)
-  (setf (menu-state-current-input menu) "")
-  (decf (menu-state-selected menu) *menu-maximum-height*)
-  (let ((*menu-scrolling-step* *menu-maximum-height*))
-    (bound-check-menu menu)))
+  ;; (setf (fill-pointer (menu-state-current-input menu)) 0)
+  ;; (decf (menu-state-selected menu) *menu-maximum-height*)
+  ;; (let ((*menu-scrolling-step* *menu-maximum-height*))
+  ;;   (bound-check-menu menu)))
+;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (when *menu-maximum-height* ;;No scrolling = no page up/down
+    (setf (fill-pointer (menu-state-current-input menu)) 0)
+    (decf (menu-state-selected menu) *menu-maximum-height*)
+    (let ((*menu-scrolling-step* *menu-maximum-height*))
+      (bound-check-menu menu))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun menu-page-down (menu)
-  (setf (menu-state-current-input menu) "")
-  (incf (menu-state-selected menu) *menu-maximum-height*)
-  (let ((*menu-scrolling-step* *menu-maximum-height*))
-    (bound-check-menu menu)))
+  ;; (setf (fill-pointer (menu-state-current-input menu)) 0)
+  ;; (incf (menu-state-selected menu) *menu-maximum-height*)
+  ;; (let ((*menu-scrolling-step* *menu-maximum-height*))
+  ;;   (bound-check-menu menu)))
+;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (when *menu-maximum-height*
+    (setf (fill-pointer (menu-state-current-input menu)) 0)
+    (incf (menu-state-selected menu) *menu-maximum-height*)
+    (let ((*menu-scrolling-step* *menu-maximum-height*))
+      (bound-check-menu menu))))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun menu-finish (menu)
   (throw :menu-quit (nth (menu-state-selected menu) (menu-state-table menu))))
@@ -143,24 +150,23 @@ backspace or F9), return it otherwise return nil"
       (first element)
       element))
 
+;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun menu-backspace (menu)
+  (when (> (fill-pointer (menu-state-current-input menu)) 0)
+    (vector-pop (menu-state-current-input menu))
+    (check-menu-complete menu nil)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defun check-menu-complete (menu key-seq)
   "If the use entered a key not mapped in @var{*menu-map}, check if
   he's trying to type an entry's name. Match is case insensitive as
-  long as the user types lower-case characters."
-  (let ((input-char (get-input-char key-seq)))
+  long as the user types lower-case characters. If @var{key-seq} is
+  nil, some other function has manipulated the current-input and is
+  requesting a re-computation of the match."
+  (let ((input-char (and key-seq (get-input-char key-seq))))
     (when input-char
-      ;; (setf (menu-state-current-input menu)
-      ;; 	    (concatenate 'string
-      ;; 			 (menu-state-current-input menu)
-      ;; 			 (string input-char)))
-      (if (char= #\Backspace input-char)
-	  (setf (menu-state-current-input menu)
-		(subseq (menu-state-current-input menu)
-			0 (- (length (menu-state-current-input menu)) 1)))
-	(setf (menu-state-current-input menu)
-	      (concatenate 'string
-			   (menu-state-current-input menu)
-			   (string input-char))))
+      (vector-push-extend input-char (menu-state-current-input menu)))
+    (when (or input-char (not key-seq))
       (do* ((cur-pos 0 (1+ cur-pos))
 	    (rest-elem (menu-state-table menu)
 		       (cdr rest-elem))
@@ -197,7 +203,7 @@ See *menu-map* for menu bindings."
          (menu (make-menu-state
                 :table table
                 :prompt prompt
-                :current-input ""
+;;                :current-input ""
                 :view-start (if menu-require-scrolling initial-selection 0)
                 :view-end (if menu-require-scrolling
                               (+ initial-selection *menu-maximum-height*)
@@ -220,7 +226,7 @@ See *menu-map* for menu bindings."
                     (incf highlight))
                   (unless (= (length menu-options) (menu-state-view-end menu))
                     (setf strings (nconc strings '("..."))))
-                  (unless (string= (menu-state-current-input menu) "")
+                  (unless (= (fill-pointer (menu-state-current-input menu)) 0)
                     (setf strings
                           (cons (format nil "Search: ~a"
                                         (menu-state-current-input menu))

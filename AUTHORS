@@ -1,7 +1,7 @@
 The Deep Space Window Manager Authors
 --------------------------------
 
-Alexander Vynnyk    cosmonaut at mail dot ua
+Alexander Vynnyk    cosmonaut.ok at gmail dot com
 
 --------------------------------
 --------------------------------
@@ -11,7 +11,7 @@ DSWM based on StumpWM code, which authors are:
 --------------------------------
 Shawn Betts         sabetts at gmail com
 Ryan M. Golbeck     rmgolbeck at uwaterloo ca
-Manuel Giraud       manuel.giraud at cetp ipsl fr
+Manuel Giraud       manuel.giraud at univ-nantes fr
 Andreas Scholta     andreas.scholta at gmail com
 Philippe Brochard   hocwp at free fr
 Matthew Kennedy     mkennedy at gentoo org
@@ -27,7 +27,7 @@ Luca Capello        luca at pca it
 Luigi Panzeri
 James Wright        james at chumsley org
 Jonathan Liles      wantingwaiting at users sf net
-Istvan Marko        mi-ds at kismala com
+Istvan Marko        mi-stump at kismala com
 Tassilo Horn        tassilo at member dot fsf dot org
 Morgan Veyret       patzy at appart kicks-ass net
 Antonis Antoniadis  cereal.killer.rules at gmail com
@@ -51,7 +51,7 @@ John Fremlin        john at fremlin org
 Philip Fominykh     philip at glyf org
 Michael Raskin      38a938c2 at rambler ru
 Ben Spencer         dangerous.ben at gmail com
-Dirk Sondermann     ds-dswm at dyximaq de
+Dirk Sondermann     ds-stumpwm at dyximaq de
 Rupert Swarbrick    rswarbrick at googlemail com
 David Vazquez       davazp at es gnu org
 Antti Nykanen       aon at iki.fi
@@ -60,3 +60,7 @@ Egon Hyszczak       gone404 at gmail com
 TC-Rucho            tc.rucho at gmail com
 Raffael Mancini     raffael.mancini at hcl-club lu
 Adlai Chandrasekhar munchking at gmail com
+Nils Anspach        idnkmn at googlemail.com
+Krzysztof Drewniak  krzysdrewniak at gmail com
+Josh Elsasser       josh at elsasser org
+Matt Spear          batman900 at gmail com

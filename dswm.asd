@@ -15,22 +15,19 @@
 (defsystem :dswm
   :name "DSWM"
   :author "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
-  :version "@PACKAGE_VERSION@"
+  :version "0.0.4-git"
   :maintainer "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
-  ;; :license "GNU General Public License"
+  :license "GNU General Public License"
   :description "A tiling, keyboard driven window manager"
   :serial t
-  :depends-on (:cl-ppcre #-(or cmu clisp) :clx #+sbcl :sb-posix :asdf)
-  :components (
-	       ;; (:file "asdf")
-	       (:file "package")
+  :depends-on (:cl-ppcre #-(or cmu clisp) :clx #+sbcl :sb-posix)
+  :components ((:file "package")
                (:file "extensions")
-	       (:file "primitives")
-	       (:file "workarounds")
+               (:file "primitives")
+               (:file "workarounds")
                (:file "wrappers")
-               (:file "pathnames")
                (:file "keysyms")
-               (:file "keytrans")
+	       ;;(:file "keysyms-uni")
                (:file "kmap")
                (:file "input")
                (:file "core")
@@ -47,9 +44,10 @@
                (:file "window-placement")
                (:file "message-window")
                (:file "selection")
-               (:file "user")
+               ;; (:file "user")
                (:file "iresize")
-               (:file "bindings")
+	       (:file "bindings")
+               (:file "user")
                (:file "events")
                (:file "fdump")
                (:file "time")
@@ -57,4 +55,6 @@
                (:file "color")
                (:file "module")
                (:file "help")
-               (:file "dswm")))
+               (:file "dswm")
+))
+

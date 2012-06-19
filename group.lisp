@@ -1,5 +1,5 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2011 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -116,7 +116,7 @@ otherwise specified."
     (if (and (>= index 0)
              (< index (length *group-number-map*)))
         (format nil "~:[~;-~]~a" (minusp num) (elt *group-number-map* index))
-        num)))
+        (princ-to-string num))))
 
 (defun fmt-group-status (group)
   (let ((screen (group-screen group)))
@@ -292,22 +292,25 @@ Groups are known as \"virtual desktops\" in the NETWM standard."
   (check-type screen screen)
   (check-type name string)
   (if (or (string= name "")
-          (string= name "."))
-      (message "^B^1*Error:^n Groups must have a name.")
-      (let ((ng (or (find-group screen name)
-		    (let ((ng (make-instance type
-					     :screen screen
-					     :number (if (char= (char name 0) #\.)
-							 (find-free-hidden-group-number screen)
-							 (find-free-group-number screen))
-					     :name name)))
-		      (setf (screen-groups screen) (append (screen-groups screen) (list ng)))
-		      (netwm-set-group-properties screen)
-		      (netwm-update-groups screen)
-		      ng))))
-	(unless background
-	  (switch-to-group ng))
-	ng)))
+          (string= name ".")
+	  ;; FIXME. Groups must have numbers in its names
+	  ;; (cl-ppcre:scan-to-strings "[0-9]" name)
+	  )
+      (message "^B^1*Error:^n Groups must have a name and not contain numbers.")
+    (let ((ng (or (find-group screen name)
+		  (let ((ng (make-instance type
+					   :screen screen
+					   :number (if (char= (char name 0) #\.)
+						       (find-free-hidden-group-number screen)
+						     (find-free-group-number screen))
+					   :name name)))
+		    (setf (screen-groups screen) (append (screen-groups screen) (list ng)))
+		    (netwm-set-group-properties screen)
+		    (netwm-update-groups screen)
+		    ng))))
+      (unless background
+	(switch-to-group ng))
+      ng)))
 
 (defun find-group (screen name)
   "Return the group with the name, NAME. Or NIL if none exists."
@@ -331,7 +334,7 @@ exists. Returns the new group."
   "Switch to the next group in the list, if one exists, and moves the
 current window of the current group to the new one."
   (let ((next (group-forward current list))
-        (win (group-current-window current)))
+	(win (group-current-window current)))
     (when (and next win)
       (move-window-to-group win next)
       (really-raise-window win))))
@@ -433,6 +436,21 @@ window along."
                         (if *list-hidden-groups* groups (non-hidden-groups groups)))))
     (echo-string-list screen names)))
 
+(defun grouplist-for-echo (screen fmt &optional verbose (wfmt *window-format*))
+  "Print a list of the windows to the screen."
+  (let* ((groups (sort-groups screen))
+         (names (mapcan (lambda (g)
+                          (list*
+                           (format-expand *group-formatters* fmt g)
+                           (when verbose
+                             (mapcar (lambda (w)
+                                       (format-expand *window-formatters*
+                                                      (concatenate 'string "  " wfmt)
+                                                      w))
+                                     (sort-windows-by-number g)))))
+                        (if *list-hidden-groups* groups (non-hidden-groups groups)))))
+    screen names))
+
 (defcommand vgroups (&optional gfmt wfmt) (:string :rest)
 "Like @command{groups} but also display the windows in each group. The
 optional arguments @var{gfmt} and @var{wfmt} can be used to override
@@ -455,12 +473,33 @@ the default group formatting and window formatting, respectively."
 	 (group (second (select-from-menu
 			 (current-screen)
 			 (mapcar (lambda (g)
-				   (list (format-expand *group-formatters* fmt g) g))
+				   (when
+				       (not (equal (group-number g) 0))
+				     (list (format-expand *group-formatters* fmt g) g)))
 				 (cons (cadr sgs)
 				       (cons (car sgs)
 					     (cddr sgs))))))))
     (when group
       (switch-to-group group))))
+
+;; (defcommand grouplist (&optional (fmt *group-format*)) (:rest)
+;;   "Allow the user to select a group from a list, like windowlist but                                                                                                                                           
+;;   for groups"
+;;   (let* ((sgs (screen-groups (current-screen)))
+;;          (group (second (select-from-menu
+;;                          (current-screen)
+;;                          (mapcar (lambda (g)
+;; 				   (list
+;; 				    (when (not (equal (group-number g) 0) (format-expand *group-formatters* fmt g) g))))
+;;                                  (cons (cadr sgs)
+;;                                        (cons (car sgs)
+;;                                              (cddr sgs))))))))
+;;     (when group
+;;       (switch-to-group group))))
+
+
+
+
 
 ;; To Command groups is deprecated as not functional
 (defcommand-alias groups grouplist)
