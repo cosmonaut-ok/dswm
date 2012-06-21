@@ -1,0 +1,4 @@
+save files moved to ~/.dswm.d/save.d/
+
+data-dir -> data-dir &optional subdir
+data-dir-file data-dir-file &key type subdir

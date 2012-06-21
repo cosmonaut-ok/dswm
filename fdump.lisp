@@ -98,7 +98,7 @@
 			 (to-fs nil)
 			 (file
 			  (data-dir-file
-			   (concat "group-" (prin1-to-string (group-name group))) :type "rules"))
+			   (concat "group-" (prin1-to-string (group-name group))) "rules" "save.d"))
 			 (backup-p nil))
   (labels ((dump (f)
 		 (make-fdump
@@ -128,13 +128,15 @@
 		  (make-fgdump
 		   :number (group-number group)
 		   :name (group-name group))))))
-      (dump-structure group-dump to-fs file backup-p))))
+      (if (ensure-directories-exist (dirname file))
+	  (dump-structure group-dump to-fs file backup-p)
+	(message "Error: directory does not exists")))))
 
 (defun dump-screen (screen &key
 			   (to-fs nil)
 			   (file (data-dir-file
 				  (concat "screen-" (prin1-to-string
-						     (screen-id screen))) :type "rules"))
+						     (screen-id screen))) "rules" "save.d"))
 			   (backup-p nil))
   "Makes dump of given screen"
   (let
@@ -142,17 +144,21 @@
 	(make-sdump :number (screen-id screen)
 		    :current (group-number (screen-current-group screen))
 		    :groups (mapcar 'dump-group (sort-groups screen)))))
-    (dump-structure screen-dump to-fs file backup-p)))
+    (if (ensure-directories-exist (dirname file))
+	(dump-structure screen-dump to-fs file backup-p)
+      (message "Error: Directory does not exists"))))
 
 (defun dump-desktop (&key
 		     (to-fs nil)
-		     (file (data-dir-file "desktop" :type "rules"))
+		     (file (data-dir-file "desktop" "rules" "save.d"))
 		     (backup-p nil))
   "Makes full dump of desktop"
   (let ((desktop-dump
 	 (make-ddump :screens (mapcar 'dump-screen *screen-list*)
 		     :current (screen-id (current-screen)))))
-    (dump-structure desktop-dump to-fs file backup-p)))
+    (if (ensure-directories-exist (dirname file))
+	(dump-structure desktop-dump to-fs file backup-p)
+      (message "ERROR: Directory does not exists"))))
 
 
 ;;;
@@ -344,14 +350,14 @@ frames of the current desktop from frame-froup-placement.rules and
 window-placement.rules file in data dir"
   (eval-with-message :body
 		     (progn
-		       (when (file-exists-p (data-dir-file "desktop" :type "rules"))
+		       (when (file-exists-p (data-dir-file "desktop" "rules" "save.d"))
 			 (restore-from-file
-			  (data-dir-file "desktop" :type "rules")))
-		       (when (file-exists-p (data-dir-file "window-placement" :type "rules"))
+			  (data-dir-file "desktop" "rules" "save.d")))
+		       (when (file-exists-p (data-dir-file "window-placement" "rules" "save.d"))
 			 (setf *window-placement-rules*
 			       (read-dump-from-file
-				(data-dir-file "window-placement" :type "rules"))))
-		       ;; Add function for restore all programs, running in last session
+				(data-dir-file "window-placement" "rules" "save.d"))))
+		       ;; TODO: Add function for restore all programs, running in last session
 		       )
 		     :message-if-done "Snapshot restored"
 		     :message-if-false "Can't restore snapshot"))
