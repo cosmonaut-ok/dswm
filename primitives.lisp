@@ -1178,25 +1178,32 @@ sync-all-frame-windows to see the change.")
     (when (ensure-directories-exist directory)
       directory)))
 
-(defun data-dir-file (name &key type subdir)
+(defun data-dir-file (name &optional type subdir)
   "Return a pathname inside dswm's data dir with the specified name and type"
   (if (not (null type))
-      (make-pathname :name name :type type :defaults (data-dir))
-    (make-pathname :name name :defaults (data-dir))))
+      (make-pathname :name name :type type :defaults (data-dir subdir))
+    (make-pathname :name name :defaults (data-dir subdir))))
+
+(defun module-data-dir-file (module name &optional type subdir)
+  "Return a pathname inside dswm's module data dir with the specified name and type"
+  (let ((dir-path (concat (princ-to-string (data-dir)) "/modules.d/" module subdir))) 
+    (if (not (null type))
+	(make-pathname :name name :type type :defaults dir-path)
+      (make-pathname :name name :defaults dir-path))))
 
 (defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) type subdir &body body)
   "Open a file in DSWM's data directory. keyword arguments are sent
 directly to OPEN. Note that IF-EXISTS defaults to :supersede, instead
 of :error."
   (declare (ignorable if-exists))
-  `(with-open-file (,s ,(data-dir-file file :type type :subdir subdir)
+  `(with-open-file (,s ,(data-dir-file file type subdir)
 		       ,@keys) ,@body))
 
 ;; Names of dump files
-(defvar *desktop-dump-file* (data-dir-file "desktop" :type "rules")
+(defvar *desktop-dump-file* (data-dir-file "desktop" "rules" "save.d")
   "Default filename for dump group placement rules")
 
-(defvar *window-placement-dump-file* (data-dir-file "window-placement" :type "rules")
+(defvar *window-placement-dump-file* (data-dir-file "window-placement" "rules" "save.d")
   "Default filename for dump window placement rules")
 
 

@@ -76,7 +76,7 @@
                         (columnize data cols))))
 
 (defun first-start (&optional show)
-  (let ((not-firststart-p (data-dir-file "started" :type "p"))
+  (let ((not-firststart-p (data-dir-file ".started" "p"))
 	(*message-window-gravity* :center)
 	(firststart-message (format nil
 				    "
