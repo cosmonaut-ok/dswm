@@ -371,6 +371,14 @@ then describes the symbol."
   (or (argument-pop input)
       (read-one-line (current-screen) prompt)))
 
+(define-dswm-type :title (input prompt)
+  (or (argument-pop-rest input)
+      (read-one-line (current-screen) prompt :initial-input(window-name (current-window)))))
+
+(define-dswm-type :current-group-name (input prompt)
+  (or (argument-pop input)
+      (read-one-line (current-screen) prompt :initial-input (group-name (current-group)))))
+
 (define-dswm-type :password (input prompt)
   (or (argument-pop input)
       (read-one-line (current-screen) prompt :password t)))

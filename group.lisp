@@ -401,7 +401,7 @@ window along."
 	  (switch-to-group (nth 2 groups))
 	  (switch-to-group (nth 1 groups))))))
 
-(defcommand grename (name) ((:string "Input new name for group: "))
+(defcommand grename (name) ((:current-group-name "Input new name for group: "))
   "Rename the current group."
   (let ((group (current-group)))
     (cond ((find-group (current-screen) name)

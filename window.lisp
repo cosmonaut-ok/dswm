@@ -927,7 +927,7 @@ window. Default to the current window. if
 
 (defcommand-alias kill kill-window)
 
-(defcommand title (title) ((:rest "Set window's title to: "))
+(defcommand title (title) ((:title "Set window's title to: "))
   "Override the current window's title."
   (if (current-window)
       (setf (window-user-title (current-window)) title)
