@@ -443,6 +443,16 @@ then describes the symbol."
     (or match
         (throw 'error "No Such Group."))))
 
+(define-dswm-type :current-group-name (input prompt)
+  ;; for "grename" command
+  (or (argument-pop input)
+      (read-one-line (current-screen) prompt :initial-input (group-name (current-group)))))
+
+(define-dswm-type :title (input prompt)
+  ;; for "title" command
+  (or (argument-pop-rest input)
+      (read-one-line (current-screen) prompt :initial-input (window-title (current-window)))))
+
 (define-dswm-type :frame (input prompt)
   (declare (ignore prompt))
   (let ((arg (argument-pop input)))
@@ -463,6 +473,13 @@ then describes the symbol."
 (define-dswm-type :file (input prompt)
   (or (argument-pop input)
       (read-one-line (current-screen) prompt)))
+  ;; (let ((match (select-group (current-screen)
+  ;;                            (or (argument-pop input)
+  ;;                                (completing-read (current-screen) prompt
+  ;;                                                 (mapcar 'group-name
+  ;;                                                         (screen-groups (current-screen))))))))
+  ;;   (or match
+  ;;       (throw 'error "No Such Group."))))
 
 (define-dswm-type :rest (input prompt)
   (or (argument-pop-rest input)
