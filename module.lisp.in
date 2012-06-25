@@ -42,7 +42,7 @@
 
 ;; Add default modules directories
 (add-modules-dir "@datarootdir@/dswm/modules/")
-(push (data-dir "/modules/") asdf:*central-registry*)
+(push (data-dir "/modules.d/") asdf:*central-registry*)
 
 (define-dswm-type :module (input prompt)
   (or (argument-pop-rest input)

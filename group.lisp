@@ -555,11 +555,13 @@ The windows will be moved to group \"^B^2*~a^n\"
 				  (:group "In what group? "))
   "Run shell command in specified group"
   ;; FIXME: need to run, ignoring window placement rules
-  (gselect group)
-  (run-shell-command command))
+  (let ((*window-placement-rules* '()))
+    (gselect group)
+    (run-shell-command command)))
 
 (defcommand grun-new (command) ((:shell "Enter command to run program: "))
   "Run shell command in new tile group with same name with command"
   ;; FIXME: need to run, ignoring window placement rules
-  (gnew command)
-  (run-shell-command command))
+  (let ((*window-placement-rules* '()))
+    (gnew command)
+    (run-shell-command command)))
