@@ -104,30 +104,18 @@ on current view and new selection."
   (bound-check-menu menu))
 
 (defun menu-page-up (menu)
-  ;; (setf (fill-pointer (menu-state-current-input menu)) 0)
-  ;; (decf (menu-state-selected menu) *menu-maximum-height*)
-  ;; (let ((*menu-scrolling-step* *menu-maximum-height*))
-  ;;   (bound-check-menu menu)))
-;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (when *menu-maximum-height* ;;No scrolling = no page up/down
     (setf (fill-pointer (menu-state-current-input menu)) 0)
     (decf (menu-state-selected menu) *menu-maximum-height*)
     (let ((*menu-scrolling-step* *menu-maximum-height*))
       (bound-check-menu menu))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun menu-page-down (menu)
-  ;; (setf (fill-pointer (menu-state-current-input menu)) 0)
-  ;; (incf (menu-state-selected menu) *menu-maximum-height*)
-  ;; (let ((*menu-scrolling-step* *menu-maximum-height*))
-  ;;   (bound-check-menu menu)))
-;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
   (when *menu-maximum-height*
     (setf (fill-pointer (menu-state-current-input menu)) 0)
     (incf (menu-state-selected menu) *menu-maximum-height*)
     (let ((*menu-scrolling-step* *menu-maximum-height*))
       (bound-check-menu menu))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun menu-finish (menu)
   (throw :menu-quit (nth (menu-state-selected menu) (menu-state-table menu))))
@@ -150,12 +138,10 @@ backspace or F9), return it otherwise return nil"
       (first element)
       element))
 
-;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun menu-backspace (menu)
   (when (> (fill-pointer (menu-state-current-input menu)) 0)
     (vector-pop (menu-state-current-input menu))
     (check-menu-complete menu nil)))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defun check-menu-complete (menu key-seq)
   "If the use entered a key not mapped in @var{*menu-map}, check if
@@ -210,7 +196,8 @@ See *menu-map* for menu bindings."
                               (length menu-options))
                 :selected initial-selection))
          (*record-last-msg-override* t)
-         (*suppress-echo-timeout* t))
+         (*suppress-echo-timeout* t)
+	 (*message-window-gravity* *menu-window-gravity*))
     (bound-check-menu menu)
     (catch :menu-quit
       (unwind-protect

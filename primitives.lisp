@@ -437,7 +437,18 @@ Include only those we are ready to support.")
 (defvar *message-window-padding* 5
   "The number of pixels that pad the text in the message window.")
 
-(defvar *message-window-gravity* :top-right
+(defvar *message-window-gravity* :top
+  "This variable controls where the message window appears. The follow
+are valid values.
+@table @asis
+@item :top-left
+@item :top-right
+@item :bottom-left
+@item :bottom-right
+@item :center
+@end table")
+
+(defvar *menu-window-gravity* :bottom-left
   "This variable controls where the message window appears. The follow
 are valid values.
 @table @asis
