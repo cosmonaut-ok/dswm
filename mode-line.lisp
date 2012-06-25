@@ -331,8 +331,10 @@ critical."
 (defun update-mode-line-color-context (ml)
   (let* ((cc (mode-line-cc ml))
          (screen (mode-line-screen ml))
-         (bright (lookup-color screen *mode-line-foreground-color*)))
-    (adjust-color bright 0.25)
+         (bright (if (stringp *mode-line-foreground-color*)
+                     (lookup-color screen *mode-line-foreground-color*)
+		   *mode-line-foreground-color*)))
+    ;; (adjust-color bright 0.25)
     (setf (ccontext-default-bright cc) (alloc-color screen bright))))
 
 (defun make-head-mode-line (screen head format)

@@ -2,3 +2,8 @@ save files moved to ~/.dswm.d/save.d/
 
 data-dir -> data-dir &optional subdir
 data-dir-file data-dir-file &key type subdir
+possibly to use hex colors with function (make-color-hex "#000000")
+ Ex.: (set-bg-color (make-color-hex "#000000")) also you can use (set-bg-color "red")
+ Also you can use *colors* and (update-color-map) with hex colors
+ Ex.: (setf *colors* "#xb58900" "#xcb4b16" "#xdc322f" "#xd33682" "#x6c71c4") (update-color-map)
+ also:(setf *colors*  "yellow" "orange" "red" "magenta" "violet" "blue") (update-color-map)
