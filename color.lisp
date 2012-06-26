@@ -52,29 +52,6 @@
   "Eight colors by default. You can redefine these to whatever you like and
 then call (update-color-map).")
 
-
-
-;; :base02 #x073642
-;;                   :base01 #x586e75
-;;                   :base00 #x657b83
-;;                   :base0 #x839496
-;;                   :base1 #x93a1a1
-;;                   :base2 #xeee8d5
-;;                   :base3 #xfdf6e3
-;;                   :yellow #xb58900
-;;                   :orange #xcb4b16
-;;                   :red #xdc322f
-;;                   :magenta #xd33682
-;;                   :violet #x6c71c4
-;;                   :blue #x268bd2
-;;                   :cyan #x2aa198
-;;                   :green #x859900)))
-
-
-
-
-
-
 (defvar *color-map* nil)
 (defvar *foreground* nil)
 (defvar *background* nil)
@@ -92,18 +69,6 @@ then call (update-color-map).")
 
 (defun lookup-color (screen color)
   (xlib:lookup-color (xlib:screen-default-colormap (screen-number screen)) color))
-
-(defun make-color-hex (hex)
-  "Converts a hexadecimal representation of a color to a decimal from [0,1)."
-  (labels ((convert (x)
-		    (/ (read-from-string (concat "#x" x)) 256.0)))
-    (assert (and (eql (elt hex 0) #\#) (= (length hex) 7)))
-    (let ((red (subseq hex 1 3))
-          (green (subseq hex 3 5))
-          (blue (subseq hex 5 7)))
-      (xlib:make-color :red (convert red)
-                       :green (convert green)
-                       :blue (convert blue)))))
 
 (defun update-color-map (screen)
   "Read *colors* and cache their pixel colors for use when rendering colored text."

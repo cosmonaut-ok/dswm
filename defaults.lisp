@@ -51,6 +51,7 @@
           *focus-group-hook*
           *key-press-hook*
           *root-click-hook*
+	  make-color-hex
           *mode-line-click-hook*
 	  *mode-line-background-color*
 	  *mode-line-border-color*
@@ -145,6 +146,27 @@
 	  move-to-head))
 
 
+
+;;;; Init functions
+;; Here, because needed for +default-foreground-color+... etc
+(defun concat (&rest strings)
+  "Concatenates strings, like the Unix command 'cat'.
+A short for (concatenate 'string foo bar)."
+  (apply 'concatenate 'string strings))
+
+(defun make-color-hex (hex)
+  "Converts a hexadecimal representation of a color to a decimal from [0,1)."
+  (labels ((convert (x)
+		    (/ (read-from-string (concat "#x" x)) 256.0)))
+    (assert (and (eql (elt hex 0) #\#) (= (length hex) 7)))
+    (let ((red (subseq hex 1 3))
+          (green (subseq hex 3 5))
+          (blue (subseq hex 5 7)))
+      (xlib:make-color :red (convert red)
+                       :green (convert green)
+                       :blue (convert blue)))))
+;; /Here, because needed for +default-foreground-color+... etc
+
 ;;; Message Timer
 (defvar *suppress-abort-messages* nil
   "Suppress abort message when non-nil.")
@@ -253,7 +275,7 @@ the mode-line, the button clicked, and the x and y of the pointer.")
 (defvar *mode-line-position* :top
   "Specifies where the mode line is displayed. Valid values are :top and :bottom.")
 
-(defvar *mode-line-border-width* 1
+(defvar *mode-line-border-width* 4
   "Specifies how thick the mode line's border will be. Integer value.")
 
 (defvar *mode-line-pad-x* 5
@@ -262,13 +284,13 @@ the mode-line, the button clicked, and the x and y of the pointer.")
 (defvar *mode-line-pad-y* 1
   "The number of padding pixels between the modeline text and the top/bottom of the modeline? Integer value.")
 
-(defvar *mode-line-background-color* "SteelBlue"
+(defvar *mode-line-background-color* (make-color-hex "#113355")
   "The mode line background color.")
 
-(defvar *mode-line-foreground-color* "White"
+(defvar *mode-line-foreground-color* (make-color-hex "#9FE0E3")
   "The mode line foreground color.")
 
-(defvar *mode-line-border-color* "Black"
+(defvar *mode-line-border-color* (make-color-hex "#443333")
   "The mode line border color.")
 
 (defvar *hidden-window-color* "^5*"
@@ -363,7 +385,7 @@ current group.")
 (defvar *normal-border-width* 1
   "The width in pixels given to the borders of regular windows.")
 
-(defvar *text-color* "white"
+(defvar *text-color* (make-color-hex "#9FE0E3")
   "The color of message text.")
 
 (defvar *menu-maximum-height* nil
@@ -475,13 +497,13 @@ are valid values.
 @end table")
 
 ;; default values. use the set-* functions to these attributes
-(defparameter +default-foreground-color+ "White")
-(defparameter +default-background-color+ "SteelBlue")
-(defparameter +default-window-background-color+ "Black")
-(defparameter +default-border-color+ "Black")
+(defparameter +default-foreground-color+ (make-color-hex "#9FE0E3"))
+(defparameter +default-background-color+ (make-color-hex "#113355"))
+(defparameter +default-window-background-color+ (make-color-hex "#113355"))
+(defparameter +default-border-color+ (make-color-hex "#000000"))
 (defparameter +default-font-name+ "9x15bold")
-(defparameter +default-focus-color+ "SteelBlue")
-(defparameter +default-unfocus-color+ "Gray")
+(defparameter +default-focus-color+ (make-color-hex "#DDEEEE"))
+(defparameter +default-unfocus-color+ (make-color-hex "#443333"))
 (defparameter +default-frame-outline-width+ 2)
 
 ;; Don't set these variables directly, use set-<var name> instead
@@ -545,9 +567,6 @@ interactive:         set behavior, which will propose alternative, actions
   default-bright
   default-bg)
 
-(defmethod print-object ((object frame) stream)
-  (format stream "#S(frame ~d ~a ~d ~d ~d ~d)"
-          (frame-number object) (frame-window object) (frame-x object) (frame-y object) (frame-width object) (frame-height object)))
 
 (defvar *window-number-map* "0123456789"
   "Set this to a string to remap the window numbers to something more convenient.")
@@ -565,14 +584,6 @@ would map frame 0 to 7 to be selectable by hitting the appropriate
 homerow key on a dvorak keyboard. Currently, only single char keys are
 supported. By default, the frame labels are the 36 (lower-case)
 alphanumeric characters, starting with numbers 0-9.")
-
-(defun get-frame-number-translation (frame)
-  "Given a frame return its number translation using *frame-number-map* as a char."
-  (let ((num (frame-number frame)))
-    (or (and (< num (length *frame-number-map*))
-             (char *frame-number-map* num))
-        ;; translate the frame number to a char. FIXME: it loops after 9
-        (char (prin1-to-string num) 0))))
 
 (defstruct modifiers
   (meta nil)
@@ -607,163 +618,7 @@ loads the rc file.")
  
 ;;; The restarts menu macro
 
-(defmacro with-restarts-menu (&body body)
-  "Execute BODY. If an error occurs allow the user to pick a
-restart from a menu of possible restarts. If a restart is not
-chosen, resignal the error."
-  (let ((c (gensym)))
-    `(handler-bind
-         ((warning #'muffle-warning)
-          ((or serious-condition error)
-           (lambda (,c)
-             (restarts-menu ,c)
-             (signal ,c))))
-       ,@body)))
-
-;;; Hook functionality
-
-(defun run-hook-with-args (hook &rest args)
-  "Call each function in HOOK and pass args to it."
-  (handler-case
-      (with-simple-restart (abort-hooks "Abort running the remaining hooks.")
-        (with-restarts-menu
-            (dolist (fn hook)
-              (with-simple-restart (continue-hooks "Continue running the remaining hooks.")
-                (apply fn args)))))
-    (t (c) (message "^B^1*Error on hook ^b~S^B!~% ^n~A" hook c) (values nil c))))
-
-(defun run-hook (hook)
-  "Call each function in HOOK."
-  (run-hook-with-args hook))
-
-(defmacro add-hook (hook fn)
-  "Add @var{function} to the hook @var{hook-variable}. For example, to
-display a message whenever you switch frames:
-
-@example
-\(defun my-rad-fn (to-frame from-frame)
-  (dswm:message \"Mustard!\"))
-
-\(dsmwm:add-hook dswm:*focus-frame-hook* 'my-rad-fn)
-@end example"
-  `(setf ,hook (adjoin ,fn ,hook)))
-
-(defmacro remove-hook (hook fn)
-"Remove the specified function from the hook."
-  `(setf ,hook (remove ,fn ,hook)))
-
 ;; Misc. utility functions
-
-(defun conc1 (list arg)
-  "Append arg to the end of list"
-  (nconc list (list arg)))
-
-(defmacro add-to-list (list arg)
-  `(if (not (member ,arg ,list))
-      (setq ,list (cons ,arg ,list))))
-
-(defmacro remove-from-list (list arg)
-  `(labels
-    ((rm-from-list (list arg)
-		   (cond
-		    ((null list)
-		     nil)
-		    ((equal arg (car list))
-		     (rm-from-list (cdr list) arg))
-		    (t
-		     (cons
-		      (car list)
-		      (rm-from-list (cdr list) arg))))))
-    (setf ,list (rm-from-list ,list ,arg))))
-
-(defmacro when-not-null (value body)
-  `(when (not (null ,value))
-     ,body))
-
-(defun sort1 (list sort-fn &rest keys &key &allow-other-keys)
-  "Return a sorted copy of list."
-  (let ((copy (copy-list list)))
-    (apply 'sort copy sort-fn keys)))
-
-(defun mapcar-hash (fn hash)
-  "Just like maphash except it accumulates the result in a list."
-  (let ((accum nil))
-    (labels ((mapfn (key val)
-               (push (funcall fn key val) accum)))
-      (maphash #'mapfn hash))
-    accum))
-
-(defun find-free-number (l &optional (min 0) dir)
-  "Return a number that is not in the list l. If dir is :negative then
-look for a free number in the negative direction. anything else means
-positive direction."
-  (let* ((dirfn (if (eq dir :negative) '> '<))
-         ;; sort it and crop numbers below/above min depending on dir
-         (nums (sort (remove-if (lambda (n)
-                                  (funcall dirfn n min))
-                                l) dirfn))
-         (max (car (last nums)))
-         (inc (if (eq dir :negative) -1 1))
-         (new-num (loop for n = min then (+ n inc)
-                        for i in nums
-                        when (/= n i)
-                        do (return n))))
-    (dformat 3 "Free number: ~S~%" nums)
-    (if new-num
-        new-num
-        ;; there was no space between the numbers, so use the max+inc
-        (if max
-            (+ inc max)
-            min))))
-
-(defun remove-plist (plist &rest keys)
-  "Remove the keys from the plist.
-Useful for re-using the &REST arg after removing some options."
-  (do (copy rest)
-      ((null (setq rest (nth-value 2 (get-properties plist keys))))
-       (nreconc copy plist))
-    (do () ((eq plist rest))
-      (push (pop plist) copy)
-      (push (pop plist) copy))
-    (setq plist (cddr plist))))
-
-(defun split-seq (seq separators &key test default-value)
-  "split a sequence into sub sequences given the list of seperators."
-  (let ((seps separators))
-    (labels ((sep (c)
-               (find c seps :test test)))
-      (or (loop for i = (position-if (complement #'sep) seq)
-                then (position-if (complement #'sep) seq :start j)
-                as j = (position-if #'sep seq :start (or i 0))
-                while i
-                collect (subseq seq i j)
-                while j)
-          ;; the empty seq causes the above to return NIL, so help
-          ;; it out a little.
-          default-value))))
-
-(defun split-string (string &optional (separators "
-"))
-  "Splits STRING into substrings where there are matches for SEPARATORS.
-Each match for SEPARATORS is a splitting point.
-The substrings between the splitting points are made into a list
-which is returned.
-***If SEPARATORS is absent, it defaults to \"[ \f\t\n\r\v]+\".
-
-If there is match for SEPARATORS at the beginning of STRING, we do not
-include a null substring for that.  Likewise, if there is a match
-at the end of STRING, we don't include a null substring for that.
-
-Modifies the match data; use `save-match-data' if necessary."
-  (split-seq string separators :test #'char= :default-value '("")))
-
-(defun insert-before (list item nth)
-  "Insert ITEM before the NTH element of LIST."
-  (declare (type (integer 0 *) nth))
-  (let* ((nth (min nth (length list)))
-         (pre (subseq list 0 nth))
-         (post (subseq list nth)))
-    (nconc pre (list item) post)))
 
 (defvar *debug-level* 0
   "Set this variable to a number > 0 to turn on debugging. The greater the number the more debugging output.")
@@ -799,7 +654,7 @@ if you want everything to go to ~/dswm.d/debug-output.txt you would
 do:
 
 @example
-(redirect-all-output (data-dir-file \"debug-output\" \"txt\"))
+ (redirect-all-output (data-dir-file \"debug-output\" \"txt\"))
 @end example
 "
   (when (typep *redirect-stream* 'file-stream)
@@ -812,45 +667,6 @@ do:
 
 ;;; 
 ;;; formatting routines
-
-(defun format-expand (fmt-alist fmt &rest args)
-  (let* ((chars (coerce fmt 'list))
-         (output "")
-         (cur chars))
-    ;; FIXME: this is horribly inneficient
-    (loop
-     (cond ((null cur)
-            (return-from format-expand output))
-           ;; if % is the last char in the string then it's a literal.
-           ((and (char= (car cur) #\%)
-                 (cdr cur))
-            (setf cur (cdr cur))
-            (let* ((tmp (loop while (and cur (char<= #\0 (car cur) #\9))
-                              collect (pop cur)))
-                   (len (and tmp (parse-integer (coerce tmp 'string))))
-                   ;; So that eg "%25^t" will trim from the left
-                   (from-left-p (when (char= #\^ (car cur)) (pop cur))))
-              (if (null cur)
-                  (format t "%~a~@[~a~]" len from-left-p)
-                  (let* ((fmt (cadr (assoc (car cur) fmt-alist :test 'char=)))
-                         (str (cond (fmt
-                                     ;; it can return any type, not jut as string.
-                                     (format nil "~a" (apply fmt args)))
-                                    ((char= (car cur) #\%)
-                                     (string #\%))
-                                    (t
-                                     (concat (string #\%) (string (car cur)))))))
-                    ;; crop string if needed
-                    (setf output (concat output
-					 (cond ((null len) str)
-					       ((not from-left-p) ; Default behavior
-						(subseq str 0 (min len (length str))))
-					       ;; New behavior -- trim from the left
-					       (t (subseq str (max 0 (- (length str) len)))))))
-                    (setf cur (cdr cur))))))
-           (t
-            (setf output (concatenate 'string output (string (car cur)))
-                  cur (cdr cur)))))))
 
 (defvar *window-formatters* '((#\n window-map-number)
                               (#\s fmt-window-status)
@@ -920,10 +736,6 @@ The group's name.
 (defvar *list-hidden-groups* nil
   "Controls whether hidden groups are displayed by 'groups' and 'vgroups' commands")
 
-(defun font-height (font)
-  (+ (xlib:font-descent font)
-     (xlib:font-ascent font)))
-
 (defvar *x-selection* nil
   "This holds dswm's current selection. It is generally set
 when killing text in the input bar.")
@@ -975,23 +787,6 @@ raise/map denial messages will be seen.")
 (defvar *startup-only-code* nil
   "Set code, which run only on startup")
 
-(defun deny-request-p (window deny-list)
-  (or (eq deny-list t)
-      (and
-       (listp deny-list)
-       (find-if (lambda (props)
-                  (apply 'window-matches-properties-p window props))
-                deny-list)
-       t)))
-
-(defun list-splice-replace (item list &rest replacements)
-  "splice REPLACEMENTS into LIST where ITEM is, removing
-ITEM. Return the new list."
-  (let ((p (position item list)))
-    (if p
-        (nconc (subseq list 0 p) replacements (subseq list (1+ p)))
-        list)))
-
 (defvar *min-frame-width* 50
   "The minimum width a frame can be. A frame will not shrink below this
 width. Splitting will not affect frames if the new frame widths are
@@ -1037,79 +832,15 @@ Choose any unfocused frame.
 Alternatively, it can be set to a function that takes one argument, the new
 window, and returns the preferred frame or a list of the above preferences.")
 
-(defun backtrace-string ()
-  "Similar to print-backtrace, but return the backtrace as a string."
-  (with-output-to-string (*standard-output*)
-    (print-backtrace)))
-
 (defvar *default-package* (find-package '#:dswm-user)
   "This is the package eval reads and executes in. You might want to set
 this to @code{:dswm} if you find yourself using a lot of internal
 dswm symbols. Setting this variable anywhere but in your rc file
 will have no effect.")
 
-(defun concat (&rest strings)
-  "Concatenates strings, like the Unix command 'cat'.
-A short for (concatenate 'string foo bar)."
-  (apply 'concatenate 'string strings))
-
 (defvar *window-placement-rules* '()
   "List of rules governing window placement. Use define-frame-preference to
 add rules")
-
-(defmacro define-frame-preference (target-group &rest frame-rules)
-  "Create a rule that matches windows and automatically places them in
-a specified group and frame. Each frame rule is a lambda list:
-@example
-\(frame-number raise lock &key create restore dump-name class instance type role title)
-@end example
-
-@table @var
-@item frame-number
-The frame number to send matching windows to
-
-@item raise
-When non-nil, raise and focus the window in its frame
-
-@item lock
-When this is nil, this rule will only match when the current group
-matches @var{target-group}. When non-nil, this rule matches regardless
-of the group and the window is sent to @var{target-group}. If
-@var{lock} and @var{raise} are both non-nil, then dswm will jump to
-the specified group and focus the matched window.
-
-@item create
-When non-NIL the group is created and eventually restored when the value of
-create is a group dump filename in *DATA-DIR*. Defaults to NIL.
-
-@item restore
-When non-NIL the group is restored even if it already exists. This arg should
-be set to the dump filename to use for forced restore. Defaults to NIL
-
-@item class
-The window's class must match @var{class}.
-
-@item instance
-The window's instance/resource name must match @var{instance}.
-
-@item type
-The window's type must match @var{type}.
-
-@item role
-The window's role must match @var{role}.
-
-@item title
-The window's title must match @var{title}.
-@end table"
-  (let ((x (gensym "X")))
-    `(dolist (,x ',frame-rules)
-       ;; verify the correct structure
-       (destructuring-bind (frame-number raise lock
-                                         &rest keys
-                                         &key create restore class instance type role title) ,x
-         (declare (ignore create restore class instance type role title))
-         (push (list* ,target-group frame-number raise lock keys)
-               *window-placement-rules*)))))
 
 (defvar *mouse-focus-policy* :sloppy
   "The mouse focus policy decides how the mouse affects input
@@ -1134,14 +865,6 @@ input focus is transfered to the window you click on.")
 
 (defvar *default-group-name* "Main"
   "The name of the default group.")
-
-(defmacro with-focus (xwin &body body)
-  "Set the focus to xwin, do body, then restore focus"
-  `(progn
-     (grab-keyboard ,xwin)
-     (unwind-protect
-          (progn ,@body)
-       (ungrab-keyboard))))
 
 (defvar *last-unhandled-error* nil
   "If an unrecoverable error occurs, this variable will contain the
@@ -1216,31 +939,3 @@ of :error."
 
 (defvar *window-placement-dump-file* (data-dir-file "window-placement" "rules" "save.d")
   "Default filename for dump window placement rules")
-
-
-(defmacro move-to-head (list elt)
-   "Move the specified element in in LIST to the head of the list."
- `(progn
-    (setf ,list (remove ,elt ,list))
-    (push ,elt ,list)))
-
-(define-condition dswm-error (error)
-  () (:documentation "Any dswm specific error should inherit this."))
-
-(defun intern1 (thing &optional (package *package*) (rt *readtable*))
-  "A DWIM intern."
-  (intern
-   (ecase (readtable-case rt)
-     (:upcase (string-upcase thing))
-     (:downcase (string-downcase thing))
-     ;; Prooobably this is what they want? It could make sense to
-     ;; upcase them as well.
-     (:preserve thing)
-     (:invert (string-downcase thing)))
-   package))
-
-(defun command-mode-start-message ()
-  (message "Press C-g to exit command-mode."))
-
-(defun command-mode-end-message ()
-  (message "Exited command-mode."))

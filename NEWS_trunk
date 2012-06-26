@@ -10,3 +10,4 @@ possibly to use hex colors with function (make-color-hex "#000000")
 change default message-window-gravity to top
 add *menu-window-gravity*
 change default menu gravity to bottom-left
+updated default color scheme
