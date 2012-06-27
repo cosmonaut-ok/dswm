@@ -27,7 +27,7 @@
 
 (export '(*version* version))
 
-(defparameter *version*
+(defconstant +version+
   #.(concatenate 'string
                  (if (probe-path ".git")
                      (string-trim '(#\Newline) (run-shell-command "git describe" t))

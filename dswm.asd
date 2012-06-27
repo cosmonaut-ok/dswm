@@ -22,7 +22,7 @@
   :serial t
   :depends-on (:cl-ppcre #-(or cmu clisp) :clx #+sbcl :sb-posix)
   :components ((:file "package")
-               (:file "defaults")
+               (:file "definitions")
 	       (:file "library")
                (:file "workarounds")
                (:file "wrappers")
@@ -44,7 +44,6 @@
                (:file "window-placement")
                (:file "message-window")
                (:file "selection")
-	       ;; (:file "user")
                (:file "iresize")
 	       (:file "bindings")
                (:file "user")

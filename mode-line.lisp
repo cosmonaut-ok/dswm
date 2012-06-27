@@ -509,6 +509,43 @@ critical."
       (when (head-mode-line head)
         (toggle-mode-line screen head))))
 
+;; TODO: do this
+;;    \/\/
+;; (defun set-mode-line-any-color (val color screen head)
+;;   "Set mode-line foreground color"
+;;   (declare (type (or nil screen) screen))
+;;   (declare (type (or nil head) head))
+;;   (let ((ml-mode (mode-line-mode (head-mode-line head))))
+;;     (progn
+;;      (set (intern (concat "*mode-line-" val "-color*")) color)
+;;      (when (or (eq ml-mode :ds) (eq ml-mode :visible))
+;;      (progn
+;;        (toggle-mode-line screen head)
+;;        (toggle-mode-line screen head))))))
+
+;; (defun set-mode-line-fg-color (color)
+;;   "Set mode-line foreground color"
+;;   (set-mode-line-any-color 'fg color (current-screen) (current-head)))
+
+;; (defun set-mode-line-bg-color (color)
+;;   "Set mode-line background color"
+;;   (set-mode-line-any-color 'bg color (current-screen) (current-head)))
+
+;; (defun set-mode-line-border-color (color)
+;;   "Set mode-line background color"
+;;   (set-mode-line-any-color 'border color (current-screen) (current-head)))
+
+;; (defun set-mode-line-border-width (width)
+;;   "Set mode-line border width"
+;;   (declare (type (or nil screen) screen))
+;;   (declare (type (or nil head) head))
+;;   (and
+;;    (setf *mode-line-border-width* width)
+;;    (when (eq (mode-line-mode head) (or :ds :visible))
+;;      (progn
+;;        (toggle-mode-line screen head)
+;;        (toggle-mode-line screen head)))))
+
 (defcommand mode-line () ()
   "A command to toggle the mode line visibility."
   (toggle-mode-line (current-screen) (current-head)))

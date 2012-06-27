@@ -18,7 +18,7 @@ dest_dir=dswm-@PACKAGE_VERSION@
 
 # This is copied from the .asd file. It'd be nice to have the list in
 # one place, but oh well.
-FILES=dswm.asd package.lisp defaults.lisp wrappers.lisp		\
+FILES=dswm.asd package.lisp definitions.lisp wrappers.lisp		\
 library.lisp keysyms.lisp keytrans.lisp kmap.lisp input.lisp		\
 core.lisp command.lisp menu.lisp screen.lisp head.lisp group.lisp	\
 window.lisp floating-group.lisp tile-window.lisp window-placement.lisp	\

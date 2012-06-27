@@ -26,17 +26,15 @@
 
 (in-package #:dswm)
 
-;; (export '(*version* version))
-
 ;; Version
-(defparameter *version*
+(defparameter +version+
   #.(concat "@PACKAGE_VERSION@" " Compiled On "
 	    (format-expand *time-format-string-alist*
 			   *time-format-string-default*)))
 
 (defcommand version () ()
 "Print version information and compilation date."
-  (message *version*))
+  (message +version+))
 
 (defun columnize (list columns &key col-aligns (pad 1) (char #\Space) (align :left))
   "Make conlumns for messages from list"
@@ -111,7 +109,7 @@ Basic keybindings:
 Notes:
 ^BVersion: ~a
 License: GNU GPL v.2^b
-" (print-key *escape-key*) (data-dir) (print-key *escape-key*) (print-key *escape-key*) *version*)))
+" (print-key *escape-key*) (data-dir) (print-key *escape-key*) (print-key *escape-key*) +version+)))
     (when (or (not (file-exists-p not-firststart-p))
 	       show)
       (progn (message-no-timeout firststart-message)
