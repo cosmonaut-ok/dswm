@@ -1,4 +1,5 @@
 ;; Copyright (C) 2008 Julian Stecklina, Shawn Betts, Ivy Foster
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -106,4 +107,14 @@
     (message (format nil "Name:~20t~a~%Description:~20t~a~%Author:~20t~a~%Maintainer:~20t~a~%Licence:~20t~a~%Version:~20t~%"
 		     name module-description module-author module-maintainer module-licence module-version))))
 
+(defcommand load-file (name &optional (data-file-p nil)) ((:file "Input path to file: "))
+  "Loads file from location you input (optionally you can set data-file-p
+and file would de loaded from this location)"
+  (if (not (null data-file-p))
+      (if (file-exists-p (data-dir-file name))
+	  (load (data-dir-file name))
+	(message "No such file, named ~a" (princ-to-string (data-dir-file name))))
+    (if (file-exists-p name)
+	(load name)
+      (message "No such file, named ~a" name))))
 ;; End of file

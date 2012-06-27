@@ -11,3 +11,5 @@ change default message-window-gravity to top
 add *menu-window-gravity*
 change default menu gravity to bottom-left
 updated default color scheme
+added load-file command
+added set-mode-line-{fg,bg,border}-color, set-mode-line-border-width functions
