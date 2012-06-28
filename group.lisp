@@ -206,7 +206,7 @@ at 0. Return a netwm compliant group id."
   "Return the group following @var{current} in @var{groups}. If none
 are found return @code{NIL}."
   (let* ((matches (member current groups))
-         (next-group (if (null (cdr matches))
+         (next-group (if-null (cdr matches)
                          ;; If the last one in the list is current, then
                          ;; use the first one.
                          (car groups)

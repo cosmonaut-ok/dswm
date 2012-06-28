@@ -69,12 +69,12 @@
 (defun define-keysym (keysym keysym-name &optional dswm-name)
   "Define a mapping from a keysym name to a keysym."
   (let ((key (get-key-by-keysym-name keysym-name *keys*)))
-    (if (not (null key))
+    (if-not-null key
 	(let ((new-syms
 	       (if (not (member keysym (dswm-key-syms key)))
 		   (cons keysym (dswm-key-syms key))
 		   (dswm-key-syms key)))
-	      (new-dswm-name (if (null dswm-name) (dswm-key-dswm-name key) dswm-name)))
+	      (new-dswm-name (if-null dswm-name (dswm-key-dswm-name key) dswm-name)))
 	  (remove-from-list *keys* key)
 	  (remove-keysym keysym)
 	  (add-to-list *keys*
@@ -92,13 +92,13 @@
 (defun keysym-name->keysyms (name)
   "Return keysyms list corresponding to NAME."
   (let ((key (get-key-by-keysym-name name *keys*)))
-    (when-not-null key (dswm-key-syms key))))
+    (if-not-null key (dswm-key-syms key))))
 
 (defun dswm-name->keysyms (name)
   "Return the keysym corresponding to DSWM NAME."
   (let ((key-by-dswm-name (get-key-by-dswm-name name *keys*))
   	(key-by-name (get-key-by-keysym-name name *keys*)))
-    (if (null key-by-dswm-name)
+    (if-null key-by-dswm-name
   	(dswm-key-syms key-by-name)
   	(dswm-key-syms key-by-dswm-name))))
 
@@ -115,22 +115,22 @@
 (defun keysym->keysym-name (keysym)
   "Return the name corresponding to KEYSYM."
   (let ((key (get-key-by-keysym keysym *keys*)))
-    (when-not-null key (dswm-key-keysym-name key))))
+    (if-not-null key (dswm-key-keysym-name key))))
 
 (defun keysym->dswm-name (keysym)
   "Return the name corresponding to KEYSYM."
   (let ((key (get-key-by-keysym keysym *keys*)))
-    (when-not-null key
+    (if-not-null key
 		   (or (dswm-key-dswm-name key)
 		       (keysym->keysym-name keysym)))))
 
 (defun dswm-name->keysym-name (dswm-name)
   (let ((key (get-key-by-dswm-name dswm-name *keys*)))
-    (when-not-null key (dswm-key-keysym-name key))))
+    (if-not-null key (dswm-key-keysym-name key))))
 
 (defun keysym-name->dswm-name (name)
   (let ((key (get-key-by-keysym-name name *keys*)))
-    (when-not-null key
+    (if-not-null key
 		   (or (dswm-key-dswm-name key)
 		       (dswm-key-keysym-name key)))))
 ;;;;

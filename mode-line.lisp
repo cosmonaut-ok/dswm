@@ -139,17 +139,17 @@ Redefining standard fmt-group-list for hiding scratchpad group"
   (format nil "^R~A^r" s))
 
 (defun toggle-mode-line-blink ()
-  (if (null *mode-line-blinker*)
+  (if-null *mode-line-blinker*
       (setf *mode-line-blinker* t)
     (setf *mode-line-blinker* nil)))
 
 (defun fmt-solo-blink (s)
-  (if (null *mode-line-blinker*)
+  (if-null *mode-line-blinker*
       (format nil "^R~A^r" s)
     (format nil "^r~A^r" s)))
 
 (defun fmt-blink (s)
-  (if (null *mode-line-blinker*)
+  (if-null *mode-line-blinker*
       (format nil "^R~A^r" s)
     (format nil "^r~A^R" s)))
 

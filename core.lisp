@@ -153,15 +153,17 @@
 				  message-if-false)
   "Eval someting s-expression with messages, when it's done and false"
   `(if ,body
-       ,(if (not (null message-if-done))
-	    `(message ,message-if-done)
-	  t)
+       ,(if-not-null
+	 message-if-done
+	 `(message ,message-if-done)
+	 t)
      ,(if (member 'interactive *mode*)
 	  (cond ((not (null body-alternative))
 		 `body-alternative)
 		((not (null message-if-false))
 		 `(error ,message-if-false))
 		(t nil))
-	(if (not (null message-if-false))
-	    `(error ,message-if-false)
-	  nil))))
+	(if-not-null
+	 message-if-false
+	 `(error ,message-if-false)
+	 nil))))

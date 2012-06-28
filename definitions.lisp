@@ -27,123 +27,126 @@
 
 (in-package :dswm)
 
-(export '(*suppress-abort-messages*
-          *suppress-frame-indicator*
-          *timeout-wait*
-          *timeout-frame-indicator-wait*
-          *frame-indicator-text*
-          *frame-indicator-timer*
-          *message-window-timer*
+(export '(*all-modifiers*
+	  ;; *banish-pointer-to*
+	  ;; *browser*
+	  *command-mode-end-hook*
 	  *command-mode-start-hook*
-          *command-mode-end-hook*
-          *urgent-window-hook*
-          *new-window-hook*
-          *destroy-window-hook*
-          *focus-window-hook*
-          *place-window-hook*
-          *start-hook*
-          *internal-loop-hook*
-          *focus-frame-hook*
-          *new-frame-hook*
-	  *split-frame-hook*
-          *message-hook*
-          *top-level-error-hook*
-          *focus-group-hook*
-          *key-press-hook*
-          *root-click-hook*
-	  make-color-hex
-          *mode-line-click-hook*
-	  *mode-line-background-color*
-	  *mode-line-border-color*
-	  *mode-line-border-width*
-	  *mode-line-foreground-color*
+	  *debug-expose-events*
+	  *debug-level*
+	  *debug-stream*
+	  *deny-map-request*
+	  *deny-raise-request*
+	  *destroy-window-hook*
+	  *display*
+	  *editor-bindings*
+	  *emacs*
+	  *executing-dswm-command*
+	  *focus-frame-hook*
+	  *focus-group-hook*
+	  *focus-window-hook*
+	  *frame-indicator-text*
+	  *frame-indicator-timer*
+	  *frame-number-map*
+	  ;; *grab-pointer-count*
+	  *group-format*
+	  *group-formatters*
+	  ;; *group-number-map*
+	  *hidden-window-color*
+	  *honor-window-moves*
+	  ;; *ignore-echo-timeout*
+	  *initializing*
+	  *input-window-gravity*
+	  ;; *interactivep*
+	  *internal-loop-hook*
+	  *key-press-hook*
+	  *last-command*
+	  ;; *last-unhandled-error*
+	  *list-hidden-groups*
+	  *map-window-hook*
+	  *max-last-message-size*
+	  *maxsize-border-width*
+	  *maxsize-gravity*
+	  *menu-maximum-height*
+	  *menu-scrolling-step*
+	  *menu-window-gravity*
+	  *message-hook*
+	  *message-window-gravity*
+	  *message-window-padding*
+	  *message-window-timer*
+	  *min-frame-height*
+	  *min-frame-width*
+	  ;; *mode*
+	  ;;;; mode line colors are internal
+	  ;;;; Use set-mode-line-{bg,fg,etc}-color
+	  ;; *mode-line-background-color*
+	  *mode-line-blinker*
+	  ;; *mode-line-border-color*
+	  ;; *mode-line-border-width*
+	  *mode-line-click-hook*
+	  ;; *mode-line-foreground-color*
 	  *mode-line-pad-x*
 	  *mode-line-pad-y*
 	  *mode-line-position*
 	  *mode-line-timeout*
-	  *hidden-window-color*
+	  ;; *mode-line-timer*
+	  *modifiers*
+	  *mouse-focus-policy*
+	  *new-frame-action*
+	  *new-frame-hook*
+	  *new-window-hook*
+	  *new-window-preferred-frame*
+	  *normal-border-width*
+	  *normal-gravity*
+	  *place-window-hook*
+	  *processing-existing-windows*
+	  *record-last-msg-override*
+	  *resize-hides-windows*
+	  *resize-map*
+	  *root-click-focuses-frame*
+	  *root-click-hook*
+	  *run-or-raise-all-groups*
+	  *run-or-raise-all-screens*
+	  *scratchpad-group-name*
+	  *screen-list*
 	  *screen-mode-line-format*
 	  *screen-mode-line-formatters*
 	  *screen-widget-line-format*
 	  *screen-window-list-line-format*
-          *display*
-          *shell-program*
-          *maxsize-border-width*
-          *transient-border-width*
-          *normal-border-width*
-          *text-color*
-          *window-events*
-          *window-parent-events*
-          *message-window-padding*
-          *message-window-gravity*
-          *editor-bindings*
-          *input-window-gravity*
-          *normal-gravity*
-          *maxsize-gravity*
-          *transient-gravity*
-          *top-level-error-action*
-          *window-name-source*
-          *frame-number-map*
-          *all-modifiers*
-          *modifiers*
-          *screen-list*
-          *initializing*
-          *processing-existing-windows*
-          *executing-dswm-command*
-          *debug-level*
-          *debug-expose-events*
-          *debug-stream*
-          *window-formatters*
-          *window-format*
-          *group-formatters*
-          *group-format*
-          *list-hidden-groups*
-          *x-selection*
-          *last-command*
+	  *shell-program*
+	  ;; *show-command-backtrace*
+	  *show-tip-of-the-day-p*
+	  *split-frame-hook*
+	  *start-hook*
+	  ;; *startup-only-code*
+	  *suppress-abort-messages*
+	  ;; *suppress-deny-messages*
+	  ;; *suppress-echo-timeout*
+	  *suppress-frame-indicator*
 	  *terminal*
-	  *browser*
-	  *emacs*
-          *max-last-message-size*
-          *record-last-msg-override*
-          *suppress-echo-timeout*
-          *run-or-raise-all-groups*
-          *run-or-raise-all-screens*
-          *deny-map-request*
-          *deny-raise-request*
-          *suppress-deny-messages*
-          *honor-window-moves*
-          *resize-hides-windows*
-          *min-frame-width*
-          *min-frame-height*
-          *new-frame-action*
-          *new-window-preferred-frame*
-          *startup-message*
-          *default-package*
-          *window-placement-rules*
-          *mouse-focus-policy*
-          *root-click-focuses-frame*
-          *banish-pointer-to*
-          *xwin-to-window*
-          *resize-map*
-          *default-group-name*
-          *window-border-style*
-          *data-dir*
-          add-hook
-	  add-to-list
+	  *text-color*
+	  *timeout-frame-indicator-wait*
+	  *timeout-wait*
+	  *top-level-error-action*
+	  *top-level-error-hook*
+	  *transient-border-width*
+	  *transient-gravity*
+	  *unmap-window-hook*
+	  *urgent-window-hook*
+	  *window-border-style*
+	  *window-events*
+	  *window-format*
+	  *window-formatters*
+	  *window-name-source*
+	  *window-parent-events*
+	  *x-selection*
+	  *xwin-to-window*
+	  data-dir
+	  data-dir-file
+	  module-data-dir-file
+	  make-color-hex
 	  concat
-          data-dir-file
-          dformat
-          define-frame-preference
-          redirect-all-output
-	  remove-from-list
-          remove-hook
-          run-hook
-          run-hook-with-args
-	  *mode*
-          split-string
-	  with-restarts-menu
-          with-data-file
-	  move-to-head))
+	  ))
 
 
 
@@ -539,8 +542,11 @@ Use the window's resource name.
 (defvar *show-tip-of-the-day-p* t
   "Set, if needed to show tip of the day")
 
+(defvar *scratchpad-group-name*
+  "Name of scratchpad group")
+
 (defvar *scratchpad-group* nil
-  "For scratchpad group")
+  "Working variable for scratchpad group")
 
 (defvar *mode* '()
   "EXPERIMENTAL: Set enabled modes list

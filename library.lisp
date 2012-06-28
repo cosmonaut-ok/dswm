@@ -30,13 +30,56 @@
 #+:sbcl (require :sb-executable)
 #+:sbcl (require :sb-posix)
 
-(export '(getenv
- 	  where-is
-	  directory-pathname-p
-	  file-exists-p
-	  directory-exists-p
+(export '(add-hook
+	  add-to-list
+	  backtrace-string
+	  basename
+	  cat
+	  clisp-subdirectories-wildcard
+	  command-mode-end-message
+	  command-mode-start-message
+	  component-present-p
+	  conc1
+	  copy-file
+	  copy-stream
+	  define-frame-preference
 	  delete-directory-and-files
- 	  ))
+	  deny-request-p
+	  directory-exists-p
+	  directory-pathname-p
+	  directory-wildcard
+	  dirname
+	  file-exists-p
+	  find-free-number
+	  font-height
+	  format-expand
+	  getenv
+	  get-frame-number-translation
+	  get-uid
+	  if-not-null
+	  if-null
+	  insert-before
+	  intern1
+	  list-directory
+	  list-splice-replace
+	  mapcar-hash
+	  move-to-head
+	  my-rad-fn
+	  pathname-as-directory
+	  pathname-as-file
+	  pathname-is-executable-p
+	  probe-path
+	  remove-from-list
+	  remove-hook
+	  remove-plist
+	  run-hook
+	  run-hook-with-args
+	  sort1
+	  split-seq
+	  split-string
+	  walk-directory
+	  with-focus
+	  with-restarts-menu))
 
 (defun getenv (var)
   "Get values of UNIX system environment variables"
@@ -89,22 +132,6 @@
   (make-pathname :directory
 		 (pathname-directory
 		  (pathname pathname))))
-
-;; (defun whereis (name &optional type) ;; Types :binary :source :manual
-;;   "Files for where-is
-;;        /{bin,sbin,etc}
-
-;;        /usr/{lib,bin,old,new,local,games,include,etc,src,man,sbin,
-;;                            X386,TeX,g++-include}
-
-;;        /usr/local/{X386,TeX,X11,include,lib,man,etc,bin,games,emacs}
-;; "
-;;  FIXME: do it!
-;;   (let ((path (cl-ppcre:split ":" (dswm::unix-getenv "PATH"))))
-;;     (dolist (j path)
-;;       (if (probe-file (concat j "/" name))
-;; 	  (concat j "/" name)))
-;;     ))
 
 (defun cat (file)
   "Like UNIX command 'cat'" ;; FIXME: It's working not completely correct
@@ -489,26 +516,31 @@ ITEM. Return the new list."
   (nconc list (list arg)))
 
 (defmacro add-to-list (list arg)
+  ;; TODO It's real pushnew analog
   `(if (not (member ,arg ,list))
       (setq ,list (cons ,arg ,list))))
 
 (defmacro remove-from-list (list arg)
   `(labels
     ((rm-from-list (list arg)
-		   (cond
-		    ((null list)
-		     nil)
-		    ((equal arg (car list))
-		     (rm-from-list (cdr list) arg))
-		    (t
-		     (cons
-		      (car list)
-		      (rm-from-list (cdr list) arg))))))
+	(cond
+	 ((null list) nil)
+	 ((equal arg (car list))
+	  (rm-from-list (cdr list) arg))
+	 (t (cons (car list) (rm-from-list (cdr list) arg))))))
     (setf ,list (rm-from-list ,list ,arg))))
 
-(defmacro when-not-null (value body)
-  `(when (not (null ,value))
-     ,body))
+(defmacro if-not-null (value body &optional else-body)
+  `(if (not (null ,value))
+       ,body
+     ,(if (not (null else-body))
+	  else-body)))
+
+(defmacro if-null (value body &optional else-body)
+  `(if (null ,value)
+       ,body
+     ,(if (not (null else-body))
+	  else-body)))
 
 (defun sort1 (list sort-fn &rest keys &key &allow-other-keys)
   "Return a sorted copy of list."

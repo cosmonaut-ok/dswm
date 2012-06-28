@@ -265,7 +265,7 @@ frame."
   ;; list and give that window focus
   (let* ((w (group-current-window group))
          (wins (remove-if-not predicate (cdr (member w window-list))))
-         (nw (if (null wins)
+         (nw (if-null wins
                  ;; If the last window in the list is focused, then
                  ;; focus the first one.
                  (car (remove-if-not predicate window-list))
@@ -551,7 +551,7 @@ frame and focus the selected window.  The optional argument @var{fmt} can be
 specified to override the default window formatting."
   (let* ((group (current-group))
 	 (frame (tile-group-current-frame group)))
-    (if (null (frame-windows group frame))
+    (if-null (frame-windows group frame)
 	(message "No Managed Windows")
 	(let ((window (select-window-from-menu (frame-sort-windows group frame) fmt)))
 	  (if window

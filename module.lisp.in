@@ -81,9 +81,9 @@
   (let ((list nil))
     (dolist (w (modules-list))
       (setf list (concat w "~%" list)))
-    (if (not (null list))
-	(message (format nil "~a" list))
-	(message "No modules found"))))
+    (if-not-null list
+		 (message (format nil "~a" list))
+		 (message "No modules found"))))
 
 (defcommand module-info (name) ((:module "Input module name: "))
   "Shows full information about module"
@@ -110,11 +110,12 @@
 (defcommand load-file (name &optional (data-file-p nil)) ((:file "Input path to file: "))
   "Loads file from location you input (optionally you can set data-file-p
 and file would de loaded from this location)"
-  (if (not (null data-file-p))
+  (if-not-null data-file-p
       (if (file-exists-p (data-dir-file name))
 	  (load (data-dir-file name))
 	(message "No such file, named ~a" (princ-to-string (data-dir-file name))))
     (if (file-exists-p name)
 	(load name)
       (message "No such file, named ~a" name))))
+
 ;; End of file

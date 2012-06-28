@@ -1016,7 +1016,7 @@ is using the number, then the windows swap numbers. Defaults to current group."
 the selected window. For information of menu bindings
 @xref{Menus}. The optional argument @var{fmt} can be specified to
 override the default window formatting."
-  (if (null (group-windows (current-group)))
+  (if-null (group-windows (current-group))
       (message "No Managed Windows")
       (let* ((group (current-group))
              (window (select-window-from-menu (sort-windows group) fmt)))
@@ -1070,7 +1070,7 @@ be used to override the default window formatting."
          (highlight (position (group-current-window group) wins))
          (names (mapcar (lambda (w)
                           (format-expand *window-formatters* fmt w)) wins)))
-    (if (null wins)
+    (if-null wins
         (echo-string (group-screen group) "No Managed Windows")
         (echo-string-list (group-screen group) names highlight))))
 

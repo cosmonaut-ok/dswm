@@ -27,14 +27,47 @@
 (in-package #:dswm)
 
 ;; Version
-(defparameter +version+
+(defparameter *version*
   #.(concat "@PACKAGE_VERSION@" " Compiled On "
 	    (format-expand *time-format-string-alist*
 			   *time-format-string-default*)))
 
+(defparameter *start-message-format* (format nil "
+^7*Welcome to The ^BD^beep ^BS^bpace ^BW^bindow ^BM^banager!
+This is first-start message for quick ^BDSWM^b usage learning
+-------------------------------------------------------------
+* Press ^5*~a ?^7* for more detail help.
+* Your config-file is {HOME}/.dswm or ~a/init.lisp
+* Use prefix key ^5*~a^7* with keybindings
+
+Basic keybindings:
++--------------+--------------------------------------------+
+| Keybinding   | Role                                       |
++--------------+--------------------------------------------+
+|     !        | Run program by name                        |
+|     ;        | Run commandline for internal DSWM commands |
+|     r        | Resize frame                               |
+|     s        | Split frame horizontally                   |
+|     S        | Splt frame vertically                      |
+|     R        | Remove split                               |
+|     m <N>    | Move window to frame with number <N>       |
+|     <N>      | Select window with number <N>              |
+|     F<N>     | Select group with number <N>               |
+|     g c      | Create group                               |
+|     g k      | Remove group                               |
++-----------------------------------------------------------+
+
+* Run in internal command ^Bdescribe-key or describe-command^b etc
+  for describing keybinding or command
+* ^BYou can always show this message^b, entering ~a h^b, or throug
+  internal command ^Bhelp-short^b
+Notes:
+^BVersion: ~a
+License: GNU GPL v.2^b" (print-key *escape-key*) (data-dir) (print-key *escape-key*) (print-key *escape-key*) *version*))
+
 (defcommand version () ()
 "Print version information and compilation date."
-  (message +version+))
+  (message *version*))
 
 (defun columnize (list columns &key col-aligns (pad 1) (char #\Space) (align :left))
   "Make conlumns for messages from list"
@@ -75,44 +108,10 @@
 
 (defun first-start (&optional show)
   (let ((not-firststart-p (data-dir-file ".started" "p"))
-	(*message-window-gravity* :center)
-	(firststart-message (format nil
-				    "
-^7*Welcome to The ^BD^beep ^BS^bpace ^BW^bindow ^BM^banager!
-This is first-start message for quick ^BDSWM^b usage learning
--------------------------------------------------------------
-* Press ^5*~a ?^7* for more detail help.
-* Your config-file is {HOME}/.dswm or ~a/init.lisp
-* Use prefix key ^5*~a^7* with keybindings
-
-Basic keybindings:
-+--------------+--------------------------------------------+
-| Keybinding   | Role                                       |
-+--------------+--------------------------------------------+
-|     !        | Run program by name                        |
-|     ;        | Run commandline for internal DSWM commands |
-|     r        | Resize frame                               |
-|     s        | Split frame horizontally                   |
-|     S        | Splt frame vertically                      |
-|     R        | Remove split                               |
-|     m <N>    | Move window to frame with number <N>       |
-|     <N>      | Select window with number <N>              |
-|     F<N>     | Select group with number <N>               |
-|     g c      | Create group                               |
-|     g k      | Remove group                               |
-+-----------------------------------------------------------+
-
-* Run in internal command ^Bdescribe-key or describe-command^b etc
-  for describing keybinding or command
-* ^BYou can always show this message^b, entering ~a h^b, or throug
-  internal command ^Bhelp-short^b
-Notes:
-^BVersion: ~a
-License: GNU GPL v.2^b
-" (print-key *escape-key*) (data-dir) (print-key *escape-key*) (print-key *escape-key*) +version+)))
+	(*message-window-gravity* :center))
     (when (or (not (file-exists-p not-firststart-p))
 	       show)
-      (progn (message-no-timeout firststart-message)
+      (progn (message-no-timeout *start-message-format*)
 	     (with-open-file (stream not-firststart-p :if-does-not-exist :create)
 			     t)))))
 

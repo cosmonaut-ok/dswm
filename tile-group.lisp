@@ -432,7 +432,7 @@ If ratio is an integer return the number of pixel desired."
   (cond ((atom tree) nil)
         ((find leaf tree)
          (let* ((rest (cdr (member leaf (funcall fn tree))))
-                (pick (car (if (null rest) (funcall fn tree) rest))))
+                (pick (car (if-null rest (funcall fn tree) rest))))
            (unless (eq pick leaf)
              pick)))
         (t (find-if (lambda (x)
@@ -1007,7 +1007,7 @@ space."
 the current frame."
   (let ((rest (cdr (member (tile-group-current-frame group) frames :test 'eq))))
     (focus-frame group
-                 (if (null rest)
+                 (if-null rest
                      (car frames)
                      (car rest)))))
 
