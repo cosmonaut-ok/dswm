@@ -202,7 +202,7 @@ identity with a range check."
 
 (defun next-screen (&optional (list (sort-screens)))
   (let ((matches (member (current-screen) list)))
-    (if (null (cdr matches))
+    (if-null (cdr matches)
         ;; If the last one in the list is current, then
         ;; use the first one.
         (car list)
