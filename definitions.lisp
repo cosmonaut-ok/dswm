@@ -542,7 +542,7 @@ Use the window's resource name.
 (defvar *show-tip-of-the-day-p* t
   "Set, if needed to show tip of the day")
 
-(defvar *scratchpad-group-name*
+(defvar *scratchpad-group-name* "scratchpad"
   "Name of scratchpad group")
 
 (defvar *scratchpad-group* nil

@@ -1,0 +1,19 @@
+make mode-line more configurable
+exports revision
+emacs integration module
+swank module
+test hooks
+
+replace
+	  *screen-mode-line-format*
+	  *screen-mode-line-formatters*
+	  *screen-widget-line-format*
+	  *screen-window-list-line-format*
+to something better
+
+Make urgent blinking better
+
+Modules:
+ wmii-like-dswmrc - not working
+
+time: make time format
