@@ -16,3 +16,9 @@ added set-mode-line-{fg,bg,border}-color, set-mode-line-border-width functions
 when-not-null -> if-not-null macro
 +if-null macro
 add *scratchpad-group-name*
+removed macros 'defkey(s)-{top,root} as non functional in standard complectation
+
+mode-line display phylosophy: when *screen-mode-line-format* is set - display it. If not set - display double line 
+format: first - *screen-widget-line-format* second - *screen-window-list-format*
+
+add set-mode-line-{bg,fg,border}-color functions
