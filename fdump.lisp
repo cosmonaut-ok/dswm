@@ -47,16 +47,16 @@
           gdump-number
           gdump-tree
           place-existing-windows
-          restore
-	  restore-all-rules
-	  restore-desktop-snapshot
-	  save-all-rules
-	  save-frame+group-rules
           sdump
           sdump-current
           sdump-groups
           sdump-number
-	  snapshot-desktop))
+	  snapshot-desktop
+	  remember-desktop
+	  forget-desktop
+	  recall-desktop
+	  recall-desktop-snapshot))
+
 
 (defstruct fdump
   number x y width height windows current)
@@ -207,12 +207,12 @@
 			      (new-group
 			       (cond ((eq (type-of gdump) 'fgdump)
 				      (add-group (current-screen)
-						 (concat (group-name group "~"))
+						 (concat "~" (group-name group) "~")
 						 :type 'float-group
 						 :background t))
 				     ((eq (type-of gdump) 'gdump)
 				      (add-group (current-screen)
-						 (concat (group-name group "~"))
+						 (concat "~" (group-name group) "~")
 						 :type 'tile-group
 						 :background t))
 				     (t
@@ -284,8 +284,6 @@
       (when screen
         (restore-screen screen sdump)))))
 
-
-
 (defun restore-from-file (file)
   "Restores screen, groups, or frames from named file, depending on file's contents."
   (let ((dump (read-dump-from-file file)))
@@ -302,35 +300,26 @@
       (t
        (message "Don't know how to restore ~a" dump)))))
 
-(defcommand place-existing-windows () ()
-  "Re-arrange existing windows according to placement rules."
-  (sync-window-placement))
-
-(defcommand remember-group () ()
-  "Dumps the frames of the current group of the current screen to the
-default dump file."
-    (eval-with-message :body
-		     (dump-group (current-group) :to-fs t :file *desktop-dump-file*)
-		     :message-if-done "Group saved"
-		     :message-if-false "Cannot save group"))
-
-(defcommand remember-screen () ()
-  "Dumps the frames of all groups of the current screen to the default
-dump file"
-    (eval-with-message :body
-		     (dump-screen (current-screen) :to-fs t :file *desktop-dump-file*)
-		     :message-if-done "Screen saved"
-		     :message-if-false "Can't save screen"))
-
 (defcommand remember-desktop () ()
   "Dumps the frames of all groups of all screens to the default dump file"
     (eval-with-message :body
 		     (dump-desktop :to-fs t :file *desktop-dump-file*)
-		     :message-if-done "Desktop saved"
+		     :message-if-done "Desktop rules saved"
 		     :message-if-false "Can't save desktop"))
 
-;; TODO: defcommand forgot-desktop () ()
-  
+(defcommand forget-desktop () ()
+  "Forget all frames, groups and screen rules"
+  (eval-with-message :body
+		     (delete-file *desktop-dump-file*)
+		     :message-if-done "Desktop rules forgot"
+		     :message-if-false "Nothing to forget"))
+
+(defcommand recall-desktop () ()
+  (eval-with-message :body
+		     (restore-from-file *desktop-dump-file*)
+		     :message-if-done "Desktop rules recalled"
+		     :message-if-false "Can't recall desktop rules"))
+
 (defcommand snapshot-desktop () ()
   "Make rules of all existing windows, bind it to groups and frames,
 where they located now and dump all groups frames and window placement
@@ -350,14 +339,12 @@ frames of the current desktop from frame-froup-placement.rules and
 window-placement.rules file in data dir"
   (eval-with-message :body
 		     (progn
-		       (when (file-exists-p (data-dir-file "desktop" "rules" "save.d"))
-			 (restore-from-file
-			  (data-dir-file "desktop" "rules" "save.d")))
-		       (when (file-exists-p (data-dir-file "window-placement" "rules" "save.d"))
+		       (when (file-exists-p *desktop-dump-file*)
+			 (restore-from-file *desktop-dump-file*))
+		       (when (file-exists-p *window-placement-dump-file*)
 			 (setf *window-placement-rules*
-			       (read-dump-from-file
-				(data-dir-file "window-placement" "rules" "save.d"))))
+			       (read-dump-from-file *window-placement-dump-file*)))
 		       ;; TODO: Add function for restore all programs, running in last session
 		       )
-		     :message-if-done "Snapshot restored"
-		     :message-if-false "Can't restore snapshot"))
+		     :message-if-done "Snapshot recalled"
+		     :message-if-false "Can't recall snapshot"))

@@ -25,7 +25,26 @@
 
 (in-package #:dswm)
 
-(export '(save-frame-excursion))
+(export '(save-frame-excursion
+	  hsplit
+	  vsplit
+	  remove-split
+	  remove
+	  only
+	  curframe
+	  fnext
+	  sibling
+	  fother
+	  fselect
+	  resize
+	  fclear
+	  move-focus
+	  move-window
+	  next-in-frame
+	  prev-in-frame
+	  other-in-frame
+	  balance-frames
+	  move-window-to-frame))
 
 (defclass tile-group (group)
   ((frame-tree :accessor tile-group-frame-tree)

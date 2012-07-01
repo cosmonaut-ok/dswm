@@ -27,7 +27,9 @@
 	  set-mode-line-bg-color
 	  set-mode-line-border-color
 	  set-mode-line-border-width
-	  set-mode-line-fg-color))
+	  set-mode-line-fg-color
+	  set-screen-mode-line-format
+	  set-screen-widget-line-format))
 
 (defstruct mode-line
   screen
@@ -526,30 +528,30 @@ critical."
     (when (head-mode-line head)
       (toggle-mode-line screen head))))
 
-(defun set-mode-line-any-color (val color)
-  "Set any mode-line color for the specified screen"
-  (let* ((screen (current-screen))
-	 (head (current-head))
-	 (ml (head-mode-line head)))
-    (and
-     (set (intern (concat "*MODE-LINE-" (princ-to-string val) "-COLOR*")) color)
-     (if ml
-	 (case (mode-line-mode ml)
-	   (:visible
-	    ;; Hide it.
-	    (setf (mode-line-mode ml) :hidden)
-	    (xlib:unmap-window (mode-line-window ml))
-	    (xlib:map-window (mode-line-window ml)))
+(defun maybe-refresh-mode-line (screen head)
+  "Refresh mode line, if it needed"
+  (let ((ml (head-mode-line head)))
+    (if ml
+	(case (mode-line-mode ml)
+	  (:visible
+	   (setf (mode-line-mode ml) :hidden)
+	   (xlib:unmap-window (mode-line-window ml))
+	   (xlib:map-window (mode-line-window ml)))
 	   (:ds
-	    ;; Delete it
 	    (xlib:destroy-window (mode-line-window ml))
 	    (xlib:free-gcontext (mode-line-gc ml))
 	    (setf (head-mode-line head) nil)
 	    (maybe-cancel-mode-line-timer)
 	    (setf (head-mode-line head) (make-head-mode-line screen head (screen-mode-line-format)))
 	    (xlib:map-window (mode-line-window (head-mode-line head))))))
-     (redraw-mode-line (head-mode-line head)))))
+    (redraw-mode-line (head-mode-line head))))
 
+(defun set-mode-line-any-color (val color)
+  "Set any mode-line color for the specified screen"
+  (and
+   (set (intern (concat "*MODE-LINE-" (princ-to-string val) "-COLOR*")) color)
+   (maybe-refresh-mode-line (current-screen) (current-head))))
+   
 (defun set-mode-line-fg-color (color)
   "Set mode-line foreground color"
   (set-mode-line-any-color 'foreground color))
@@ -564,27 +566,19 @@ critical."
 
 (defun set-mode-line-border-width (width)
   "Set mode-line border width"
-  (let* ((screen (current-screen))
-	 (head (current-head))
-	 (ml (head-mode-line head)))
-    (and
-     (setf *mode-line-border-width* width)
-     (if ml
-	 (case (mode-line-mode ml)
-	   (:visible
-	    ;; Toggle it.
-	    (setf (mode-line-mode ml) :hidden)
-	    (xlib:unmap-window (mode-line-window ml))
-	    (xlib:map-window (mode-line-window ml)))
-	   (:ds
-	    ;; Recreate it
-	    (xlib:destroy-window (mode-line-window ml))
-	    (xlib:free-gcontext (mode-line-gc ml))
-	    (setf (head-mode-line head) nil)
-	    (maybe-cancel-mode-line-timer)
-	    (setf (head-mode-line head) (make-head-mode-line screen head (screen-mode-line-format)))
-	    (xlib:map-window (mode-line-window (head-mode-line head))))))
-     (redraw-mode-line (head-mode-line head)))))
+  (and
+   (setf *mode-line-border-width* width)
+   (maybe-refresh-mode-line (current-screen) (current-head))))
+
+(defun set-screen-mode-line-format (format)
+  (and
+   (setf *screen-mode-line-format* format)
+   (maybe-refresh-mode-line (current-screen) (current-head))))
+
+(defun set-screen-widget-line-format (format)
+  (and
+   (setf *screen-widget-line-format* format)
+   (maybe-refresh-mode-line (current-screen) (current-head))))
 
 (defcommand mode-line () ()
   "A command to toggle the mode line visibility."

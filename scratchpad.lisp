@@ -26,8 +26,7 @@
 ;; TODO: make it good
 (in-package :dswm)
 
-(defvar *scratchpad-group* '()
-  "Group of the scratchpad." )
+(export '(scratchpad))
 
 (defun scratchpad-init ()
   "Initializing scratchpad support"

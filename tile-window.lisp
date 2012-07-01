@@ -26,6 +26,17 @@
 
 (in-package :dswm)
 
+(export '(remember-window
+	  remember-windows-current-group
+	  remember-windows-current-screen
+	  remember-all-windows
+	  forget-window
+	  forget-windows-current-group
+	  forget-windows-current-screen
+	  forget-all-windows
+	  redisplay
+	  frame-windowlist))
+
 (defclass tile-window (window)
   ((frame   :initarg :frame   :accessor window-frame)))
 
@@ -447,7 +458,7 @@ frame. Possible values are:
   "Local macro. Forget or remember windows placement rules"
   `(eval-with-message :body (progn ,body (dump-structure
 					  *window-placement-rules* t
-					  (data-dir-file "window-placement" "rules" "save.d")))
+					  (data-dir-file "window-placement" "rules" "rules.d")))
 		      :message-if-done ,message
 		      :message-if-false ,message-false))
 
@@ -461,7 +472,7 @@ frame. Possible values are:
    "Can't remember rules. Check write permissions to dswm data
 directory and files"))
 
-(defcommand-alias remember remember-window)
+(defcommand-alias remember remember-window) ;; TODO remove in next release
 
 (defcommand (remember-windows-current-group tile-group) (lock title)
   ((:y-or-n "Lock to group? ")
@@ -473,7 +484,7 @@ directory and files"))
    "Can't remember rules. Check write permissions to dswm data
 directory and files"))
 
-(defcommand remember-windows-current-screen (lock title)
+(defcommand (remember-windows-current-screen tile-group) (lock title)
   ((:y-or-n "Lock to group? ")
    (:y-or-n "Use title? "))
   "Make a generic placement rule for the current window. Might be too specific/not specific enough!"
@@ -502,7 +513,7 @@ specific/not specific enough!"
    "Rules forgotten"
    "Can't forgot rules. Check write permissions to dswm data directory and files"))
 
-(defcommand-alias forget forget-window)
+(defcommand-alias forget forget-window) ;; TODO remove in next release
 
 (defcommand (forget-windows-current-group tile-group) () ()
   "Remove a generic placement rule for the current window. Might be too specific/not specific enough!"
@@ -511,14 +522,14 @@ specific/not specific enough!"
    "Rules forgotten"
    "Can't forgot rules. Check write permissions to dswm data directory and files"))
 
-(defcommand forget-windows-current-screen () ()
+(defcommand (forget-windows-current-screen tile-group) () ()
   "Remove generic placement rules for the all windows in current screen"
   (forget-remember-rules
    (make-rules-for-screen (current-screen))
    "Rules forgotten"
    "Can't forgot rules. Check write permissions to dswm data directory and files"))
 
-(defcommand forget-all-windows () ()
+(defcommand (forget-all-windows tile-group) () ()
   "Remove placement rules for all windows"
   (forget-remember-rules
    (setf *window-placement-rules* nil)

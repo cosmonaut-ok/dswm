@@ -22,3 +22,15 @@ mode-line display phylosophy: when *screen-mode-line-format* is set - display it
 format: first - *screen-widget-line-format* second - *screen-window-list-format*
 
 add set-mode-line-{bg,fg,border}-color functions
+
+add set-screen-mode-line-format set-screen-widget-line-format
+
+remove remember-group remember-screen as deprecated
+
+add forget-desktop recall-desktop (for RFR model)
+
+remember,forget deprecated
+
+remove groups as deprecated -> use vgroups and grouplist for visualisation and echo-groups for programming
+
+alias gselect-with-window -> gmove

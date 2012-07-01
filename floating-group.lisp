@@ -26,6 +26,12 @@
 
 (in-package :dswm)
 
+(export '(gnew-float
+	  gnewbg-float
+	  gnew-float-with-window
+	  gnew-float-with-marked
+	  grun-new-float))
+
 ;;; floating window
 
 (defclass float-window (window)

@@ -31,9 +31,17 @@
 	  programs-in-path
 	  restarts-menu
 	  run-or-raise
+	  run-or-pull
+	  run-in-terminal
 	  run-shell-command
 	  run-shell-commands
-          window-send-string))
+          window-send-string
+	  ratwarp
+	  ratrelwarp
+	  ratclick
+	  emacs
+	  browser
+	  terminal))
 
 (defun restarts-menu (err)
   "Display a menu with the active restarts and let the user pick

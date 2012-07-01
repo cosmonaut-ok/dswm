@@ -141,29 +141,3 @@
 (defun warp-pointer-relative (dx dy)
   "Move the pointer by DX and DY relative to the current location."
   (xlib:warp-pointer-relative *display* dx dy))
-
-(defun string-as-directory (dir)
-  (unless (string= "/" (subseq dir (1- (length dir))))
-    (setf dir (concat dir "/")))
-  (pathname dir))
-
-(defmacro eval-with-message (&key body
-				  body-alternative
-				  message-if-done
-				  message-if-false)
-  "Eval someting s-expression with messages, when it's done and false"
-  `(if ,body
-       ,(if-not-null
-	 message-if-done
-	 `(message ,message-if-done)
-	 t)
-     ,(if (member 'interactive *mode*)
-	  (cond ((not (null body-alternative))
-		 `body-alternative)
-		((not (null message-if-false))
-		 `(error ,message-if-false))
-		(t nil))
-	(if-not-null
-	 message-if-false
-	 `(error ,message-if-false)
-	 nil))))

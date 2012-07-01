@@ -31,10 +31,33 @@
           set-normal-gravity
           set-maxsize-gravity
           set-transient-gravity
-          set-window-geometry))
-
-(defvar *default-window-name* "Unnamed"
-  "The name given to a window that does not supply its own name.")
+          set-window-geometry
+	  next-urgent
+	  delete-window
+	  delete
+	  kill-window
+	  kill
+	  title
+	  rename-window
+	  select-window
+	  select
+	  select-window-by-name
+	  select-window-by-number
+	  other-window
+	  other
+	  renumber
+	  number
+	  repack-window-numbers
+	  windowlist
+	  window-send-string
+	  insert
+	  mark
+	  clear-window-marks
+	  clear-marks
+	  echo-windows
+	  windows
+	  refresh
+	  place-existing-windows))
 
 (defclass window ()
   ((xwin    :initarg :xwin    :accessor window-xwin)

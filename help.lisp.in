@@ -26,6 +26,15 @@
 
 (in-package #:dswm)
 
+(export '(version
+	  describe-key
+	  describe-variable
+	  describe-function
+	  describe-command
+	  where-is
+	  show-window-properties
+	  list-window-properties))
+
 ;; Version
 (defparameter *version*
   #.(concat "@PACKAGE_VERSION@" " Compiled On "
