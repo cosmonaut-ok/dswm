@@ -37,7 +37,10 @@
           set-unfocus-color
           set-msg-border-width
           set-frame-outline-width
-          set-font))
+          set-font
+	  snext
+	  sprev
+	  sother))
 
 (defclass screen ()
   ((id :initform nil :accessor screen-id)

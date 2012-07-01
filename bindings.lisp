@@ -29,7 +29,10 @@
 (export '(*groups-map*
           *help-map*
           *root-map*
-	  set-prefix-key))
+	  set-prefix-key
+	  fill-keymap
+	  set-prefix-key
+	  bind))
 
 (defvar *escape-key* (kbd "C-j")
   "The escape key. Any keymap that wants to hang off the escape key

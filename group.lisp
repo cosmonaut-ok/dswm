@@ -26,7 +26,28 @@
 
 (in-package #:dswm)
 
-(export '(current-group))
+(export '(current-group
+	  gnew
+	  gnewbg
+	  gnew-with-window
+	  gnew-with-marked
+	  gnext
+	  gprev
+	  gnext-with-window
+	  gprev-with-window
+	  gother
+	  grename
+	  vgroups
+	  gselect
+	  grouplist
+	  gmove
+	  gselect-with-window
+	  gmove-marked
+	  gkill
+	  gmerge
+	  grun
+	  grun-new
+	  echo-groups))
 
 (defvar *default-group-type* 'tile-group
   "The type of group that should be created by default.")
@@ -482,38 +503,13 @@ the default group formatting and window formatting, respectively."
     (when group
       (switch-to-group group))))
 
-;; (defcommand grouplist (&optional (fmt *group-format*)) (:rest)
-;;   "Allow the user to select a group from a list, like windowlist but                                                                                                                                           
-;;   for groups"
-;;   (let* ((sgs (screen-groups (current-screen)))
-;;          (group (second (select-from-menu
-;;                          (current-screen)
-;;                          (mapcar (lambda (g)
-;; 				   (list
-;; 				    (when (not (equal (group-number g) 0) (format-expand *group-formatters* fmt g) g))))
-;;                                  (cons (cadr sgs)
-;;                                        (cons (car sgs)
-;;                                              (cddr sgs))))))))
-;;     (when group
-;;       (switch-to-group group))))
-
-
-
-
-
-;; To Command groups is deprecated as not functional
-(defcommand-alias groups grouplist)
-
 (defcommand gmove (group) ((:group "Select group: "))
   "Move the current window to the specified group."
   (when (and group
              (current-window))
     (move-window-to-group (current-window) group)))
 
-;; (defcommand gselect-with-window (group) ((:group "Select group: "))
-;;   "Move the current window to the specified group and switch to it."
-;;   (gmove group)
-;;   (gselect group))
+(defcommand-alias gselect-with-window gmove)
 
 (defcommand gmove-marked (group) ((:group "Select group: "))
   "move the marked windows to the specified group."
@@ -555,13 +551,11 @@ The windows will be moved to group \"^B^2*~a^n\"
 				  (:group "In what group? "))
   "Run shell command in specified group"
   ;; FIXME: need to run, ignoring window placement rules
-  (let ((*window-placement-rules* '()))
     (gselect group)
-    (run-shell-command command)))
+    (run-shell-command command))
 
 (defcommand grun-new (command) ((:shell "Enter command to run program: "))
   "Run shell command in new tile group with same name with command"
   ;; FIXME: need to run, ignoring window placement rules
-  (let ((*window-placement-rules* '()))
     (gnew command)
-    (run-shell-command command)))
+    (run-shell-command command))

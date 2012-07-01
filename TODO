@@ -1,17 +1,7 @@
-make mode-line more configurable
 exports revision
 emacs integration module
 swank module
 test hooks
-
-replace
-	  *screen-mode-line-format*
-	  *screen-mode-line-formatters*
-	  *screen-widget-line-format*
-	  *screen-window-list-line-format*
-to something better
-
-Make urgent blinking better
 
 Modules:
  wmii-like-dswmrc - not working
@@ -20,6 +10,7 @@ time: make time format
 
 module.lisp.in Try to resolve and load module dependences
 
-gmove to scratchpad is not working :((
-
 make experimental feature for 0.0.6 fmt-head-windows-with-urgent, fmt-head-windows-with-blink-urgent
+
+BUG: tile-to-float and float-to-file group restoration
+

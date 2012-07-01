@@ -97,8 +97,6 @@
 	  *screen-list*
 	  *screen-mode-line-format*
 	  *screen-mode-line-formatters*
-	  *screen-widget-line-format*
-	  *screen-window-list-line-format*
 	  *shell-program*
 	  *show-tip-of-the-day-p*
 	  *split-frame-hook*
@@ -126,6 +124,7 @@
 	  data-dir
 	  data-dir-file
 	  module-data-dir-file
+	  with-data-file
 	  make-color-hex
 	  concat
 	  ))
@@ -933,8 +932,17 @@ of :error."
 		       ,@keys) ,@body))
 
 ;; Names of dump files
-(defvar *desktop-dump-file* (data-dir-file "desktop" "rules" "save.d")
+(defvar *desktop-dump-file* (data-dir-file "desktop" "rules" "rules.d")
   "Default filename for dump group placement rules")
 
-(defvar *window-placement-dump-file* (data-dir-file "window-placement" "rules" "save.d")
+(defvar *window-placement-dump-file* (data-dir-file "window-placement" "rules" "rules.d")
   "Default filename for dump window placement rules")
+
+(defvar *default-window-name* "Unnamed"
+  "The name given to a window that does not supply its own name.")
+
+(defvar *keys* nil
+  "Defines list of keynames and related keysyms to it")
+
+(defvar *scratchpad-group* '()
+  "Group of the scratchpad." )

@@ -33,6 +33,7 @@
 (export '(add-hook
 	  add-to-list
 	  backtrace-string
+	  backup-file
 	  basename
 	  cat
 	  clisp-subdirectories-wildcard
@@ -49,6 +50,7 @@
 	  directory-pathname-p
 	  directory-wildcard
 	  dirname
+	  eval-with-message 
 	  file-exists-p
 	  find-free-number
 	  font-height
@@ -77,6 +79,7 @@
 	  sort1
 	  split-seq
 	  split-string
+	  string-as-directory
 	  walk-directory
 	  with-focus
 	  with-restarts-menu))
@@ -132,6 +135,19 @@
   (make-pathname :directory
 		 (pathname-directory
 		  (pathname pathname))))
+
+(defun backup-file (pathname &key (overwrite nil))
+  "Backup file to file with same name, but `~` at the tail"
+  (let ((new-pathname
+	 (merge-pathnames
+	  (make-pathname :type (concat (pathname-type pathname) "~")) pathname)))
+    (when (and
+	   (file-exists-p pathname)
+	   (or (eq overwrite t) (not (file-exists-p pathname))))
+      (copy-file (make-pathname :defaults pathname)
+		 new-pathname
+		 :overwrite overwrite)
+      new-pathname)))
 
 (defun cat (file)
   "Like UNIX command 'cat'" ;; FIXME: It's working not completely correct
@@ -675,3 +691,29 @@ display a message whenever you switch frames:
 (defmethod print-object ((object frame) stream)
   (format stream "#S(frame ~d ~a ~d ~d ~d ~d)"
           (frame-number object) (frame-window object) (frame-x object) (frame-y object) (frame-width object) (frame-height object)))
+
+(defun string-as-directory (dir)
+  (unless (string= "/" (subseq dir (1- (length dir))))
+    (setf dir (concat dir "/")))
+  (pathname dir))
+
+(defmacro eval-with-message (&key body
+				  body-alternative
+				  message-if-done
+				  message-if-false)
+  "Eval someting s-expression with messages, when it's done and false"
+  `(if ,body
+       ,(if-not-null
+	 message-if-done
+	 `(message ,message-if-done)
+	 t)
+     ,(if (member 'interactive *mode*)
+	  (cond ((not (null body-alternative))
+		 `body-alternative)
+		((not (null message-if-false))
+		 `(error ,message-if-false))
+		(t nil))
+	(if-not-null
+	 message-if-false
+	 `(error ,message-if-false)
+	 nil))))

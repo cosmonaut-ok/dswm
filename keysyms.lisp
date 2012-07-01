@@ -27,9 +27,6 @@
 
 (in-package #:dswm)
 
-(defvar *keys* nil
-  "Defines list of keynames and related keysyms to it")
-
 (defstruct dswm-key
   "defines relations keyname/dswm-keyname/keysyms"
   dswm-name keysym-name syms)
