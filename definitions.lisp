@@ -28,8 +28,7 @@
 (in-package :dswm)
 
 (export '(*all-modifiers*
-	  ;; *banish-pointer-to*
-	  ;; *browser*
+	  *browser*
 	  *command-mode-end-hook*
 	  *command-mode-start-hook*
 	  *debug-expose-events*
@@ -48,20 +47,16 @@
 	  *frame-indicator-text*
 	  *frame-indicator-timer*
 	  *frame-number-map*
-	  ;; *grab-pointer-count*
 	  *group-format*
 	  *group-formatters*
-	  ;; *group-number-map*
+	  *group-number-map*
 	  *hidden-window-color*
 	  *honor-window-moves*
-	  ;; *ignore-echo-timeout*
 	  *initializing*
 	  *input-window-gravity*
-	  ;; *interactivep*
 	  *internal-loop-hook*
 	  *key-press-hook*
 	  *last-command*
-	  ;; *last-unhandled-error*
 	  *list-hidden-groups*
 	  *map-window-hook*
 	  *max-last-message-size*
@@ -76,20 +71,11 @@
 	  *message-window-timer*
 	  *min-frame-height*
 	  *min-frame-width*
-	  ;; *mode*
-	  ;;;; mode line colors are internal
-	  ;;;; Use set-mode-line-{bg,fg,etc}-color
-	  ;; *mode-line-background-color*
-	  *mode-line-blinker*
-	  ;; *mode-line-border-color*
-	  ;; *mode-line-border-width*
 	  *mode-line-click-hook*
-	  ;; *mode-line-foreground-color*
 	  *mode-line-pad-x*
 	  *mode-line-pad-y*
 	  *mode-line-position*
 	  *mode-line-timeout*
-	  ;; *mode-line-timer*
 	  *modifiers*
 	  *mouse-focus-policy*
 	  *new-frame-action*
@@ -114,14 +100,10 @@
 	  *screen-widget-line-format*
 	  *screen-window-list-line-format*
 	  *shell-program*
-	  ;; *show-command-backtrace*
 	  *show-tip-of-the-day-p*
 	  *split-frame-hook*
 	  *start-hook*
-	  ;; *startup-only-code*
 	  *suppress-abort-messages*
-	  ;; *suppress-deny-messages*
-	  ;; *suppress-echo-timeout*
 	  *suppress-frame-indicator*
 	  *terminal*
 	  *text-color*
@@ -321,6 +303,14 @@ If it is a string the string is printed with the following formatting
 options:
 
 @table @asis
+@item %a
+List all windows on the current head of the current group using, including
+urgent windows
+
+@item %A
+List all windows on the current head of the current group using, including
+blinking urgent windows
+
 @item %h
 List the number of the head the mode-line belongs to
 
@@ -354,6 +344,8 @@ FIXME: do it around builtin timers")
                                         (#\h fmt-head)
                                         (#\n fmt-group)
                                         (#\W fmt-head-window-list)
+					(#\a fmt-head-window-list-with-urgent)
+					(#\A fmt-head-window-list-with-blink-urgent)
                                         (#\u fmt-urgent-window-list)
 					(#\U fmt-blink-urgent-window-list)
                                         (#\v fmt-head-window-list-hidden-windows)

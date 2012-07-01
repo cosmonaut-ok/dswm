@@ -68,13 +68,24 @@ from most specific groups to most general groups.")
 
 ;; Do it this way so its easier to wipe the map and get a clean one.
 (defmacro fill-keymap (map &rest bindings)
-  `(unless ,map
-     (setf ,map
-           (let ((m (make-sparse-keymap)))
-             ,@(loop for i = bindings then (cddr i)
-                    while i
-                    collect `(define-key m ,(first i) ,(second i)))
-             m))))
+  `(progn
+     (unless ,map
+       (setf ,map
+	     (let ((m (make-sparse-keymap)))
+	       ,@(loop for i = bindings then (cddr i)
+		       while i
+		       collect `(define-key m ,(first i) ,(second i)))
+	       m)))
+     ;;;;
+     ;;;; TODO: make full-functional macros defkey-<map-name> and defkeys-<map-name>
+     ;;;;
+     ;; (defmacro defkey-top (key cmd)
+     ;;   `(define-key ,map (kbd ,key) ,cmd))
+     
+     ;; (defmacro defkeys-top (&rest keys)
+     ;;   (let ((ks (mapcar #'(lambda (k) (cons 'defkey-top k)) keys)))
+     ;; 	 `(progn ,@ks)))
+     ))
 
 (fill-keymap *top-map*
   (kbd "M-`") "scratchpad"
