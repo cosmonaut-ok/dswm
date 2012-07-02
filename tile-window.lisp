@@ -539,22 +539,25 @@ specific/not specific enough!"
 (defcommand (redisplay tile-group) () ()
   "Refresh current window by a pair of resizes, also make it occupy entire frame."
   (let ((window (current-window)))
-    (with-slots (width height frame) window
-      (set-window-geometry window
-                           :width (- width (window-width-inc window))
-                           :height (- height (window-height-inc window)))
-      ;; make sure the first one goes through before sending the second
-      (xlib:display-finish-output *display*)
-      (set-window-geometry window
-                           :width (+ width
-                                     (* (window-width-inc window)
-                                        (floor (- (frame-width frame) width)
-                                               (window-width-inc window))))
-                           :height (+ height
-                                      (* (window-height-inc window)
-                                         (floor (- (frame-height frame) height)
-                                                (window-height-inc window)))))
-      (maximize-window window))))
+    (if-not-null
+     window
+     (with-slots (width height frame) window
+       (set-window-geometry window
+			    :width (- width (window-width-inc window))
+			    :height (- height (window-height-inc window)))
+       ;; make sure the first one goes through before sending the second
+       (xlib:display-finish-output *display*)
+       (set-window-geometry window
+			    :width (+ width
+				      (* (window-width-inc window)
+					 (floor (- (frame-width frame) width)
+						(window-width-inc window))))
+			    :height (+ height
+				       (* (window-height-inc window)
+					  (floor (- (frame-height frame) height)
+						 (window-height-inc window)))))
+       (maximize-window window))
+     (message "Frame is empty. No window to redisplay"))))
 
 (defcommand frame-windowlist (&optional (fmt *window-format*)) (:rest)
   "Allow the user to select a window from the list of windows in the current
