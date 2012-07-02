@@ -41,6 +41,9 @@
    (last-y :initform 0 :accessor float-window-last-y))
   )
 
+;; (defvar +default-frame-outline-width+ 1)
+(defvar *float-window-title-height* 10)
+
 ;; some book keeping functions
 (defmethod (setf window-x) :before (val (window float-window))
   (unless (eql (window-x window) val)
@@ -58,7 +61,7 @@
   (unless (eql (window-height window) val)
     (setf (float-window-last-height window) (window-height window))))
 
-(defun float-window-move-resize (win &key x y width height (border (screen-msg-border-width (current-screen))))
+(defun float-window-move-resize (win &key x y width height (border +default-frame-outline-width+))
   ;; x and y position the parent window while width, height resize the
   ;; xwin (meaning the parent will have a larger width).
   (with-slots (xwin parent) win
@@ -122,7 +125,7 @@
         (progn
           (format t "fullscreenage: ~a ~a ~a ~a~%" last-x last-y last-width last-height)
           ;; restore the position
-          (set-window-geometry window :x (screen-frame-outline-width (current-screen)) :y (screen-float-window-title-height (current-screen)))
+          (set-window-geometry window :x +default-frame-outline-width+ :y *float-window-title-height*)
           (float-window-move-resize window
                                     :x last-x
                                     :y last-y
@@ -166,11 +169,12 @@
 
 (defun float-window-align (window)
   (with-slots (parent xwin width height) window
-    (set-window-geometry window :x (screen-frame-outline-width (current-screen)) :y (screen-float-window-title-height (current-screen)))
+    (set-window-geometry window :x +default-frame-outline-width+ :y *float-window-title-height*)
     (xlib:with-state (parent)
-      (setf (xlib:drawable-width parent) (+ width (* 2 (screen-frame-outline-width (current-screen))))
-            (xlib:drawable-height parent) (+ height (screen-float-window-title-height (current-screen)) (screen-frame-outline-width (current-screen)))
-            (xlib:window-background parent) (screen-win-bg-color (current-screen))))
+      (setf (xlib:drawable-width parent) (+ width (* 2 +default-frame-outline-width+))
+            (xlib:drawable-height parent) (+ height *float-window-title-height* +default-frame-outline-width+)
+            (xlib:window-background parent) (xlib:alloc-color (xlib:screen-default-colormap (screen-number (window-screen window)))
+                                                              +default-window-background-color+)))
     (xlib:clear-area (window-parent window))))
   
 (defmethod group-resize-request ((group float-group) window width height)
@@ -236,9 +240,13 @@
                              ;; Either move or resize the window
                              (cond
                                ((find :button-1 (xlib:make-state-keys state-mask))
+                                ;; (setf (xlib:drawable-x parent) (- (getf event-slots :x) relx)
+                                ;;       (xlib:drawable-y parent) (- (getf event-slots :y) rely)))
+				;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                 (let ((newx (- (getf event-slots :x) relx))
                                       (newy (- (getf event-slots :y) rely)))
                                   (float-window-move-resize window :x newx :y newy)))
+			       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                ((find :button-3 (xlib:make-state-keys state-mask))
                                 (let ((w (+ initial-width
                                             (- (getf event-slots :x)
@@ -248,7 +256,7 @@
                                             (- (getf event-slots :y)
                                                rely
                                                (xlib:drawable-y parent)
-                                               (screen-float-window-title-height (current-screen))))))
+                                               *float-window-title-height*))))
                                   ;; Don't let the window become too small
                                   (float-window-move-resize window
                                                             :width (max w *min-frame-width*)

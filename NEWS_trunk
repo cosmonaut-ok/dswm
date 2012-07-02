@@ -34,3 +34,5 @@ remember,forget deprecated
 remove groups as deprecated -> use vgroups and grouplist for visualisation and echo-groups for programming
 
 alias gselect-with-window -> gmove
+
+add set-float-window-title-height

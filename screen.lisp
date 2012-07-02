@@ -37,6 +37,7 @@
           set-unfocus-color
           set-msg-border-width
           set-frame-outline-width
+	  set-float-window-title-height
           set-font
 	  snext
 	  sprev
@@ -60,6 +61,7 @@
    (unfocus-color :initform nil :accessor screen-unfocus-color)
    (msg-border-width :initform nil :accessor screen-msg-border-width)
    (frame-outline-width :initform nil :accessor screen-frame-outline-width)
+   (float-window-title-height :initform nil :accessor screen-float-window-title-height)
    (font :initform nil :accessor screen-font)
    (mapped-windows :initform nil :accessor screen-mapped-windows :documentation
     "A list of all mapped windows. These are the raw xlib:window's. window structures are stored in groups.")
@@ -373,6 +375,14 @@ bar."
   (update-border-all-screens)
   t)
 
+(defun set-float-window-title-height (height)
+  "Set the float window height"
+  (check-type height (integer 0))
+  (dolist (i *screen-list*)
+    (setf (screen-float-window-title-height i) height))
+  (update-border-all-screens)
+  t)
+
 (defun set-frame-outline-width (width)
   (check-type width (integer 0))
   (dolist (i *screen-list*)
@@ -526,6 +536,7 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
             (screen-unfocus-color screen) unfocus
             (screen-msg-border-width screen) 1
             (screen-frame-outline-width screen) +default-frame-outline-width+
+	    (screen-float-window-title-height screen) +default-float-window-title-height+
             (screen-input-window screen) input-window
             (screen-focus-window screen) focus-window
             (screen-key-window screen) key-window

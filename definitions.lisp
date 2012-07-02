@@ -499,6 +499,7 @@ are valid values.
 (defparameter +default-focus-color+ (make-color-hex "#557799"))
 (defparameter +default-unfocus-color+ (make-color-hex "#443333"))
 (defparameter +default-frame-outline-width+ 2)
+(defparameter +default-float-window-title-height+ 10)
 
 ;; Don't set these variables directly, use set-<var name> instead
 (defvar *normal-gravity* :center)
