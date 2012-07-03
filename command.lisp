@@ -335,27 +335,15 @@ then describes the symbol."
   (let ((n (or (argument-pop input)
                (completing-read (current-screen)
                                 prompt
-                                ;; (mapcar 'prin1-to-string
-                                ;;         (mapcar 'window-number
-                                ;;                 (group-windows (current-group))))))))
-;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                 (mapcar 'window-map-number
                                         (group-windows (current-group)))))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (when n
-      ;; (handler-case
-      ;;     (parse-integer n)
-      ;;   (parse-error (c)
-      ;;     (declare (ignore c))
-      ;;     (throw 'error "Number required."))))))
-;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
       (let ((win (find n (group-windows (current-group))
                        :test #'string=
                        :key #'window-map-number)))
         (if win
             (window-number win)
 	  (throw 'error "No Such Window."))))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-dswm-type :number (input prompt)
   (let ((n (or (argument-pop input)
@@ -373,7 +361,7 @@ then describes the symbol."
 
 (define-dswm-type :title (input prompt)
   (or (argument-pop-rest input)
-      (read-one-line (current-screen) prompt :initial-input(window-name (current-window)))))
+      (read-one-line (current-screen) prompt :initial-input (window-name (current-window)))))
 
 (define-dswm-type :current-group-name (input prompt)
   (or (argument-pop input)
@@ -443,16 +431,6 @@ then describes the symbol."
     (or match
         (throw 'error "No Such Group."))))
 
-(define-dswm-type :current-group-name (input prompt)
-  ;; for "grename" command
-  (or (argument-pop input)
-      (read-one-line (current-screen) prompt :initial-input (group-name (current-group)))))
-
-(define-dswm-type :title (input prompt)
-  ;; for "title" command
-  (or (argument-pop-rest input)
-      (read-one-line (current-screen) prompt :initial-input (window-title (current-window)))))
-
 (define-dswm-type :frame (input prompt)
   (declare (ignore prompt))
   (let ((arg (argument-pop input)))
@@ -469,17 +447,12 @@ then describes the symbol."
   (or (argument-pop-rest input)
       (completing-read (current-screen) prompt 'complete-program)))
 
-;;; FIXME: Not implemented with autocomplete
+;;; FIXME: Not implemented with autocomplete FIXING
 (define-dswm-type :file (input prompt)
   (or (argument-pop input)
-      (read-one-line (current-screen) prompt)))
-  ;; (let ((match (select-group (current-screen)
-  ;;                            (or (argument-pop input)
-  ;;                                (completing-read (current-screen) prompt
-  ;;                                                 (mapcar 'group-name
-  ;;                                                         (screen-groups (current-screen))))))))
-  ;;   (or match
-  ;;       (throw 'error "No Such Group."))))
+      (completing-read (current-screen)
+		       prompt
+		       (mapcar 'princ-to-string (list-directory (dirname prompt))))))
 
 (define-dswm-type :rest (input prompt)
   (or (argument-pop-rest input)
