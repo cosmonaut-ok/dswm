@@ -351,7 +351,6 @@ converted to an atom is removed."
      (dformat 4 "new hints: ~s~%" (window-normal-hints window))
      (window-sync window :normal-hints))
     (:wm_hints
-     ;; (setf (window-hints window) (xlib:wm-hints (window-xwin window))) ;; Old code
      (maybe-set-urgency window))
     (:wm_class
      (setf (window-class window) (xwin-class (window-xwin window))

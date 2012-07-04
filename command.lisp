@@ -366,7 +366,7 @@ then describes the symbol."
 
 (define-dswm-type :title (input prompt)
   (or (argument-pop-rest input)
-      (read-one-line (current-screen) prompt :initial-input(window-name (current-window)))))
+      (read-one-line (current-screen) prompt :initial-input (window-name (current-window)))))
 
 (define-dswm-type :current-group-name (input prompt)
   (or (argument-pop input)
@@ -436,16 +436,6 @@ then describes the symbol."
     (or match
         (throw 'error "No Such Group."))))
 
-(define-dswm-type :current-group-name (input prompt)
-  ;; for "grename" command
-  (or (argument-pop input)
-      (read-one-line (current-screen) prompt :initial-input (group-name (current-group)))))
-
-(define-dswm-type :title (input prompt)
-  ;; for "title" command
-  (or (argument-pop-rest input)
-      (read-one-line (current-screen) prompt :initial-input (window-title (current-window)))))
-
 (define-dswm-type :frame (input prompt)
   (declare (ignore prompt))
   (let ((arg (argument-pop input)))
@@ -462,13 +452,18 @@ then describes the symbol."
   (or (argument-pop-rest input)
       (completing-read (current-screen) prompt 'complete-program)))
 
-;;; FIXME: Not implemented with autocomplete
+;;; FIXME: Not implemented with autocomplete FIXING
 (define-dswm-type :file (input prompt)
   (or (argument-pop input)
       (completing-read (current-screen)
+<<<<<<< HEAD
                        prompt
 		       (mapcar 'princ-to-string (list-directory (dirname input)))
 		       :initial-input "~")))
+=======
+		       prompt
+		       (mapcar 'princ-to-string (list-directory (dirname prompt))))))
+>>>>>>> 700ce16155e6282b2ee1c0b2f9475acde48edcc5
 
 (define-dswm-type :rest (input prompt)
   (or (argument-pop-rest input)
