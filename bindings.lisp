@@ -70,7 +70,7 @@ from most specific groups to most general groups.")
 (defvar *float-group-root-map* nil)
 
 ;; Do it this way so its easier to wipe the map and get a clean one.
-(defmacro fill-keymap (map &rest bindings)
+(defmacro fill-keymap (map &key prefix &rest bindings)
   `(progn
      (unless ,map
        (setf ,map
@@ -79,6 +79,7 @@ from most specific groups to most general groups.")
 		       while i
 		       collect `(define-key m ,(first i) ,(second i)))
 	       m)))
+     
      ;;;;
      ;;;; TODO: make full-functional macros defkey-<map-name> and defkeys-<map-name>
      ;;;;

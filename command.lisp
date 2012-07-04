@@ -456,14 +456,8 @@ then describes the symbol."
 (define-dswm-type :file (input prompt)
   (or (argument-pop input)
       (completing-read (current-screen)
-<<<<<<< HEAD
-                       prompt
-		       (mapcar 'princ-to-string (list-directory (dirname input)))
-		       :initial-input "~")))
-=======
 		       prompt
 		       (mapcar 'princ-to-string (list-directory (dirname prompt))))))
->>>>>>> 700ce16155e6282b2ee1c0b2f9475acde48edcc5
 
 (define-dswm-type :rest (input prompt)
   (or (argument-pop-rest input)
