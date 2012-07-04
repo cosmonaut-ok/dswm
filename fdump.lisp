@@ -98,7 +98,7 @@
 			 (to-fs nil)
 			 (file
 			  (data-dir-file
-			   (concat "group-" (prin1-to-string (group-name group))) "rules" "save.d"))
+			   (concat "group-" (prin1-to-string (group-name group))) "rules" "rules.d"))
 			 (backup-p nil))
   (labels ((dump (f)
 		 (make-fdump
@@ -136,7 +136,7 @@
 			   (to-fs nil)
 			   (file (data-dir-file
 				  (concat "screen-" (prin1-to-string
-						     (screen-id screen))) "rules" "save.d"))
+						     (screen-id screen))) "rules" "rules.d"))
 			   (backup-p nil))
   "Makes dump of given screen"
   (let
@@ -150,7 +150,7 @@
 
 (defun dump-desktop (&key
 		     (to-fs nil)
-		     (file (data-dir-file "desktop" "rules" "save.d"))
+		     (file (data-dir-file "desktop" "rules" "rules.d"))
 		     (backup-p nil))
   "Makes full dump of desktop"
   (let ((desktop-dump
