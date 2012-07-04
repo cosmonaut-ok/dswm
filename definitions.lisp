@@ -277,18 +277,17 @@ the mode-line, the button clicked, and the x and y of the pointer.")
 (defvar *mode-line-border-color* (make-color-hex "#443333")
   "The mode line border color.")
 
-(defvar *hidden-window-color* "^5*"
+(defvar *hidden-window-color* "^6*"
   "Color command for hidden windows when using the
 fmt-head-window-list-hidden-windows formatter. To disable coloring
 hidden windows, set this to an empty string.")
 
 (defvar *screen-widget-line-format* "%d[%g]")
 
-(defvar *screen-window-list-line-format* "%U%W")
+(defvar *screen-window-list-line-format* "%U%v")
 
 (defvar *screen-mode-line-format* nil
-  "DEPRECATED. Use *screen-widget-line-format* and *screen-window-list-line-format*
-This variable describes what will be displayed on the modeline for each screen.
+  "This variable describes what will be displayed on the modeline for each screen.
 Turn it on with the function TOGGLE-MODE-LINE or the mode-line command.
 
 It is a list where each element may be a string, a symbol, or a list.
@@ -343,8 +342,6 @@ FIXME: do it around builtin timers")
                                         (#\h fmt-head)
                                         (#\n fmt-group)
                                         (#\W fmt-head-window-list)
-					(#\a fmt-head-window-list-with-urgent)
-					(#\A fmt-head-window-list-with-blink-urgent)
                                         (#\u fmt-urgent-window-list)
 					(#\U fmt-blink-urgent-window-list)
                                         (#\v fmt-head-window-list-hidden-windows)
@@ -420,13 +417,12 @@ Window types are in +WINDOW-TYPES+.")
 
 (defparameter +netwm-window-types+
   '(
-    ;; FIXME: Needed other types support
-    ;; (:_NET_WM_WINDOW_TYPE_DESKTOP . :desktop)
+    (:_NET_WM_WINDOW_TYPE_DESKTOP . :desktop)
     (:_NET_WM_WINDOW_TYPE_DOCK . :dock)
-    ;; (:_NET_WM_WINDOW_TYPE_TOOLBAR . :toolbar)
-    ;; (:_NET_WM_WINDOW_TYPE_MENU . :menu)
-    ;; (:_NET_WM_WINDOW_TYPE_UTILITY . :utility)
-    ;; (:_NET_WM_WINDOW_TYPE_SPLASH . :splash)
+    (:_NET_WM_WINDOW_TYPE_TOOLBAR . :toolbar)
+    (:_NET_WM_WINDOW_TYPE_MENU . :menu)
+    (:_NET_WM_WINDOW_TYPE_UTILITY . :utility)
+    (:_NET_WM_WINDOW_TYPE_SPLASH . :splash)
     (:_NET_WM_WINDOW_TYPE_DIALOG . :dialog)
     (:_NET_WM_WINDOW_TYPE_NORMAL . :normal))
   "Alist mapping NETWM window types to keywords.

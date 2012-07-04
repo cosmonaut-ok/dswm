@@ -914,8 +914,8 @@ windows used to draw the numbers in. The caller must destroy them."
         (message "Cannot split smaller than minimum size."))))
 
 (defun move-focus-and-or-window-to (frame-number &optional win-p)
-  ;; FIXME make check for type
-  ;; (declare (type (member (group-frames (current-group))) frame-number))
+  (declare (type
+	    (member (mapcar 'frame-number (group-frames (current-group))) frame-number)))
   (let* ((group (current-group))
          (new-frame frame-number)
 	 (window (current-window)))

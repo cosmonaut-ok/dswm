@@ -30,7 +30,7 @@
 	       ;;(:file "keysyms-uni")
                (:file "kmap")
                (:file "input")
-               (:file "core")
+               (:file "helper")
                (:file "command")
                (:file "menu")
                (:file "screen")
