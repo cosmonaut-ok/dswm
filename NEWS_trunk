@@ -36,3 +36,9 @@ remove groups as deprecated -> use vgroups and grouplist for visualisation and e
 alias gselect-with-window -> gmove
 
 add set-float-window-title-height
+
+fixed bug with not working *screen-mode-line*
+
+command->function {remember,forget}-windows-current-{group,screen}
+
+Fixed error message on remember-windows-current-screen

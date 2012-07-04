@@ -430,7 +430,7 @@ frame. Possible values are:
 (defun make-rules-for-screen (screen &optional lock title)
   "Guess at a placement rule for all WINDOWS in all groups in current screen and add it to the current set."
   (dolist (i (screen-groups screen))
-    (make-rules-for-group i lock title)))
+    (make-rules-for-group i lock title)) t) ; dolist always gives nil
 
 (defun make-rules-for-desktop (&optional lock title)
   (dolist (i *screen-list*)
@@ -474,9 +474,7 @@ directory and files"))
 
 (defcommand-alias remember remember-window) ;; TODO remove in next release
 
-(defcommand (remember-windows-current-group tile-group) (lock title)
-  ((:y-or-n "Lock to group? ")
-   (:y-or-n "Use title? "))
+(defun remember-windows-current-group (lock title)
   "Make a generic placement rule for the current window. Might be too specific/not specific enough!"
   (forget-remember-rules
    (make-rules-for-group (current-group) (first lock) (first title))
@@ -484,9 +482,7 @@ directory and files"))
    "Can't remember rules. Check write permissions to dswm data
 directory and files"))
 
-(defcommand (remember-windows-current-screen tile-group) (lock title)
-  ((:y-or-n "Lock to group? ")
-   (:y-or-n "Use title? "))
+(defun remember-windows-current-screen (lock title)
   "Make a generic placement rule for the current window. Might be too specific/not specific enough!"
   (forget-remember-rules
    (make-rules-for-screen (current-screen) (first lock) (first title))
@@ -515,14 +511,14 @@ specific/not specific enough!"
 
 (defcommand-alias forget forget-window) ;; TODO remove in next release
 
-(defcommand (forget-windows-current-group tile-group) () ()
+(defun forget-windows-current-group (group tile-group)
   "Remove a generic placement rule for the current window. Might be too specific/not specific enough!"
   (forget-remember-rules
    (remove-rules-for-group (current-group))
    "Rules forgotten"
    "Can't forgot rules. Check write permissions to dswm data directory and files"))
 
-(defcommand (forget-windows-current-screen tile-group) () ()
+(defun forget-windows-current-screen (group tile-group)
   "Remove generic placement rules for the all windows in current screen"
   (forget-remember-rules
    (make-rules-for-screen (current-screen))

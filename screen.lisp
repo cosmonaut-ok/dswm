@@ -328,12 +328,6 @@ identity with a range check."
             (setf (,val s) (alloc-color s ,color)))
     (update-colors-all-screens)))
 
-;; FIXME: I don't like any of this.  Isn't there a way to define
-;; a setf method to call (update-colors-all-screens) when the user
-;; does eg. (setf *foreground-color* "green") instead of having
-;; these redundant set-foo functions?
-;; FIXME (CosmonauT): Functions in lisp - its true way. We'll make
-;; all sets through functions :)
 (defun set-fg-color (color)
   "Set the foreground color for the message bar and input
 bar. @var{color} can be any color recognized by X."
