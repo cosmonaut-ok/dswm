@@ -206,6 +206,22 @@ Now when you type c-j C-z, you'll see the text ``Zzzzz...'' pop up."
 (defun undefine-key (map key)
   "Clear the key binding in the specified keybinding."
   (define-key map key nil))
+;; Do it this way so its easier to wipe the map and get a clean one.
+(defmacro fill-keymap (map &rest bindings) ;; deprecated
+  `(progn
+     (unless ,map
+       (setf ,map
+	     (let ((m (make-sparse-keymap)))
+	       ,@(loop for i = bindings then (cddr i)
+		       while i
+		       collect `(define-key m ,(first i) ,(second i)))
+	       m)))))
+
+(defmacro define-keys (map &rest keys)
+  (macrolet ((defkey (map key cmd)
+	       `(define-key ,map (kbd ,key) ,cmd)))
+  (let ((ks (mapcar #'(lambda (k) (append (list 'define-key map) k)) keys)))
+    `(progn ,@ks))))
 
 (defun lookup-key-sequence (kmap key-seq)
   "Return the command bound to the key sequenc, KEY-SEQ, in keymap KMAP."
