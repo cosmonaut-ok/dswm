@@ -70,7 +70,7 @@ from most specific groups to most general groups.")
 (defvar *float-group-root-map* nil)
 
 ;; Do it this way so its easier to wipe the map and get a clean one.
-(defmacro fill-keymap (map &key prefix &rest bindings)
+(defmacro fill-keymap (map &rest bindings) ;; deprecated
   `(progn
      (unless ,map
        (setf ,map
@@ -78,18 +78,16 @@ from most specific groups to most general groups.")
 	       ,@(loop for i = bindings then (cddr i)
 		       while i
 		       collect `(define-key m ,(first i) ,(second i)))
-	       m)))
-     
-     ;;;;
-     ;;;; TODO: make full-functional macros defkey-<map-name> and defkeys-<map-name>
-     ;;;;
-     ;; (defmacro defkey-top (key cmd)
-     ;;   `(define-key ,map (kbd ,key) ,cmd))
-     
-     ;; (defmacro defkeys-top (&rest keys)
-     ;;   (let ((ks (mapcar #'(lambda (k) (cons 'defkey-top k)) keys)))
-     ;; 	 `(progn ,@ks)))
-     ))
+	       m)))))
+
+;; (defmacro defkey (map key cmd)
+;;   `(define-key ,map (kbd ,key) ,cmd))
+
+(defmacro defkeys (map &rest keys)
+  (macrolet ((defkey (map key cmd)
+	       `(define-key ,map (kbd ,key) ,cmd)))
+  (let ((ks (mapcar #'(lambda (k) (append (list 'defkey map) k)) keys)))
+    `(progn ,@ks))))
 
 (fill-keymap *top-map*
   (kbd "M-`") "scratchpad"
@@ -208,8 +206,8 @@ from most specific groups to most general groups.")
   (kbd "l")       "redisplay"
   (kbd "C-l")     "redisplay")
 
-(fill-keymap *float-group-top-map*)
-(fill-keymap *float-group-root-map*)
+(make-sparse-keymap *float-group-top-map*)
+(make-sparse-keymap *float-group-root-map*)
 
 (fill-keymap *groups-map*
   (kbd "g")     "groups"

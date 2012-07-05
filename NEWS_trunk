@@ -42,3 +42,7 @@ fixed bug with not working *screen-mode-line*
 command->function {remember,forget}-windows-current-{group,screen}
 
 Fixed error message on remember-windows-current-screen
+
+add (define-keymap-keys map 
+
+fill-keymap deprecated
