@@ -69,26 +69,6 @@ from most specific groups to most general groups.")
 (defvar *float-group-top-map* nil)
 (defvar *float-group-root-map* nil)
 
-;; Do it this way so its easier to wipe the map and get a clean one.
-(defmacro fill-keymap (map &rest bindings) ;; deprecated
-  `(progn
-     (unless ,map
-       (setf ,map
-	     (let ((m (make-sparse-keymap)))
-	       ,@(loop for i = bindings then (cddr i)
-		       while i
-		       collect `(define-key m ,(first i) ,(second i)))
-	       m)))))
-
-;; (defmacro defkey (map key cmd)
-;;   `(define-key ,map (kbd ,key) ,cmd))
-
-(defmacro defkeys (map &rest keys)
-  (macrolet ((defkey (map key cmd)
-	       `(define-key ,map (kbd ,key) ,cmd)))
-  (let ((ks (mapcar #'(lambda (k) (append (list 'defkey map) k)) keys)))
-    `(progn ,@ks))))
-
 (fill-keymap *top-map*
   (kbd "M-`") "scratchpad"
   *escape-key* '*root-map*)
@@ -206,8 +186,8 @@ from most specific groups to most general groups.")
   (kbd "l")       "redisplay"
   (kbd "C-l")     "redisplay")
 
-(make-sparse-keymap *float-group-top-map*)
-(make-sparse-keymap *float-group-root-map*)
+(fill-keymap *float-group-top-map*)
+(fill-keymap *float-group-root-map*)
 
 (fill-keymap *groups-map*
   (kbd "g")     "groups"
