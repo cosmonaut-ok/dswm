@@ -930,6 +930,18 @@ selected."
 				      (list (format-expand *window-formatters* fmt w) w))
 				    windows))))
 
+
+(defun echo-windows (&optional (fmt *window-format*) (group (current-group)) (windows (group-windows group)))
+  "Display a list of managed windows. The optional argument @var{fmt} can
+be used to override the default window formatting."
+  (let* ((wins (sort1 windows '< :key 'window-number))
+         (highlight (position (group-current-window group) wins))
+         (names (mapcar (lambda (w)
+                          (format-expand *window-formatters* fmt w)) wins)))
+    (if-null wins
+	     (echo-string (group-screen group) "No Managed Windows")
+	     (echo-string-list (group-screen group) names highlight))))
+
 ;;; Window commands
 
 (defcommand delete-window (&optional (window (current-window))) ()
