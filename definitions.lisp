@@ -95,8 +95,9 @@
 	  *run-or-raise-all-screens*
 	  *scratchpad-group-name*
 	  *screen-list*
-	  *screen-mode-line-format*
-	  *screen-mode-line-formatters*
+	  *mode-line-format*
+	  *mode-line-formatters*
+	  *info-line-format*
 	  *shell-program*
 	  *show-tip-of-the-day-p*
 	  *split-frame-hook*
@@ -282,11 +283,11 @@ the mode-line, the button clicked, and the x and y of the pointer.")
 fmt-head-window-list-hidden-windows formatter. To disable coloring
 hidden windows, set this to an empty string.")
 
-(defvar *screen-widget-line-format* "%d[%g]")
+(defvar *info-line-format* "%d[%g]")
 
-(defvar *screen-window-list-line-format* "%U%v")
+(defvar *window-list-line-format* "%U%v")
 
-(defvar *screen-mode-line-format* nil
+(defvar *mode-line-format* nil
   "This variable describes what will be displayed on the modeline for each screen.
 Turn it on with the function TOGGLE-MODE-LINE or the mode-line command.
 
@@ -337,7 +338,7 @@ FIXME: do it around builtin timers")
 (defvar *mode-line-blinker* nil
   "Variable for blink urgent windows, or widgets")
 
-(defvar *screen-mode-line-formatters* '((#\w fmt-window-list)
+(defvar *mode-line-formatters* '((#\w fmt-window-list)
                                         (#\g fmt-group-list)
                                         (#\h fmt-head)
                                         (#\n fmt-group)
