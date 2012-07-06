@@ -46,7 +46,7 @@
 (defun mode-line-gc (ml)
   (ccontext-gc (mode-line-cc ml)))
 
-(defun mode-line-format ()
+(defun screen-mode-line-format ()
   "Show mode-line format"
   (if-not-null *mode-line-format*
 	       *mode-line-format* ;; for back compatability
@@ -385,7 +385,7 @@ critical."
                         (split-string string (string #\Newline)) '())))))
 
 (defun find-mode-line-window (xwin)
-  (dolist (s *list*)
+  (dolist (s *screen-list*)
     (dolist (h (screen-heads s))
       (let ((mode-line (head-mode-line h)))
         (when (and mode-line (eq (mode-line-window mode-line) xwin))
@@ -460,7 +460,7 @@ critical."
 
 (defun update-all-mode-lines ()
   "Update all mode lines."
-  (mapc 'update-mode-lines *list*))
+  (mapc 'update-mode-lines *screen-list*))
 
 (defun turn-on-mode-line-timer ()
   (when (timer-p *mode-line-timer*)
@@ -471,7 +471,7 @@ critical."
 
 (defun all-heads ()
   "Return all heads on all screens."
-  (loop for s in *list*
+  (loop for s in *screen-list*
         nconc (copy-list (screen-heads s))))
 
 (defun maybe-cancel-mode-line-timer ()
@@ -480,7 +480,7 @@ critical."
       (cancel-timer *mode-line-timer*)
       (setf *mode-line-timer* nil))))
 
-(defun toggle-mode-line (screen head &optional (format (mode-line-format)))
+(defun toggle-mode-line (screen head &optional (format (screen-mode-line-format)))
   "Toggle the state of the mode line for the specified screen"
   (check-type format (or symbol list string))
   (let ((ml (head-mode-line head)))
@@ -542,7 +542,7 @@ critical."
 	    (xlib:free-gcontext (mode-line-gc ml))
 	    (setf (head-mode-line head) nil)
 	    (maybe-cancel-mode-line-timer)
-	    (setf (head-mode-line head) (make-head-mode-line screen head (mode-line-format)))
+	    (setf (head-mode-line head) (make-head-mode-line screen head (screen-mode-line-format)))
 	    (xlib:map-window (mode-line-window (head-mode-line head))))))
     (redraw-mode-line (head-mode-line head))))
 

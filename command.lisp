@@ -317,6 +317,10 @@ then describes the symbol."
       (throw 'error (format nil "the symbol ~a::~a has no function."
 			    (package-name pkg) var)))))
 
+(define-dswm-type :module (input prompt)
+  (or (argument-pop-rest input)
+      (completing-read (current-screen) prompt (modules-list) :require-match t)))
+
 (define-dswm-type :command (input prompt)
   (or (argument-pop input)
       (completing-read (current-screen)

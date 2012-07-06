@@ -1081,8 +1081,7 @@ less'"))
       (w :screen) (tagged-any-p w tag)
       (pull-w w) (pull-window w (tile-group-current-frame (current-group))))))
 
-(defcommand 
-  load-rcp (name) ((:rest "Part: "))
+(defcommand load-rcp (name) ((:rest "Part: "))
   "Load-rcpart wrapper"
   (load-rcpart name))
 
@@ -1099,8 +1098,7 @@ less'"))
     (set-frame-group "ref")
     (focus-frame group (frame-by-number group (frame-number old-frame)))))
 
-(defcommand
-  ratcenter () ()
+(defcommand ratcenter () ()
   "Center the mouse pointer in current frame"
   (let*
     ((f (tile-group-current-frame (current-group)))
