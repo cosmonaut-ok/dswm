@@ -30,8 +30,6 @@
           *help-map*
           *root-map*
 	  set-prefix-key
-	  fill-keymap
-	  set-prefix-key
 	  bind))
 
 (defvar *escape-key* (kbd "C-j")
