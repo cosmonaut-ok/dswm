@@ -1,10 +1,6 @@
-exports revision
 emacs integration module
-swank module
-test hooks
 
-Modules:
- wmii-like-dswmrc - not working
+Revize hooks
 
 time: make time format
 
@@ -12,8 +8,3 @@ module.lisp.in Try to resolve and load module dependences
 
 make experimental feature for 0.0.6 fmt-head-windows-with-urgent, fmt-head-windows-with-blink-urgent
 
-BUG: tile-to-float and float-to-file group restoration
-
-Dinamically building completion lists
-
-Revized fixme. Only dynamic autocompletion (find XXX in code ;) )

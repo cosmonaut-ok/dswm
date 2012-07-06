@@ -1,5 +1,5 @@
 
-(in-package :stumpwm)
+(in-package :dswm)
 
 (defun echo-focus-window-hook (new old)
   (message "~a" new))
@@ -71,7 +71,7 @@
 
 defkey.lisp
 
-(in-package :stumpwm)
+(in-package :dswm)
 
 (set-prefix-key (kbd "Menu"))
 
@@ -235,7 +235,7 @@ defoverride.lisp
 
 defparam.lisp
 
-(in-package :stumpwm)
+(in-package :dswm)
 
 (defparameter *fg-color* "lightgreen")
 (defparameter *bg-color* "black")
@@ -248,7 +248,7 @@ defparam.lisp
 
 deftags.lisp
 
-(in-package :stumpwm)
+(in-package :dswm)
 (defun union-mild (a b) (union a b :test 'equalp))
 
 (defun ends-with (x y) 
@@ -390,7 +390,7 @@ deftags.lisp
 	     (list "7"))
 	    ((is-room x "scheme%irc.freenode.net@irc.401a0bf1.ignorelist.com")
 	     (list "6"))
-	    ((is-room x "stumpwm%irc.freenode.net@irc.401a0bf1.ignorelist.com")
+	    ((is-room x "dswm%irc.freenode.net@irc.401a0bf1.ignorelist.com")
 	     (list "5"))
 	    ((is-room x "uzbl%irc.freenode.net@irc.401a0bf1.ignorelist.com")
 	     (list "4"))
@@ -656,7 +656,7 @@ deftags.lisp
 
 defun.lisp
 
-(in-package :stumpwm)
+(in-package :dswm)
 (defun lock-rule-by-class (class)
   (list 0 T T :class class))
 (defun lock-rule-by-title (title)
@@ -838,11 +838,11 @@ xargs kill " T)
   (let
     ((marker (random 255)))
     (xlib:change-property (window-xwin win)
-			  :STUMPWM_CHECK_IF_ALIVE
+			  :DSWM_CHECK_IF_ALIVE
 			  (list marker)
 			  :UINT 8)
     (equal (list marker) (xlib:get-property (window-xwin win)
-				 :STUMPWM_CHECK_IF_ALIVE))))
+				 :DSWM_CHECK_IF_ALIVE))))
 
 (defcommand dead-windows-cleanup () ()
 	    "Kill the windows that mysteriously disappeared"
@@ -858,7 +858,7 @@ xargs kill " T)
 
 (defcommand reload-defuns () ()
 	    "Only load definitions of functions from rc"
-	    (load "/var/repos/stumpwm/contrib/window-tags.lisp")
+	    (load "/var/repos/dswm/contrib/window-tags.lisp")
 	    (load-rcpart "deftags")
 	    (load-rcpart "defun")
 	    )
@@ -1111,7 +1111,7 @@ less'"))
 
 defvar.lisp
 
-(in-package :stumpwm)
+(in-package :dswm)
 
 (defvar *globally-previous* '())
 (defvar *globally-current* '())

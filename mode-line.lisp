@@ -20,7 +20,7 @@
 
 (in-package :dswm)
 
-(export '(add-screen-mode-line-formatter
+(export '(add-mode-line-formatter
 	  enable-mode-line
 	  toggle-mode-line
 	  bar-zone-color
@@ -28,8 +28,8 @@
 	  set-mode-line-border-color
 	  set-mode-line-border-width
 	  set-mode-line-fg-color
-	  set-screen-mode-line-format
-	  set-screen-widget-line-format))
+	  set-mode-line-format
+	  set-info-line-format))
 
 (defstruct mode-line
   screen
@@ -46,13 +46,13 @@
 (defun mode-line-gc (ml)
   (ccontext-gc (mode-line-cc ml)))
 
-(defun screen-mode-line-format ()
+(defun mode-line-format ()
   "Show mode-line format"
-  (if-not-null *screen-mode-line-format*
-	       *screen-mode-line-format* ;; for back compatability
+  (if-not-null *mode-line-format*
+	       *mode-line-format* ;; for back compatability
 	       (format nil "~a~%~a"
-		       *screen-widget-line-format*
-		       *screen-window-list-line-format*)))
+		       *info-line-format*
+		       *window-list-line-format*)))
 
 (defvar *current-mode-line-formatters* nil
   "used in formatting modeline strings.")
@@ -62,11 +62,11 @@
 
 ;; ;;; Formatters
 
-(defun add-screen-mode-line-formatter (character fmt-fun)
+(defun add-mode-line-formatter (character fmt-fun)
   "Add a format function to a format character (or overwrite an existing one)."
-  (setf *screen-mode-line-formatters*
+  (setf *mode-line-formatters*
         (cons (list character fmt-fun)
-              (remove character *screen-mode-line-formatters* :key #'first))))
+              (remove character *mode-line-formatters* :key #'first))))
 
 ;; All mode-line formatters take the mode-line they are being invoked from
 ;; as the first argument. Additional arguments (everything between the first
@@ -374,7 +374,7 @@ critical."
 
 (defun redraw-mode-line (ml &optional force)
   (when (eq (mode-line-mode ml) :ds)
-    (let* ((*current-mode-line-formatters* *screen-mode-line-formatters*)
+    (let* ((*current-mode-line-formatters* *mode-line-formatters*)
            (*current-mode-line-formatter-args* (list ml))
            (string (mode-line-format-string ml)))
       (when (or force (not (string= (mode-line-contents ml) string)))
@@ -385,7 +385,7 @@ critical."
                         (split-string string (string #\Newline)) '())))))
 
 (defun find-mode-line-window (xwin)
-  (dolist (s *screen-list*)
+  (dolist (s *list*)
     (dolist (h (screen-heads s))
       (let ((mode-line (head-mode-line h)))
         (when (and mode-line (eq (mode-line-window mode-line) xwin))
@@ -460,7 +460,7 @@ critical."
 
 (defun update-all-mode-lines ()
   "Update all mode lines."
-  (mapc 'update-mode-lines *screen-list*))
+  (mapc 'update-mode-lines *list*))
 
 (defun turn-on-mode-line-timer ()
   (when (timer-p *mode-line-timer*)
@@ -471,7 +471,7 @@ critical."
 
 (defun all-heads ()
   "Return all heads on all screens."
-  (loop for s in *screen-list*
+  (loop for s in *list*
         nconc (copy-list (screen-heads s))))
 
 (defun maybe-cancel-mode-line-timer ()
@@ -480,7 +480,7 @@ critical."
       (cancel-timer *mode-line-timer*)
       (setf *mode-line-timer* nil))))
 
-(defun toggle-mode-line (screen head &optional (format (screen-mode-line-format)))
+(defun toggle-mode-line (screen head &optional (format (mode-line-format)))
   "Toggle the state of the mode line for the specified screen"
   (check-type format (or symbol list string))
   (let ((ml (head-mode-line head)))
@@ -523,8 +523,8 @@ critical."
           (when format
             (setf (mode-line-format (head-mode-line head)) format))
 	(toggle-mode-line screen head (or format
-					  *screen-mode-line-format*
-					  (format nil "~a~%~a" *screen-widget-line-format* *screen-window-list-line-format*))))
+					  *mode-line-format*
+					  (format nil "~a~%~a" *info-line-format* *window-list-line-format*))))
     (when (head-mode-line head)
       (toggle-mode-line screen head))))
 
@@ -542,7 +542,7 @@ critical."
 	    (xlib:free-gcontext (mode-line-gc ml))
 	    (setf (head-mode-line head) nil)
 	    (maybe-cancel-mode-line-timer)
-	    (setf (head-mode-line head) (make-head-mode-line screen head (screen-mode-line-format)))
+	    (setf (head-mode-line head) (make-head-mode-line screen head (mode-line-format)))
 	    (xlib:map-window (mode-line-window (head-mode-line head))))))
     (redraw-mode-line (head-mode-line head))))
 
@@ -570,14 +570,14 @@ critical."
    (setf *mode-line-border-width* width)
    (maybe-refresh-mode-line (current-screen) (current-head))))
 
-(defun set-screen-mode-line-format (format)
+(defun set-mode-line-format (format)
   (and
-   (setf *screen-mode-line-format* format)
+   (setf *mode-line-format* format)
    (maybe-refresh-mode-line (current-screen) (current-head))))
 
-(defun set-screen-widget-line-format (format)
+(defun set-info-line-format (format)
   (and
-   (setf *screen-widget-line-format* format)
+   (setf *info-line-format* format)
    (maybe-refresh-mode-line (current-screen) (current-head))))
 
 (defcommand mode-line () ()
