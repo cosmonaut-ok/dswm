@@ -27,7 +27,7 @@
 
 (in-package :dswm)
 
-
+(export '(*all-modifiers*
 	  *browser*
 	  *command-mode-end-hook*
 	  *command-mode-start-hook*
