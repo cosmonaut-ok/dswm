@@ -27,7 +27,7 @@
 
 (in-package :dswm)
 
-(export '(*all-modifiers*
+
 	  *browser*
 	  *command-mode-end-hook*
 	  *command-mode-start-hook*
@@ -942,5 +942,5 @@ of :error."
 (defvar *keys* nil
   "Defines list of keynames and related keysyms to it")
 
-(defvar *scratchpad-group* '()
-  "Group of the scratchpad." )
+(defvar *loaded-modules-list* nil
+  "Defines list of already loaded modules")

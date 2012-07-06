@@ -428,11 +428,8 @@ window along."
     (cond ((find-group (current-screen) name)
            (message "^Name already exists."))
           ((or (zerop (length name))
-               (string= name ".")
-	       ;; FIXME groups must have possibility to include
-	       ;; numbers here
-	       (cl-ppcre:scan-to-strings "[0-9]" name))
-	   (message "Empty name or name with numbers"))
+               (string= name "."))
+	   (message "Empty group name"))
           (t
            (cond ((and (char= (char name 0) #\.) ;change to hidden group
                        (not (char= (char (group-name group) 0) #\.)))
@@ -447,30 +444,22 @@ window along."
   (let* ((groups (sort-groups screen))
          (names (mapcan (lambda (g)
                           (list*
-                           (format-expand *group-formatters* fmt g)
+			   (if (eq g (current-group))
+			       (fmt-highlight (format-expand *group-formatters* fmt g))
+			     (format-expand *group-formatters* fmt g))
                            (when verbose
                              (mapcar (lambda (w)
-                                       (format-expand *window-formatters*
-                                                      (concatenate 'string "  " wfmt)
-                                                      w))
+				       (format-expand *window-formatters*
+							      (concatenate 'string "  "
+				       (cond ((eq w (current-window))
+					      (fmt-highlight wfmt))
+					     ((window-hidden-p w)
+					      (fmt-hidden wfmt))
+					     (t wfmt)))
+				       w))
                                      (sort-windows-by-number g)))))
                         (if *list-hidden-groups* groups (non-hidden-groups groups)))))
     (echo-string-list screen names)))
-
-(defun grouplist-for-echo (screen fmt &optional verbose (wfmt *window-format*))
-  "Print a list of the windows to the screen."
-  (let* ((groups (sort-groups screen))
-         (names (mapcan (lambda (g)
-                          (list*
-                           (format-expand *group-formatters* fmt g)
-                           (when verbose
-                             (mapcar (lambda (w)
-                                       (format-expand *window-formatters*
-                                                      (concatenate 'string "  " wfmt)
-                                                      w))
-                                     (sort-windows-by-number g)))))
-                        (if *list-hidden-groups* groups (non-hidden-groups groups)))))
-    screen names))
 
 (defcommand vgroups (&optional gfmt wfmt) (:string :rest)
 "Like @command{groups} but also display the windows in each group. The

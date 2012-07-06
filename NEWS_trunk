@@ -50,3 +50,9 @@ fill-keymap deprecated
 ...widget-line... -> ...info-line...
 
 all names screen-{mode,info...}-line... -> {mode,info...}-line...
+
+new commands loaded-modules 
+
+list-modules -> modules
+
+remove 'groups' 'windows'. Use vgroups instead. Now it's more informative
