@@ -28,8 +28,8 @@
 
 (export '(*top-map*
           define-key
-	  defkeys-top
-	  defkeys-root
+	  define-keys
+	  fill-keymap
 	  kbd
 	  lookup-command
 	  lookup-key
@@ -207,6 +207,7 @@ Now when you type c-j C-z, you'll see the text ``Zzzzz...'' pop up."
   "Clear the key binding in the specified keybinding."
   (define-key map key nil))
 ;; Do it this way so its easier to wipe the map and get a clean one.
+
 (defmacro fill-keymap (map &rest bindings) ;; deprecated
   `(progn
      (unless ,map
