@@ -838,7 +838,7 @@ will have no effect.")
   "List of rules governing window placement. Use define-frame-preference to
 add rules")
 
-(defvar *mouse-focus-policy* :sloppy
+(defvar *mouse-focus-policy* :click
   "The mouse focus policy decides how the mouse affects input
 focus. Possible values are :ignore, :sloppy, and :click. :ignore means
 dswm ignores the mouse. :sloppy means input focus follows the

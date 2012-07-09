@@ -23,6 +23,7 @@
 (export '(add-mode-line-formatter
 	  enable-mode-line
 	  toggle-mode-line
+	  bar
 	  bar-zone-color
 	  set-mode-line-bg-color
 	  set-mode-line-border-color

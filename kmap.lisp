@@ -34,6 +34,8 @@
 	  lookup-command
 	  lookup-key
 	  make-sparse-keymap
+	  pop-top-map
+	  push-top-map
 	  undefine-key))
 
 (defvar *top-map* nil
