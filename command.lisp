@@ -457,11 +457,13 @@ then describes the symbol."
             (throw 'error :abort)))))
 
 (define-dswm-type :shell (input prompt)
-  ;; FIXME: make it working ("urxvt" is not type CHARACTER)
   (let* ((*input-history* *programs-history*)
 	 (program (or (argument-pop-rest input)
 		      (completing-read (current-screen) prompt 'complete-program))))
-    (push program *programs-history*)))
+    (when (and (not (null program))
+	       (not (equal program (car *programs-history*))))
+    (push program *programs-history*))
+    program))
 
 ;;; FIXME: Not implemented with autocomplete FIXING
 (define-dswm-type :file (input prompt)
