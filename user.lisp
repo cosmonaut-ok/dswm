@@ -373,13 +373,16 @@ current frame instead of switching to the window."
   "Repeat last inserted command"
   (labels
       ((find-last-command (list)
-		     (cond ((null list)
-			    nil)
-			   ((member (all-commands) (car list) :test 'equal)
-			    (car list))
-			   (t
-			    (find-last-command (cdr list))))))
-    (let ((command (find-last-command (reverse *input-history*))))
+			  (let ((command (cl-ppcre:regex-replace "\ $" (car list) "")))
+			    (cond
+			     ((null list) nil)
+			     ((equal command "repeat")
+			      (find-last-command (cdr list)))
+			     ((member command (all-commands) :test 'equal)
+			      command)
+			     (t
+			      (find-last-command (cdr list)))))))
+    (let ((command (find-last-command *input-history*)))
       (if command
 	  (run-commands (princ-to-string command))
 	(message "You not input any command yet")))))
