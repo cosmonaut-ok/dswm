@@ -739,6 +739,14 @@ when killing text in the input bar.")
 (defvar *last-command* nil
   "Set to the last interactive command run.")
 
+(defvar *commands-history* nil
+  "History of any input through input line
+or keybindings commands")
+
+(defvar *programs-history* nil
+  "History of any input through input line
+or keybindings commands")
+
 (defvar *max-last-message-size* 20
   "how many previous messages to keep.")
 

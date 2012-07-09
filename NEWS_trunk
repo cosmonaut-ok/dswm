@@ -56,3 +56,7 @@ new commands loaded-modules
 list-modules -> modules
 
 remove 'groups' 'windows'. Use vgroups instead. Now it's more informative
+
+corrected history, when in 'colon' command
+
+correcting history in 'run-shell-command' command
