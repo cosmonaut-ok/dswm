@@ -43,7 +43,7 @@
   (push (string-as-directory dir) asdf:*central-registry*))
 
 ;; Add default modules directories
-(add-modules-dir "@datarootdir@/dswm/modules/")
+(add-modules-dir "@prefix@/share/dswm/modules/")
 (push (data-dir "/modules.d/") asdf:*central-registry*)
 
 (defun modules-list ()
@@ -52,10 +52,10 @@
     (dolist (module-path asdf:*central-registry*)
       (dolist (subpath (list-directory module-path))
 	(let ((local-name (car (last (pathname-directory subpath)))))
-	  (when (and (not (member local-name mod-list))
+	  (when (and (not (member local-name mod-list :test 'equal))
 		     (file-exists-p (make-pathname :defaults subpath :name local-name :type "asd")))
 	    (push local-name mod-list)))))
-    mod-list))
+    (reverse mod-list)))
 
 (defun find-system-file (name)
   "Find module from list avaliable modules"

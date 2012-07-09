@@ -369,6 +369,21 @@ current frame instead of switching to the window."
 "Run default terminal"
   (run-commands (concat "exec " *terminal*)))
 
+(defcommand repeat () ()
+  "Repeat last inserted command"
+  (labels
+      ((find-last-command (list)
+		     (cond ((null list)
+			    nil)
+			   ((member (all-commands) (car list) :test 'equal)
+			    (car list))
+			   (t
+			    (find-last-command (cdr list))))))
+    (let ((command (find-last-command (reverse *input-history-ignore-duplicates*))))
+      (if command
+	  (run-command (princ-to-string command))
+	(message "You not input any command yet")))))
+
 (defmacro defprogram-shortcut (name &key (command (string-downcase (string name)))
                                          (props `'(:class ,(string-capitalize command)))
                                          (map *top-map*)
