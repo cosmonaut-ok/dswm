@@ -379,9 +379,9 @@ current frame instead of switching to the window."
 			    (car list))
 			   (t
 			    (find-last-command (cdr list))))))
-    (let ((command (find-last-command (reverse *input-history-ignore-duplicates*))))
+    (let ((command (find-last-command (reverse *input-history*))))
       (if command
-	  (run-command (princ-to-string command))
+	  (run-commands (princ-to-string command))
 	(message "You not input any command yet")))))
 
 (defmacro defprogram-shortcut (name &key (command (string-downcase (string name)))

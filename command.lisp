@@ -137,6 +137,10 @@ out, an element can just be the argument type."
        (let ((%interactivep% *interactivep*)
 	     (*interactivep* nil))
 	 (declare (ignorable %interactivep%))
+	 (when (and %interactivep%
+		    (not (equal (string-downcase (princ-to-string ',name)) "colon"))
+		    (not (equal (string-downcase (princ-to-string ',name)) (car *commands-history*))))
+	   (push (string-downcase (princ-to-string ',name)) *commands-history*))
 	 ,@body))
      (setf (gethash ',name *command-hash*)
            (make-command :name ',name
@@ -453,8 +457,11 @@ then describes the symbol."
             (throw 'error :abort)))))
 
 (define-dswm-type :shell (input prompt)
-  (or (argument-pop-rest input)
-      (completing-read (current-screen) prompt 'complete-program)))
+  ;; FIXME: make it working ("urxvt" is not type CHARACTER)
+  (let* ((*input-history* *programs-history*)
+	 (program (or (argument-pop-rest input)
+		      (completing-read (current-screen) prompt 'complete-program))))
+    (push program *programs-history*)))
 
 ;;; FIXME: Not implemented with autocomplete FIXING
 (define-dswm-type :file (input prompt)
@@ -561,11 +568,13 @@ know lisp very well. One might put the following in one's rc file:
 (defcommand colon (&optional initial-input) (:rest)
   "Read a command from the user. @var{initial-text} is optional. When
 supplied, the text will appear in the prompt."
-  (let ((cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
-    (unless cmd
-      (throw 'error :abort))
-    (when (plusp (length cmd))
-      (eval-command cmd t))))
+  ;; TODO make completing-read-commands with history from just commands (use *commands-history*)
+  (let* ((*input-history* *commands-history*)
+	 (cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
+      (unless cmd
+	(throw 'error :abort))
+      (when (plusp (length cmd))
+	(eval-command cmd t))))
 
 (defcommand edit-variable (var) ((:variable "Input variable name to edit it: "))
   "Edit any variable values"
