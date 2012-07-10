@@ -37,7 +37,11 @@
           set-unfocus-color
           set-msg-border-width
           set-frame-outline-width
-          set-font))
+	  set-float-window-title-height
+          set-font
+	  snext
+	  sprev
+	  sother))
 
 (defclass screen ()
   ((id :initform nil :accessor screen-id)
@@ -57,6 +61,7 @@
    (unfocus-color :initform nil :accessor screen-unfocus-color)
    (msg-border-width :initform nil :accessor screen-msg-border-width)
    (frame-outline-width :initform nil :accessor screen-frame-outline-width)
+   (float-window-title-height :initform nil :accessor screen-float-window-title-height)
    (font :initform nil :accessor screen-font)
    (mapped-windows :initform nil :accessor screen-mapped-windows :documentation
     "A list of all mapped windows. These are the raw xlib:window's. window structures are stored in groups.")
@@ -202,7 +207,7 @@ identity with a range check."
 
 (defun next-screen (&optional (list (sort-screens)))
   (let ((matches (member (current-screen) list)))
-    (if (null (cdr matches))
+    (if-null (cdr matches)
         ;; If the last one in the list is current, then
         ;; use the first one.
         (car list)
@@ -323,12 +328,6 @@ identity with a range check."
             (setf (,val s) (alloc-color s ,color)))
     (update-colors-all-screens)))
 
-;; FIXME: I don't like any of this.  Isn't there a way to define
-;; a setf method to call (update-colors-all-screens) when the user
-;; does eg. (setf *foreground-color* "green") instead of having
-;; these redundant set-foo functions?
-;; FIXME (CosmonauT): Functions in lisp - its true way. We'll make
-;; all sets through functions :)
 (defun set-fg-color (color)
   "Set the foreground color for the message bar and input
 bar. @var{color} can be any color recognized by X."
@@ -367,6 +366,14 @@ bar."
   (check-type width (integer 0))
   (dolist (i *screen-list*)
     (setf (screen-msg-border-width i) width))
+  (update-border-all-screens)
+  t)
+
+(defun set-float-window-title-height (height)
+  "Set the float window height"
+  (check-type height (integer 0))
+  (dolist (i *screen-list*)
+    (setf (screen-float-window-title-height i) height))
   (update-border-all-screens)
   t)
 
@@ -523,6 +530,7 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
             (screen-unfocus-color screen) unfocus
             (screen-msg-border-width screen) 1
             (screen-frame-outline-width screen) +default-frame-outline-width+
+	    (screen-float-window-title-height screen) +default-float-window-title-height+
             (screen-input-window screen) input-window
             (screen-focus-window screen) focus-window
             (screen-key-window screen) key-window

@@ -20,27 +20,27 @@
 
 ;; Commentary:
 ;;
-;; This file contains core functionality including functions on
-;; windows, screens, and events.
+;; This file contains keyboard and pointer helper functions
 ;;
 ;; Code:
 
 (in-package :dswm)
 
+;; FIXME: is it macro really needed ???
 ;; Wow, is there an easier way to do this?
-(defmacro def-thing-attr-macro (thing hash-slot)
-  (let ((attr (gensym "ATTR"))
-        (obj (gensym "METAOBJ"))
-        (val (gensym "METAVAL")))
-    `(defmacro ,(intern1 (format nil "DEF-~a-ATTR" thing)) (,attr)
-      "Create a new attribute and corresponding get/set functions."
-      (let ((,obj (gensym "OBJ"))
-            (,val (gensym "VAL")))
-        `(progn
-          (defun ,(intern1 (format nil ,(format nil "~a-~~a" thing) ,attr)) (,,obj)
-            (gethash ,,attr (,(quote ,hash-slot) ,,obj)))
-          (defun (setf ,(intern1 (format nil ,(format nil "~a-~~a" thing) ,attr))) (,,val ,,obj)
-            (setf (gethash ,,attr (,(quote ,hash-slot) ,,obj))) ,,val))))))
+;; (defmacro def-thing-attr-macro (thing hash-slot)
+;;   (let ((attr (gensym "ATTR"))
+;;         (obj (gensym "METAOBJ"))
+;;         (val (gensym "METAVAL")))
+;;     `(defmacro ,(intern1 (format nil "DEF-~a-ATTR" thing)) (,attr)
+;;       "Create a new attribute and corresponding get/set functions."
+;;       (let ((,obj (gensym "OBJ"))
+;;             (,val (gensym "VAL")))
+;;         `(progn
+;;           (defun ,(intern1 (format nil ,(format nil "~a-~~a" thing) ,attr)) (,,obj)
+;;             (gethash ,,attr (,(quote ,hash-slot) ,,obj)))
+;;           (defun (setf ,(intern1 (format nil ,(format nil "~a-~~a" thing) ,attr))) (,,val ,,obj)
+;;             (setf (gethash ,,attr (,(quote ,hash-slot) ,,obj))) ,,val))))))
 
 
 ;;; keyboard helper functions
@@ -141,27 +141,3 @@
 (defun warp-pointer-relative (dx dy)
   "Move the pointer by DX and DY relative to the current location."
   (xlib:warp-pointer-relative *display* dx dy))
-
-(defun string-as-directory (dir)
-  (unless (string= "/" (subseq dir (1- (length dir))))
-    (setf dir (concat dir "/")))
-  (pathname dir))
-
-(defmacro eval-with-message (&key body
-				  body-alternative
-				  message-if-done
-				  message-if-false)
-  "Eval someting s-expression with messages, when it's done and false"
-  `(if ,body
-       ,(if (not (null message-if-done))
-	    `(message ,message-if-done)
-	  t)
-     ,(if (member 'interactive *mode*)
-	  (cond ((not (null body-alternative))
-		 `body-alternative)
-		((not (null message-if-false))
-		 `(error ,message-if-false))
-		(t nil))
-	(if (not (null message-if-false))
-	    `(error ,message-if-false)
-	  nil))))

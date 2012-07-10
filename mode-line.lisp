@@ -20,10 +20,17 @@
 
 (in-package :dswm)
 
-(export '(add-screen-mode-line-formatter
+(export '(add-mode-line-formatter
 	  enable-mode-line
 	  toggle-mode-line
-	  bar-zone-color))
+	  bar
+	  bar-zone-color
+	  set-mode-line-bg-color
+	  set-mode-line-border-color
+	  set-mode-line-border-width
+	  set-mode-line-fg-color
+	  set-mode-line-format
+	  set-info-line-format))
 
 (defstruct mode-line
   screen
@@ -41,9 +48,12 @@
   (ccontext-gc (mode-line-cc ml)))
 
 (defun screen-mode-line-format ()
-  (format nil "~a~%~a"
-	  *screen-widget-line-format*
-	  *screen-window-list-line-format*))
+  "Show mode-line format"
+  (if-not-null *mode-line-format*
+	       *mode-line-format* ;; for back compatability
+	       (format nil "~a~%~a"
+		       *info-line-format*
+		       *window-list-line-format*)))
 
 (defvar *current-mode-line-formatters* nil
   "used in formatting modeline strings.")
@@ -53,11 +63,11 @@
 
 ;; ;;; Formatters
 
-(defun add-screen-mode-line-formatter (character fmt-fun)
+(defun add-mode-line-formatter (character fmt-fun)
   "Add a format function to a format character (or overwrite an existing one)."
-  (setf *screen-mode-line-formatters*
+  (setf *mode-line-formatters*
         (cons (list character fmt-fun)
-              (remove character *screen-mode-line-formatters* :key #'first))))
+              (remove character *mode-line-formatters* :key #'first))))
 
 ;; All mode-line formatters take the mode-line they are being invoked from
 ;; as the first argument. Additional arguments (everything between the first
@@ -81,6 +91,16 @@
 		       (fmt-blink str)))
 		    (screen-urgent-windows (mode-line-screen ml))
 		    )))
+
+(defun fmt-head-window-list-with-urgent (ml)
+  "Using *window-format*, return a list windows from current group and all urgent windows."
+  ;; TODO: make. Is it needed?
+  )
+
+(defun fmt-head-window-list-with-blink-urgent (ml)
+  "Using *window-format*, return a list windows from current group and all blinking urgent windows."
+  ;; TODO: make. Is it needed?
+)
 
 (defun fmt-window-list (ml)
    "Using *window-format*, return a 1 line list of the windows, space seperated."
@@ -139,17 +159,17 @@ Redefining standard fmt-group-list for hiding scratchpad group"
   (format nil "^R~A^r" s))
 
 (defun toggle-mode-line-blink ()
-  (if (null *mode-line-blinker*)
+  (if-null *mode-line-blinker*
       (setf *mode-line-blinker* t)
     (setf *mode-line-blinker* nil)))
 
 (defun fmt-solo-blink (s)
-  (if (null *mode-line-blinker*)
+  (if-null *mode-line-blinker*
       (format nil "^R~A^r" s)
     (format nil "^r~A^r" s)))
 
 (defun fmt-blink (s)
-  (if (null *mode-line-blinker*)
+  (if-null *mode-line-blinker*
       (format nil "^R~A^r" s)
     (format nil "^r~A^R" s)))
 
@@ -331,8 +351,10 @@ critical."
 (defun update-mode-line-color-context (ml)
   (let* ((cc (mode-line-cc ml))
          (screen (mode-line-screen ml))
-         (bright (lookup-color screen *mode-line-foreground-color*)))
-    (adjust-color bright 0.25)
+         (bright (if (stringp *mode-line-foreground-color*)
+                     (lookup-color screen *mode-line-foreground-color*)
+		   *mode-line-foreground-color*)))
+    ;; (adjust-color bright 0.25)
     (setf (ccontext-default-bright cc) (alloc-color screen bright))))
 
 (defun make-head-mode-line (screen head format)
@@ -353,7 +375,7 @@ critical."
 
 (defun redraw-mode-line (ml &optional force)
   (when (eq (mode-line-mode ml) :ds)
-    (let* ((*current-mode-line-formatters* *screen-mode-line-formatters*)
+    (let* ((*current-mode-line-formatters* *mode-line-formatters*)
            (*current-mode-line-formatter-args* (list ml))
            (string (mode-line-format-string ml)))
       (when (or force (not (string= (mode-line-contents ml) string)))
@@ -501,11 +523,63 @@ critical."
       (if (head-mode-line head)
           (when format
             (setf (mode-line-format (head-mode-line head)) format))
-          (toggle-mode-line screen head (or format
-					    *screen-mode-line-format*
-					    (format nil "~a~%~a" *screen-widget-line-format* *screen-window-list-line-format*))))
-      (when (head-mode-line head)
-        (toggle-mode-line screen head))))
+	(toggle-mode-line screen head (or format
+					  *mode-line-format*
+					  (format nil "~a~%~a" *info-line-format* *window-list-line-format*))))
+    (when (head-mode-line head)
+      (toggle-mode-line screen head))))
+
+(defun maybe-refresh-mode-line (screen head)
+  "Refresh mode line, if it needed"
+  (let ((ml (head-mode-line head)))
+    (if ml
+	(case (mode-line-mode ml)
+	  (:visible
+	   (setf (mode-line-mode ml) :hidden)
+	   (xlib:unmap-window (mode-line-window ml))
+	   (xlib:map-window (mode-line-window ml)))
+	   (:ds
+	    (xlib:destroy-window (mode-line-window ml))
+	    (xlib:free-gcontext (mode-line-gc ml))
+	    (setf (head-mode-line head) nil)
+	    (maybe-cancel-mode-line-timer)
+	    (setf (head-mode-line head) (make-head-mode-line screen head (screen-mode-line-format)))
+	    (xlib:map-window (mode-line-window (head-mode-line head))))))
+    (redraw-mode-line (head-mode-line head))))
+
+(defun set-mode-line-any-color (val color)
+  "Set any mode-line color for the specified screen"
+  (and
+   (set (intern (concat "*MODE-LINE-" (princ-to-string val) "-COLOR*")) color)
+   (maybe-refresh-mode-line (current-screen) (current-head))))
+   
+(defun set-mode-line-fg-color (color)
+  "Set mode-line foreground color"
+  (set-mode-line-any-color 'foreground color))
+
+(defun set-mode-line-bg-color (color)
+  "Set mode-line background color"
+  (set-mode-line-any-color 'background color))
+
+(defun set-mode-line-border-color (color)
+  "Set mode-line background color"
+  (set-mode-line-any-color 'border color))
+
+(defun set-mode-line-border-width (width)
+  "Set mode-line border width"
+  (and
+   (setf *mode-line-border-width* width)
+   (maybe-refresh-mode-line (current-screen) (current-head))))
+
+(defun set-mode-line-format (format)
+  (and
+   (setf *mode-line-format* format)
+   (maybe-refresh-mode-line (current-screen) (current-head))))
+
+(defun set-info-line-format (format)
+  (and
+   (setf *info-line-format* format)
+   (maybe-refresh-mode-line (current-screen) (current-head))))
 
 (defcommand mode-line () ()
   "A command to toggle the mode line visibility."

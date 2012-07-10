@@ -26,15 +26,14 @@
 ;; TODO: make it good
 (in-package :dswm)
 
-(defvar *scratchpad-group* '()
-  "Group of the scratchpad." )
+(export '(scratchpad))
 
 (defun scratchpad-init ()
   "Initializing scratchpad support"
   (let ((cg (current-group)))
 	 (unless *scratchpad-group*
 	   ;; Add the (hidden) scratchpad group and give it the special number 0
-	   (setf *scratchpad-group* (add-group (current-screen) "scratchpad")
+	   (setf *scratchpad-group* (add-group (current-screen) *scratchpad-group-name*)
 		 (group-number *scratchpad-group*) 0))
 	 (switch-to-group cg))
   ;; TODO: It`s just dirty hack. Replace it to good code!

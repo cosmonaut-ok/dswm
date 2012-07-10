@@ -26,7 +26,28 @@
 
 (in-package #:dswm)
 
-(export '(current-group))
+(export '(current-group
+	  gnew
+	  gnewbg
+	  gnew-with-window
+	  gnew-with-marked
+	  gnext
+	  gprev
+	  gnext-with-window
+	  gprev-with-window
+	  gother
+	  grename
+	  vgroups
+	  gselect
+	  grouplist
+	  gmove
+	  gselect-with-window
+	  gmove-marked
+	  gkill
+	  gmerge
+	  grun
+	  grun-new
+	  echo-groups))
 
 (defvar *default-group-type* 'tile-group
   "The type of group that should be created by default.")
@@ -206,7 +227,7 @@ at 0. Return a netwm compliant group id."
   "Return the group following @var{current} in @var{groups}. If none
 are found return @code{NIL}."
   (let* ((matches (member current groups))
-         (next-group (if (null (cdr matches))
+         (next-group (if-null (cdr matches)
                          ;; If the last one in the list is current, then
                          ;; use the first one.
                          (car groups)
@@ -401,17 +422,14 @@ window along."
 	  (switch-to-group (nth 2 groups))
 	  (switch-to-group (nth 1 groups))))))
 
-(defcommand grename (name) ((:string "Input new name for group: "))
+(defcommand grename (name) ((:current-group-name "Input new name for group: "))
   "Rename the current group."
   (let ((group (current-group)))
     (cond ((find-group (current-screen) name)
            (message "^Name already exists."))
           ((or (zerop (length name))
-               (string= name ".")
-	       ;; FIXME groups must have possibility to include
-	       ;; numbers here
-	       (cl-ppcre:scan-to-strings "[0-9]" name))
-	   (message "Empty name or name with numbers"))
+               (string= name "."))
+	   (message "Empty group name"))
           (t
            (cond ((and (char= (char name 0) #\.) ;change to hidden group
                        (not (char= (char (group-name group) 0) #\.)))
@@ -426,30 +444,22 @@ window along."
   (let* ((groups (sort-groups screen))
          (names (mapcan (lambda (g)
                           (list*
-                           (format-expand *group-formatters* fmt g)
+			   (if (eq g (current-group))
+			       (fmt-highlight (format-expand *group-formatters* fmt g))
+			     (format-expand *group-formatters* fmt g))
                            (when verbose
                              (mapcar (lambda (w)
-                                       (format-expand *window-formatters*
-                                                      (concatenate 'string "  " wfmt)
-                                                      w))
+				       (format-expand *window-formatters*
+							      (concatenate 'string "  "
+				       (cond ((eq w (current-window))
+					      (fmt-highlight wfmt))
+					     ((window-hidden-p w)
+					      (fmt-hidden wfmt))
+					     (t wfmt)))
+				       w))
                                      (sort-windows-by-number g)))))
                         (if *list-hidden-groups* groups (non-hidden-groups groups)))))
     (echo-string-list screen names)))
-
-(defun grouplist-for-echo (screen fmt &optional verbose (wfmt *window-format*))
-  "Print a list of the windows to the screen."
-  (let* ((groups (sort-groups screen))
-         (names (mapcan (lambda (g)
-                          (list*
-                           (format-expand *group-formatters* fmt g)
-                           (when verbose
-                             (mapcar (lambda (w)
-                                       (format-expand *window-formatters*
-                                                      (concatenate 'string "  " wfmt)
-                                                      w))
-                                     (sort-windows-by-number g)))))
-                        (if *list-hidden-groups* groups (non-hidden-groups groups)))))
-    screen names))
 
 (defcommand vgroups (&optional gfmt wfmt) (:string :rest)
 "Like @command{groups} but also display the windows in each group. The
@@ -482,38 +492,13 @@ the default group formatting and window formatting, respectively."
     (when group
       (switch-to-group group))))
 
-;; (defcommand grouplist (&optional (fmt *group-format*)) (:rest)
-;;   "Allow the user to select a group from a list, like windowlist but                                                                                                                                           
-;;   for groups"
-;;   (let* ((sgs (screen-groups (current-screen)))
-;;          (group (second (select-from-menu
-;;                          (current-screen)
-;;                          (mapcar (lambda (g)
-;; 				   (list
-;; 				    (when (not (equal (group-number g) 0) (format-expand *group-formatters* fmt g) g))))
-;;                                  (cons (cadr sgs)
-;;                                        (cons (car sgs)
-;;                                              (cddr sgs))))))))
-;;     (when group
-;;       (switch-to-group group))))
-
-
-
-
-
-;; To Command groups is deprecated as not functional
-(defcommand-alias groups grouplist)
-
 (defcommand gmove (group) ((:group "Select group: "))
   "Move the current window to the specified group."
   (when (and group
              (current-window))
     (move-window-to-group (current-window) group)))
 
-;; (defcommand gselect-with-window (group) ((:group "Select group: "))
-;;   "Move the current window to the specified group and switch to it."
-;;   (gmove group)
-;;   (gselect group))
+(defcommand-alias gselect-with-window gmove)
 
 (defcommand gmove-marked (group) ((:group "Select group: "))
   "move the marked windows to the specified group."
@@ -555,11 +540,11 @@ The windows will be moved to group \"^B^2*~a^n\"
 				  (:group "In what group? "))
   "Run shell command in specified group"
   ;; FIXME: need to run, ignoring window placement rules
-  (gselect group)
-  (run-shell-command command))
+    (gselect group)
+    (run-shell-command command))
 
 (defcommand grun-new (command) ((:shell "Enter command to run program: "))
   "Run shell command in new tile group with same name with command"
   ;; FIXME: need to run, ignoring window placement rules
-  (gnew command)
-  (run-shell-command command))
+    (gnew command)
+    (run-shell-command command))

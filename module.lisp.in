@@ -1,4 +1,5 @@
 ;; Copyright (C) 2008 Julian Stecklina, Shawn Betts, Ivy Foster
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -31,8 +32,9 @@
 
 (in-package #:dswm)
 
-(export '(load-module
-          modules-list
+(export '(add-modules-dir
+	  load-module
+          list-modules
 	  add-modules-dir
           find-module))
 
@@ -41,12 +43,8 @@
   (push (string-as-directory dir) asdf:*central-registry*))
 
 ;; Add default modules directories
-(add-modules-dir "@datarootdir@/dswm/modules/")
-(push (data-dir "/modules/") asdf:*central-registry*)
-
-(define-dswm-type :module (input prompt)
-  (or (argument-pop-rest input)
-      (completing-read (current-screen) prompt (modules-list) :require-match t)))
+(add-modules-dir "@prefix@/share/dswm/modules/")
+(push (data-dir "/modules.d/") asdf:*central-registry*)
 
 (defun modules-list ()
   "Return a list of the available modules."
@@ -54,13 +52,13 @@
     (dolist (module-path asdf:*central-registry*)
       (dolist (subpath (list-directory module-path))
 	(let ((local-name (car (last (pathname-directory subpath)))))
-	  (when (and (not (member local-name mod-list))
+	  (when (and (not (member local-name mod-list :test 'equal))
 		     (file-exists-p (make-pathname :defaults subpath :name local-name :type "asd")))
 	    (push local-name mod-list)))))
-    mod-list))
+    (reverse mod-list)))
 
 (defun find-system-file (name)
-  "Find module from list avaliable modules FIXME: test"
+  "Find module from list avaliable modules"
   (labels ((system-p (dir-list name)
 	     (let ((system
 		    (make-pathname :directory (concat (princ-to-string (car dir-list)) "/" name)
@@ -70,40 +68,75 @@
 		     (t (system-p (cdr dir-list) name))))))
     (system-p asdf:*central-registry* name)))
 
-(defcommand load-module (name) ((:module "Input module name: "))
+(defcommand load-module (name &optional force-p) ((:module "Input module name: "))
   "Loads the contributed module with the given NAME."
   (let ((dir (dirname (find-system-file name))))
-    (push dir asdf:*central-registry*)
-    (require name)))
+    (if (or (not (member name *loaded-modules-list* :test 'equal)) force-p)
+	(progn
+	  (and (push dir asdf:*central-registry*) (require name))
+	  (push name *loaded-modules-list*)
+	  (format nil "Module ~a loaded successfully" name))
+      (message "Module already loaded"))))
 
-(defcommand list-modules () ()
+(defcommand reload-module (name) ((:module "Input module name: "))
+  "Reloads module with given NAME"
+  (when (not (member name *loaded-modules-list* :test 'equal))
+      (message "Module not loaded yet. Loading"))
+  (load-module name t)
+  (asdf:operate 'asdf:load-op name)
+  (if (not (member name *loaded-modules-list*))
+      (message "Module ~a loaded successfully" name)
+    (message "Module ~a reloaded successfully" name)))
+  
+(defcommand modules () ()
+  "Shows modules list"
   (let ((list nil))
     (dolist (w (modules-list))
       (setf list (concat w "~%" list)))
-    (if (not (null list))
-	(message (format nil "~a" list))
-	(message "No modules found"))))
+    (if-not-null list
+		 (message (format nil "~a" list))
+		 (message "No modules found"))))
+
+(defcommand loaded-modules () ()
+  "Shows modules list"
+  (let ((list nil))
+    (dolist (w *loaded-modules-list*)
+      (setf list (concat w "~%" list)))
+    (if-not-null list
+		 (message (format nil "~a" list))
+		 (message "No modules found"))))
 
 (defcommand module-info (name) ((:module "Input module name: "))
   "Shows full information about module"
   (load (find-system-file name))
   (let* ((module (asdf:find-system name))
 	 (module-description
-	  (handler-case (format nil "No description")
-	    (unbound-slot () (asdf:system-description module))))
+	  (handler-case (asdf:system-description module)
+	    (unbound-slot () (format nil "No description"))))
 	 (module-author
-	  (handler-case (format nil "Unknown")
-	    (unbound-slot () (asdf:system-author module))))
+	  (handler-case (asdf:system-author module)
+	   (unbound-slot () (format nil "Unknown"))))
 	 (module-maintainer
-	  (handler-case (format nil "Unknown")
-	    (unbound-slot () (asdf:system-maintainer module))))
+	  (handler-case (asdf:system-maintainer module)
+	    (unbound-slot () (format nil "Unknown"))))
 	 (module-version
-	  (handler-case (format nil "Unknown")
-	    (unbound-slot () (slot-value module 'asdf:version))))
+	  (handler-case (slot-value module 'asdf:version)
+	    (unbound-slot () (format nil "Unknown"))))
 	 (module-licence
-	  (handler-case (format nil "No one defined (`as is'?)")
-	    (unbound-slot () (asdf:system-licence module)))))
-    (message (format nil "Name:~20t~a~%Description:~20t~a~%Author:~20t~a~%Maintainer:~20t~a~%Licence:~20t~a~%Version:~20t~%"
+	  (handler-case (asdf:system-licence module)
+	    (unbound-slot () (format nil "No one defined (`as is'?)")))))
+    (message (format nil "Name:~20t~a~%Description:~20t~a~%Author:~20t~a~%Maintainer:~20t~a~%Licence:~20t~a~%Version:~20t~a~%"
 		     name module-description module-author module-maintainer module-licence module-version))))
+
+(defcommand load-file (name &optional (data-file-p nil)) ((:file "Input path to file: "))
+  "Loads file from location you input (optionally you can set data-file-p
+and file would de loaded from this location)"
+  (if-not-null data-file-p
+      (if (file-exists-p (data-dir-file name))
+	  (load (data-dir-file name))
+	(message "No such file, named ~a" (princ-to-string (data-dir-file name))))
+    (if (file-exists-p name)
+	(load name)
+      (message "No such file, named ~a" name))))
 
 ;; End of file

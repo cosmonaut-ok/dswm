@@ -25,7 +25,26 @@
 
 (in-package #:dswm)
 
-(export '(save-frame-excursion))
+(export '(save-frame-excursion
+	  hsplit
+	  vsplit
+	  remove-split
+	  remove
+	  only
+	  curframe
+	  fnext
+	  sibling
+	  fother
+	  fselect
+	  resize
+	  fclear
+	  move-focus
+	  move-window
+	  next-in-frame
+	  prev-in-frame
+	  other-in-frame
+	  balance-frames
+	  move-window-to-frame))
 
 (defclass tile-group (group)
   ((frame-tree :accessor tile-group-frame-tree)
@@ -432,7 +451,7 @@ If ratio is an integer return the number of pixel desired."
   (cond ((atom tree) nil)
         ((find leaf tree)
          (let* ((rest (cdr (member leaf (funcall fn tree))))
-                (pick (car (if (null rest) (funcall fn tree) rest))))
+                (pick (car (if-null rest (funcall fn tree) rest))))
            (unless (eq pick leaf)
              pick)))
         (t (find-if (lambda (x)
@@ -895,8 +914,8 @@ windows used to draw the numbers in. The caller must destroy them."
         (message "Cannot split smaller than minimum size."))))
 
 (defun move-focus-and-or-window-to (frame-number &optional win-p)
-  ;; FIXME make check for type
-  ;; (declare (type (member (group-frames (current-group))) frame-number))
+  (declare (type
+	    (member (mapcar 'frame-number (group-frames (current-group))) frame-number)))
   (let* ((group (current-group))
          (new-frame frame-number)
 	 (window (current-window)))
@@ -1007,7 +1026,7 @@ space."
 the current frame."
   (let ((rest (cdr (member (tile-group-current-frame group) frames :test 'eq))))
     (focus-frame group
-                 (if (null rest)
+                 (if-null rest
                      (car frames)
                      (car rest)))))
 

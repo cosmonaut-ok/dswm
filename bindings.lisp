@@ -29,7 +29,8 @@
 (export '(*groups-map*
           *help-map*
           *root-map*
-	  set-prefix-key))
+	  set-prefix-key
+	  bind))
 
 (defvar *escape-key* (kbd "C-j")
   "The escape key. Any keymap that wants to hang off the escape key
@@ -65,16 +66,6 @@ from most specific groups to most general groups.")
 (defvar *tile-group-root-map* nil)
 (defvar *float-group-top-map* nil)
 (defvar *float-group-root-map* nil)
-
-;; Do it this way so its easier to wipe the map and get a clean one.
-(defmacro fill-keymap (map &rest bindings)
-  `(unless ,map
-     (setf ,map
-           (let ((m (make-sparse-keymap)))
-             ,@(loop for i = bindings then (cddr i)
-                    while i
-                    collect `(define-key m ,(first i) ,(second i)))
-             m))))
 
 (fill-keymap *top-map*
   (kbd "M-`") "scratchpad"

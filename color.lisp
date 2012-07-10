@@ -70,22 +70,38 @@ then call (update-color-map).")
 (defun lookup-color (screen color)
   (xlib:lookup-color (xlib:screen-default-colormap (screen-number screen)) color))
 
-;; Normal colors are dimmed and bright colors are intensified in order
-;; to more closely resemble the VGA pallet.
 (defun update-color-map (screen)
   "Read *colors* and cache their pixel colors for use when rendering colored text."
   (let ((scm (xlib:screen-default-colormap (screen-number screen))))
-    (labels ((map-colors (amt)
-               (loop for c in *colors*
-                     as color = (xlib:lookup-color scm c)
-                     do (adjust-color color amt)
-                     collect (xlib:alloc-color scm color))))
-      (setf (screen-color-map-normal screen) (apply #'vector (map-colors -0.25))
-            (screen-color-map-bright screen) (apply #'vector (map-colors 0.25))))))
+    (flet
+	((map-colors (amt)
+		     (loop for c in *colors*
+			   as color = (xlib:lookup-color scm c)
+			   do (adjust-color color amt)
+			   collect (xlib:alloc-color scm color)))
+	 (map-hex-colors (amt)
+			 (loop for c in *colors*
+			       as color = (handler-case
+					   (xlib:lookup-color scm c)
+					   (xlib:name-error (ne)
+							    (make-color-hex c)))
+			       do (adjust-color color amt)
+			       collect (xlib:alloc-color scm color))))
+      (if (eq #\# (car (concatenate 'list (car *colors*))))
+	  (setf (screen-color-map-normal screen)
+		(apply #'vector (map-colors -0.25))
+		(screen-color-map-bright screen)
+		(apply #'vector (map-colors 0.25)))
+	(setf (screen-color-map-normal screen)
+	      (apply #'vector (map-hex-colors 0.0))
+	      (screen-color-map-bright screen)
+	      (apply #'vector (map-hex-colors 0.25)))))))
 
 (defun update-screen-color-context (screen)
   (let* ((cc (screen-message-cc screen))
-         (bright (lookup-color screen *text-color*)))
+         (bright (if (stringp *text-color*)
+                     (lookup-color screen *text-color*)
+		   *text-color*)))
     (setf
      (ccontext-default-fg cc) (screen-fg-color screen)
      (ccontext-default-bg cc) (screen-bg-color screen))

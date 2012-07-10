@@ -31,9 +31,17 @@
 	  programs-in-path
 	  restarts-menu
 	  run-or-raise
+	  run-or-pull
+	  run-in-terminal
 	  run-shell-command
 	  run-shell-commands
-          window-send-string))
+          window-send-string
+	  ratwarp
+	  ratrelwarp
+	  ratclick
+	  emacs
+	  browser
+	  terminal))
 
 (defun restarts-menu (err)
   "Display a menu with the active restarts and let the user pick
@@ -358,8 +366,26 @@ current frame instead of switching to the window."
 						 (cdr br)) 'string))))))
 
 (defcommand terminal () ()
-"Run default terminal"
-  (run-commands (concat "exec " *terminal*)))
+  "Run default terminal"
+  (run-shell-commands *terminal*))
+
+(defcommand repeat () ()
+  "Repeat last inserted command"
+  (labels
+      ((find-last-command (list)
+			  (let ((command (cl-ppcre:regex-replace "\ $" (car list) "")))
+			    (cond
+			     ((null list) nil)
+			     ((equal command "repeat")
+			      (find-last-command (cdr list)))
+			     ((member command (all-commands) :test 'equal)
+			      command)
+			     (t
+			      (find-last-command (cdr list)))))))
+    (let ((command (find-last-command *input-history*)))
+      (if command
+	  (run-commands (princ-to-string command))
+	(message "You not input any command yet")))))
 
 (defmacro defprogram-shortcut (name &key (command (string-downcase (string name)))
                                          (props `'(:class ,(string-capitalize command)))

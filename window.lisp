@@ -31,10 +31,33 @@
           set-normal-gravity
           set-maxsize-gravity
           set-transient-gravity
-          set-window-geometry))
-
-(defvar *default-window-name* "Unnamed"
-  "The name given to a window that does not supply its own name.")
+          set-window-geometry
+	  next-urgent
+	  delete-window
+	  delete
+	  kill-window
+	  kill
+	  title
+	  rename-window
+	  select-window
+	  select
+	  select-window-by-name
+	  select-window-by-number
+	  other-window
+	  other
+	  renumber
+	  number
+	  repack-window-numbers
+	  windowlist
+	  window-send-string
+	  insert
+	  mark
+	  clear-window-marks
+	  clear-marks
+	  echo-windows
+	  windows
+	  refresh
+	  place-existing-windows))
 
 (defclass window ()
   ((xwin    :initarg :xwin    :accessor window-xwin)
@@ -907,6 +930,18 @@ selected."
 				      (list (format-expand *window-formatters* fmt w) w))
 				    windows))))
 
+
+(defun echo-windows (&optional (fmt *window-format*) (group (current-group)) (windows (group-windows group)))
+  "Display a list of managed windows. The optional argument @var{fmt} can
+be used to override the default window formatting."
+  (let* ((wins (sort1 windows '< :key 'window-number))
+         (highlight (position (group-current-window group) wins))
+         (names (mapcar (lambda (w)
+                          (format-expand *window-formatters* fmt w)) wins)))
+    (if-null wins
+	     (echo-string (group-screen group) "No Managed Windows")
+	     (echo-string-list (group-screen group) names highlight))))
+
 ;;; Window commands
 
 (defcommand delete-window (&optional (window (current-window))) ()
@@ -927,7 +962,7 @@ window. Default to the current window. if
 
 (defcommand-alias kill kill-window)
 
-(defcommand title (title) ((:rest "Set window's title to: "))
+(defcommand title (title) ((:title "Set window's title to: "))
   "Override the current window's title."
   (if (current-window)
       (setf (window-user-title (current-window)) title)
@@ -1016,7 +1051,7 @@ is using the number, then the windows swap numbers. Defaults to current group."
 the selected window. For information of menu bindings
 @xref{Menus}. The optional argument @var{fmt} can be specified to
 override the default window formatting."
-  (if (null (group-windows (current-group)))
+  (if-null (group-windows (current-group))
       (message "No Managed Windows")
       (let* ((group (current-group))
              (window (select-window-from-menu (sort-windows group) fmt)))
@@ -1062,19 +1097,6 @@ override the default window formatting."
     (setf (window-marked w) nil)))
 
 (defcommand-alias clear-marks clear-window-marks)
-
-(defcommand echo-windows (&optional (fmt *window-format*) (group (current-group)) (windows (group-windows group))) (:rest)
-  "Display a list of managed windows. The optional argument @var{fmt} can
-be used to override the default window formatting."
-  (let* ((wins (sort1 windows '< :key 'window-number))
-         (highlight (position (group-current-window group) wins))
-         (names (mapcar (lambda (w)
-                          (format-expand *window-formatters* fmt w)) wins)))
-    (if (null wins)
-        (echo-string (group-screen group) "No Managed Windows")
-        (echo-string-list (group-screen group) names highlight))))
-
-(defcommand-alias windows echo-windows)
 
 (defcommand refresh () ()
   "Refresh current window without changing its size."
