@@ -219,19 +219,6 @@ of those expired."
 	    :local)
 	   (t :internet)))))
 
-(defun engage-on-startup ()
-  "Runs many intresting things on startup (dswm-spacific)"
-  (progn
-    ;; Switch on mode-line
-    (if (not (head-mode-line (current-head)))
-	(toggle-mode-line (current-screen) (current-head)))
-    ;; FIXME: fix tip-of-the-day and (first-start)
-    (first-start)
-    ;; (if (and *show-tip-of-the-day-p*
-    ;; 	     (file-exists-p (data-dir-file "started" "p")))
-    ;;     (tip-of-the-day))
-    ))
-
 (defun dswm-internal (display-str)
   (multiple-value-bind (host display screen protocol) (parse-display-string display-str)
     (declare (ignore screen))
@@ -261,8 +248,10 @@ of those expired."
 		   (if (not (head-mode-line (current-head)))
 		       (toggle-mode-line (current-screen) (current-head)))
                    (if success
-		       (engage-on-startup)
-                       (message "^B^1*Error loading ^b~A^B: ^n~A" rc err))))
+		       (progn
+			 (enable-mode-line (current-screen) (current-head) :ds)
+			 (first-start))
+		     (message "^B^1*Error loading ^b~A^B: ^n~A" rc err))))
                (when *last-unhandled-error*
                  (message-no-timeout "^B^1*DSWM Crashed With An Unhandled Error!~%Copy the error to the clipboard with the 'copy-unhandled-error' command.~%^b~a^B^n~%~%~a"
                           (first *last-unhandled-error*) (second *last-unhandled-error*)))

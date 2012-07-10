@@ -28,7 +28,8 @@
 
 (export '(echo-string
           err
-          message))
+          message
+	  lastmsg))
 
 (defun max-width (font l)
   "Return the width of the longest string in L using FONT."

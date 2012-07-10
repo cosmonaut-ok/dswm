@@ -47,7 +47,10 @@
 (defvar *max-command-alias-depth* 10
   "")
 
-;; XXX: I'd like to just use straight warn, but sbcl drops to the
+(defvar *dswm-type->completion-function* (make-hash-table)
+  "Hash dswm-type->completion function for type")
+
+;; I'd like to just use straight warn, but sbcl drops to the
 ;; debugger when compiling so i've made a style warning instead
 ;; -sabetts
 (define-condition command-docstring-warning (style-warning)
@@ -134,6 +137,10 @@ out, an element can just be the argument type."
        (let ((%interactivep% *interactivep*)
 	     (*interactivep* nil))
 	 (declare (ignorable %interactivep%))
+	 (when (and %interactivep%
+		    (not (equal (string-downcase (princ-to-string ',name)) "colon"))
+		    (not (equal (string-downcase (princ-to-string ',name)) (car *commands-history*))))
+	   (push (string-downcase (princ-to-string ',name)) *commands-history*))
 	 ,@body))
      (setf (gethash ',name *command-hash*)
            (make-command :name ',name
@@ -242,7 +249,7 @@ only return active commands."
           (read-one-line (current-screen) prompt))
       (throw 'error :abort)))
 
-(defmacro define-dswm-type (type (input prompt) &body body)
+(defmacro define-dswm-type (type (input prompt &key completion-builder) &body body)
   "Create a new type that can be used for command arguments. @var{type} can be any symbol. 
 
 When @var{body} is evaluated @var{input} is bound to the
@@ -276,11 +283,13 @@ be used when prompting the user for the argument.
 This code creates a new type called @code{:symbol} which finds the
 symbol in the dswm package. The command @code{symbol} uses it and
 then describes the symbol."
-  `(setf (gethash ,type *command-type-hash*)
-    (lambda (,input ,prompt)
-      ,@body)))
+  `(progn
+     (setf (gethash ,type *command-type-hash*)
+	   (lambda (,input ,prompt)
+	     ,@body))
+     (setf (gethash ,type *dswm-type->completion-function*) ,completion-builder)))
 
-(define-dswm-type :y-or-n (input prompt)
+(define-dswm-type :y-or-n (input prompt :completion-builder 'lookup-symbol)
   (let ((s (or (argument-pop input)
                (read-one-line (current-screen) (concat prompt "(y/n): ")))))
     (when s
@@ -312,11 +321,20 @@ then describes the symbol."
       (throw 'error (format nil "the symbol ~a::~a has no function."
 			    (package-name pkg) var)))))
 
+(define-dswm-type :module (input prompt)
+  (or (argument-pop-rest input)
+      (completing-read (current-screen) prompt (modules-list) :require-match t)))
+
 (define-dswm-type :command (input prompt)
-  (or (argument-pop input)
-      (completing-read (current-screen)
-                       prompt
-                       (all-commands))))
+  (let* ((*input-history* *input-commands-history*)
+	 (cmd (or (argument-pop input)
+		  (completing-read (current-screen)
+				   prompt
+				   (all-commands)))))
+    (when (and (not (equal cmd "colon"))
+	       (not (equal cmd (car *input-commands-history*))))
+      (push cmd *input-commands-history*))
+    cmd))
 
 (define-dswm-type :key-seq (input prompt)
   (labels ((update (seq)
@@ -335,27 +353,15 @@ then describes the symbol."
   (let ((n (or (argument-pop input)
                (completing-read (current-screen)
                                 prompt
-                                ;; (mapcar 'prin1-to-string
-                                ;;         (mapcar 'window-number
-                                ;;                 (group-windows (current-group))))))))
-;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                                 (mapcar 'window-map-number
                                         (group-windows (current-group)))))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     (when n
-      ;; (handler-case
-      ;;     (parse-integer n)
-      ;;   (parse-error (c)
-      ;;     (declare (ignore c))
-      ;;     (throw 'error "Number required."))))))
-;;;;New code;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
       (let ((win (find n (group-windows (current-group))
                        :test #'string=
                        :key #'window-map-number)))
         (if win
             (window-number win)
 	  (throw 'error "No Such Window."))))))
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define-dswm-type :number (input prompt)
   (let ((n (or (argument-pop input)
@@ -370,6 +376,14 @@ then describes the symbol."
 (define-dswm-type :string (input prompt)
   (or (argument-pop input)
       (read-one-line (current-screen) prompt)))
+
+(define-dswm-type :title (input prompt)
+  (or (argument-pop-rest input)
+      (read-one-line (current-screen) prompt :initial-input (window-name (current-window)))))
+
+(define-dswm-type :current-group-name (input prompt)
+  (or (argument-pop input)
+      (read-one-line (current-screen) prompt :initial-input (group-name (current-group)))))
 
 (define-dswm-type :password (input prompt)
   (or (argument-pop input)
@@ -448,13 +462,20 @@ then describes the symbol."
             (throw 'error :abort)))))
 
 (define-dswm-type :shell (input prompt)
-  (or (argument-pop-rest input)
-      (completing-read (current-screen) prompt 'complete-program)))
+  (let* ((*input-history* *programs-history*)
+	 (program (or (argument-pop-rest input)
+		      (completing-read (current-screen) prompt 'complete-program))))
+    (when (and (not (null program))
+	       (not (equal program (car *programs-history*))))
+    (push program *programs-history*))
+    program))
 
-;;; FIXME: Not implemented with autocomplete
+;;; FIXME: Not implemented with autocomplete FIXING
 (define-dswm-type :file (input prompt)
   (or (argument-pop input)
-      (read-one-line (current-screen) prompt)))
+      (completing-read (current-screen)
+		       prompt
+		       (mapcar 'princ-to-string (list-directory (dirname prompt))))))
 
 (define-dswm-type :rest (input prompt)
   (or (argument-pop-rest input)

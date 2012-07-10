@@ -26,6 +26,17 @@
 
 (in-package :dswm)
 
+(export '(remember-window
+	  remember-windows-current-group
+	  remember-windows-current-screen
+	  remember-all-windows
+	  forget-window
+	  forget-windows-current-group
+	  forget-windows-current-screen
+	  forget-all-windows
+	  redisplay
+	  frame-windowlist))
+
 (defclass tile-window (window)
   ((frame   :initarg :frame   :accessor window-frame)))
 
@@ -265,7 +276,7 @@ frame."
   ;; list and give that window focus
   (let* ((w (group-current-window group))
          (wins (remove-if-not predicate (cdr (member w window-list))))
-         (nw (if (null wins)
+         (nw (if-null wins
                  ;; If the last window in the list is focused, then
                  ;; focus the first one.
                  (car (remove-if-not predicate window-list))
@@ -419,7 +430,7 @@ frame. Possible values are:
 (defun make-rules-for-screen (screen &optional lock title)
   "Guess at a placement rule for all WINDOWS in all groups in current screen and add it to the current set."
   (dolist (i (screen-groups screen))
-    (make-rules-for-group i lock title)))
+    (make-rules-for-group i lock title)) t) ; dolist always gives nil
 
 (defun make-rules-for-desktop (&optional lock title)
   (dolist (i *screen-list*)
@@ -447,7 +458,7 @@ frame. Possible values are:
   "Local macro. Forget or remember windows placement rules"
   `(eval-with-message :body (progn ,body (dump-structure
 					  *window-placement-rules* t
-					  (data-dir-file "window-placement" "rules" "save.d")))
+					  (data-dir-file "window-placement" "rules" "rules.d")))
 		      :message-if-done ,message
 		      :message-if-false ,message-false))
 
@@ -461,11 +472,9 @@ frame. Possible values are:
    "Can't remember rules. Check write permissions to dswm data
 directory and files"))
 
-(defcommand-alias remember remember-window)
+(defcommand-alias remember remember-window) ;; TODO remove in next release
 
-(defcommand (remember-windows-current-group tile-group) (lock title)
-  ((:y-or-n "Lock to group? ")
-   (:y-or-n "Use title? "))
+(defun remember-windows-current-group (lock title)
   "Make a generic placement rule for the current window. Might be too specific/not specific enough!"
   (forget-remember-rules
    (make-rules-for-group (current-group) (first lock) (first title))
@@ -473,9 +482,7 @@ directory and files"))
    "Can't remember rules. Check write permissions to dswm data
 directory and files"))
 
-(defcommand remember-windows-current-screen (lock title)
-  ((:y-or-n "Lock to group? ")
-   (:y-or-n "Use title? "))
+(defun remember-windows-current-screen (lock title)
   "Make a generic placement rule for the current window. Might be too specific/not specific enough!"
   (forget-remember-rules
    (make-rules-for-screen (current-screen) (first lock) (first title))
@@ -502,23 +509,23 @@ specific/not specific enough!"
    "Rules forgotten"
    "Can't forgot rules. Check write permissions to dswm data directory and files"))
 
-(defcommand-alias forget forget-window)
+(defcommand-alias forget forget-window) ;; TODO remove in next release
 
-(defcommand (forget-windows-current-group tile-group) () ()
+(defun forget-windows-current-group (group tile-group)
   "Remove a generic placement rule for the current window. Might be too specific/not specific enough!"
   (forget-remember-rules
    (remove-rules-for-group (current-group))
    "Rules forgotten"
    "Can't forgot rules. Check write permissions to dswm data directory and files"))
 
-(defcommand forget-windows-current-screen () ()
+(defun forget-windows-current-screen (group tile-group)
   "Remove generic placement rules for the all windows in current screen"
   (forget-remember-rules
    (make-rules-for-screen (current-screen))
    "Rules forgotten"
    "Can't forgot rules. Check write permissions to dswm data directory and files"))
 
-(defcommand forget-all-windows () ()
+(defcommand (forget-all-windows tile-group) () ()
   "Remove placement rules for all windows"
   (forget-remember-rules
    (setf *window-placement-rules* nil)
@@ -528,22 +535,25 @@ specific/not specific enough!"
 (defcommand (redisplay tile-group) () ()
   "Refresh current window by a pair of resizes, also make it occupy entire frame."
   (let ((window (current-window)))
-    (with-slots (width height frame) window
-      (set-window-geometry window
-                           :width (- width (window-width-inc window))
-                           :height (- height (window-height-inc window)))
-      ;; make sure the first one goes through before sending the second
-      (xlib:display-finish-output *display*)
-      (set-window-geometry window
-                           :width (+ width
-                                     (* (window-width-inc window)
-                                        (floor (- (frame-width frame) width)
-                                               (window-width-inc window))))
-                           :height (+ height
-                                      (* (window-height-inc window)
-                                         (floor (- (frame-height frame) height)
-                                                (window-height-inc window)))))
-      (maximize-window window))))
+    (if-not-null
+     window
+     (with-slots (width height frame) window
+       (set-window-geometry window
+			    :width (- width (window-width-inc window))
+			    :height (- height (window-height-inc window)))
+       ;; make sure the first one goes through before sending the second
+       (xlib:display-finish-output *display*)
+       (set-window-geometry window
+			    :width (+ width
+				      (* (window-width-inc window)
+					 (floor (- (frame-width frame) width)
+						(window-width-inc window))))
+			    :height (+ height
+				       (* (window-height-inc window)
+					  (floor (- (frame-height frame) height)
+						 (window-height-inc window)))))
+       (maximize-window window))
+     (message "Frame is empty. No window to redisplay"))))
 
 (defcommand frame-windowlist (&optional (fmt *window-format*)) (:rest)
   "Allow the user to select a window from the list of windows in the current
@@ -551,7 +561,7 @@ frame and focus the selected window.  The optional argument @var{fmt} can be
 specified to override the default window formatting."
   (let* ((group (current-group))
 	 (frame (tile-group-current-frame group)))
-    (if (null (frame-windows group frame))
+    (if-null (frame-windows group frame)
 	(message "No Managed Windows")
 	(let ((window (select-window-from-menu (frame-sort-windows group frame) fmt)))
 	  (if window

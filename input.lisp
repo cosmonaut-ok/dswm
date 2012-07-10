@@ -95,6 +95,12 @@
 (defvar *input-history-ignore-duplicates* nil
   "Do not add a command to the input history if it's already the first in the list.")
 
+(defvar *current-completion-builder* nil
+  "Defines a function, which will dinamical build completions list")
+
+(defvar *completions-list-changed-p* nil
+  "Show, if completions list changed from last build")
+
 ;;; keysym functions
 
 (defun is-modifier (keycode)
@@ -131,7 +137,6 @@
 
 (defun input-handle-key-press-event (&rest event-slots &key event-key root code state &allow-other-keys)
   (declare (ignore event-slots root))
-  ;; FIXME: don't use a cons
   (list* event-key code state))
 
 (defun input-handle-selection-event (&key window selection property &allow-other-keys)
@@ -401,7 +406,7 @@ functions are passed this structure as their first argument."
   ;; trying to complete.
   (unless (find *input-last-command* '(input-complete-forward
                                        input-complete-backward))
-    (setf *input-current-completions* (input-find-completions (input-substring input 0 (input-point input)) *input-completions*)
+    (setf *input-current-completions* (input-find-completions (input-substring input 0 (input-point input)) *input-completions*) ;; XXXXXXXXXXX -> *input-completions* input-completions 
           *input-current-completions-idx* -1))
   (if *input-current-completions*
       (progn
