@@ -418,12 +418,12 @@ Window types are in +WINDOW-TYPES+.")
 
 (defparameter +netwm-window-types+
   '(
-    (:_NET_WM_WINDOW_TYPE_DESKTOP . :desktop)
+    ;; (:_NET_WM_WINDOW_TYPE_DESKTOP . :desktop)
     (:_NET_WM_WINDOW_TYPE_DOCK . :dock)
-    (:_NET_WM_WINDOW_TYPE_TOOLBAR . :toolbar)
-    (:_NET_WM_WINDOW_TYPE_MENU . :menu)
-    (:_NET_WM_WINDOW_TYPE_UTILITY . :utility)
-    (:_NET_WM_WINDOW_TYPE_SPLASH . :splash)
+    ;; (:_NET_WM_WINDOW_TYPE_TOOLBAR . :toolbar)
+    ;; (:_NET_WM_WINDOW_TYPE_MENU . :menu)
+    ;; (:_NET_WM_WINDOW_TYPE_UTILITY . :utility)
+    ;; (:_NET_WM_WINDOW_TYPE_SPLASH . :splash)
     (:_NET_WM_WINDOW_TYPE_DIALOG . :dialog)
     (:_NET_WM_WINDOW_TYPE_NORMAL . :normal))
   "Alist mapping NETWM window types to keywords.
@@ -740,6 +740,9 @@ when killing text in the input bar.")
   "Set to the last interactive command run.")
 
 (defvar *commands-history* nil
+  "History of executed commands")
+
+(defvar *input-commands-history* nil
   "History of any input through input line
 or keybindings commands")
 

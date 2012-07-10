@@ -366,8 +366,8 @@ current frame instead of switching to the window."
 						 (cdr br)) 'string))))))
 
 (defcommand terminal () ()
-"Run default terminal"
-  (run-commands (concat "exec " *terminal*)))
+  "Run default terminal"
+  (run-shell-commands *terminal*))
 
 (defcommand repeat () ()
   "Repeat last inserted command"

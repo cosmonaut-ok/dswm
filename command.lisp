@@ -326,10 +326,15 @@ then describes the symbol."
       (completing-read (current-screen) prompt (modules-list) :require-match t)))
 
 (define-dswm-type :command (input prompt)
-  (or (argument-pop input)
-      (completing-read (current-screen)
-                       prompt
-                       (all-commands))))
+  (let* ((*input-history* *input-commands-history*)
+	 (cmd (or (argument-pop input)
+		  (completing-read (current-screen)
+				   prompt
+				   (all-commands)))))
+    (when (and (not (equal cmd "colon"))
+	       (not (equal cmd (car *input-commands-history*))))
+      (push cmd *input-commands-history*))
+    cmd))
 
 (define-dswm-type :key-seq (input prompt)
   (labels ((update (seq)
@@ -570,13 +575,11 @@ know lisp very well. One might put the following in one's rc file:
 (defcommand colon (&optional initial-input) (:rest)
   "Read a command from the user. @var{initial-text} is optional. When
 supplied, the text will appear in the prompt."
-  ;; TODO make completing-read-commands with history from just commands (use *commands-history*)
-  (let* ((*input-history* *commands-history*)
-	 (cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
-      (unless cmd
-	(throw 'error :abort))
-      (when (plusp (length cmd))
-	(eval-command cmd t))))
+  (let ((cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
+    (unless cmd
+      (throw 'error :abort))
+    (when (plusp (length cmd))
+      (eval-command cmd t))))
 
 (defcommand edit-variable (var) ((:variable "Input variable name to edit it: "))
   "Edit any variable values"
