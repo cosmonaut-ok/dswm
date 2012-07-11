@@ -369,7 +369,7 @@ current frame instead of switching to the window."
   "Run default terminal"
   (run-shell-commands *terminal*))
 
-(defcommand repeat () ()
+(defcommand lastcmd () ()
   "Repeat last inserted command"
   (labels
       ((find-last-command (list)
