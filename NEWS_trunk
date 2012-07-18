@@ -60,3 +60,5 @@ remove 'groups' 'windows'. Use vgroups instead. Now it's more informative
 corrected history, when in 'colon' command
 
 corrected history in 'run-shell-command' command
+
+add command 'lastcmd' for executing last executed command

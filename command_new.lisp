@@ -155,6 +155,18 @@ alias name for the command that is only accessible interactively."
          (make-command-alias :from ',alias
                              :to ',original)))
 
+(defmacro with-input-bar (read-function history-variable &optional (not-include-condition nil) (repeat-p nil))
+  "Macro for individual history for all dswm types, which uses inputbar"
+  `(progn
+    (defvar ,history-variable nil)
+    (let* ((*input-history* ,history-variable)
+	    (cmd ,read-function))
+       (when (and ,(when (not repeat-p)
+		     `(not (equal cmd (car ,history-variable))))
+		  (not ,not-include-condition))
+	 (push cmd ,history-variable))
+       cmd)))
+
 (defun dereference-command-symbol (command)
   "Given a string or symbol look it up in the command database and return
 whatever it finds: a command, an alias, or nil."
@@ -326,13 +338,20 @@ then describes the symbol."
       (completing-read (current-screen) prompt (modules-list) :require-match t)))
 
 (define-dswm-type :command (input prompt)
+  ;; (with-input-bar (or (argument-pop input)
+  ;; 		      (completing-read (current-screen)
+  ;; 				       prompt
+  ;; 				       (all-commands)))
+  ;; 		  *input-commands-history*
+  ;; 		  (equal cmd "colon")))
+
   (let* ((*input-history* *input-commands-history*)
-	 (cmd (or (argument-pop input)
-		  (completing-read (current-screen)
-				   prompt
-				   (all-commands)))))
+  	 (cmd (or (argument-pop input)
+  		  (completing-read (current-screen)
+  				   prompt
+  				   (all-commands)))))
     (when (and (not (equal cmd "colon"))
-	       (not (equal cmd (car *input-commands-history*))))
+  	       (not (equal cmd (car *input-commands-history*))))
       (push cmd *input-commands-history*))
     cmd))
 
@@ -572,17 +591,15 @@ know lisp very well. One might put the following in one's rc file:
   (loop for i in commands do
         (eval-command i)))
 
-(defcommand colon (&optional initial-input) (:command)
+(defcommand colon (&optional initial-input) (:rest)
   "Read a command from the user. @var{initial-text} is optional. When
 supplied, the text will appear in the prompt."
-    (let* ((*input-history* *input-commands-history*)
-	   (cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
-      (unless cmd
-	(throw 'error :abort))
-      (when (plusp (length cmd))
-	(progn
-	  (eval-command cmd t)
-	  (push cmd *input-commands-history*)))))
+  (let* ((*input-history* *input-commands-history*)
+	 (cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
+    (unless cmd
+      (throw 'error :abort))
+    (when (plusp (length cmd))
+      (eval-command cmd t))))
 
 (defcommand edit-variable (var) ((:variable "Input variable name to edit it: "))
   "Edit any variable values"
