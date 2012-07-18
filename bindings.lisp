@@ -181,8 +181,8 @@ from most specific groups to most general groups.")
   (kbd "M-Left")  "move-window left"
   (kbd "M-Right") "move-window right"
   (kbd "+")       "balance-frames"
-  (kbd "l")       "redisplay"
-  (kbd "C-l")     "redisplay")
+  (kbd "l")       "lastcmd"
+  (kbd "C-l")     "lastcmd")
 
 (fill-keymap *float-group-top-map*)
 (fill-keymap *float-group-root-map*)

@@ -572,14 +572,17 @@ know lisp very well. One might put the following in one's rc file:
   (loop for i in commands do
         (eval-command i)))
 
-(defcommand colon (&optional initial-input) (:rest)
+(defcommand colon (&optional initial-input) (:command)
   "Read a command from the user. @var{initial-text} is optional. When
 supplied, the text will appear in the prompt."
-  (let ((cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
-    (unless cmd
-      (throw 'error :abort))
-    (when (plusp (length cmd))
-      (eval-command cmd t))))
+    (let* ((*input-history* *input-commands-history*)
+	   (cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
+      (unless cmd
+	(throw 'error :abort))
+      (when (plusp (length cmd))
+	(progn
+	  (eval-command cmd t)
+	  (push cmd *input-commands-history*)))))
 
 (defcommand edit-variable (var) ((:variable "Input variable name to edit it: "))
   "Edit any variable values"
