@@ -102,15 +102,15 @@ menu, the error is re-signalled."
       (banish-pointer (intern1 where :keyword))
       (banish-pointer)))
 
-(defcommand ratwarp (x y) ((:number "X: ") (:number "Y: "))
+(defun ratwarp (x y)
   "Warp the mouse to the specified location."
   (warp-pointer (current-screen) x y))
 
-(defcommand ratrelwarp (dx dy) ((:number "Delta X: ") (:number "Delta Y: "))
+(defun ratrelwarp (dx dy)
   "Warp the mouse by the specified amount from its current position."
   (warp-pointer-relative dx dy))
 
-(defcommand ratclick (&optional (button 1)) (:number)
+(defun ratclick (&optional (button 1))
   "Simulate a pointer button event at the current pointer
 location. Note: this function is unlikely to work unless
 your X server and CLX implementation support XTEST."

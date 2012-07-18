@@ -61,4 +61,6 @@ corrected history, when in 'colon' command
 
 corrected history in 'run-shell-command' command
 
-add command 'lastcmd' for executing last executed command
+version,ratwarp,ratrelwarp,ratclick commands->functions
+
+to see the version, run 'help-short'
