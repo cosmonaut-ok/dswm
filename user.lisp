@@ -369,20 +369,21 @@ current frame instead of switching to the window."
   "Run default terminal"
   (run-shell-commands *terminal*))
 
-(defcommand repeat () ()
+(defcommand lastcmd () ()
   "Repeat last inserted command"
   (labels
       ((find-last-command (list)
 			  (let ((command (cl-ppcre:regex-replace "\ $" (car list) "")))
 			    (cond
 			     ((null list) nil)
-			     ((equal command "repeat")
+			     ((or (equal command "lastcmd")
+				  (equal command "colon"))
 			      (find-last-command (cdr list)))
 			     ((member command (all-commands) :test 'equal)
 			      command)
 			     (t
 			      (find-last-command (cdr list)))))))
-    (let ((command (find-last-command *input-history*)))
+    (let ((command (find-last-command *commands-history*)))
       (if command
 	  (run-commands (princ-to-string command))
 	(message "You not input any command yet")))))
