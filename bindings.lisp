@@ -111,8 +111,6 @@ from most specific groups to most general groups.")
 
 (fill-keymap *group-root-map*
   (kbd "C-u") "next-urgent"
-  (kbd "w")   "windows"
-  (kbd "C-w") "windows"
   (kbd "k")   "delete"
   (kbd "C-k") "delete"
   (kbd "K")   "kill"
@@ -188,7 +186,7 @@ from most specific groups to most general groups.")
 (fill-keymap *float-group-root-map*)
 
 (fill-keymap *groups-map*
-  (kbd "g")     "groups"
+  (kbd "g")     "vgroups"
   (kbd "c")     "gnew"
   (kbd "n")     "gnext"
   (kbd "C-n")   "gnext"
