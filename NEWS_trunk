@@ -1,4 +1,4 @@
-save files moved to ~/.dswm.d/save.d/
+gsave files moved to ~/.dswm.d/save.d/
 
 data-dir -> data-dir &optional subdir
 data-dir-file data-dir-file &key type subdir
@@ -64,3 +64,5 @@ corrected history in 'run-shell-command' command
 version,ratwarp,ratrelwarp,ratclick commands->functions
 
 to see the version, run 'help-short'
+
+frame-windows command->function

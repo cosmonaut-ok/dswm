@@ -1,6 +1,66 @@
 -*- outline -*-
 
 This file documents user visible changes between versions of DSWM
+* Changes since 0.0.4
+
+** fix error with desktop dump, when groups are empty
+
+** fix error message on remember-windows-current-screen
+
+** fix few minor bugs
+
+** add autocompletion feature for 'bind' command
+
+** add editing feature for some commands (ex. old group name by default, for 'grename' etc)
+
+** add separate history for different commands
+
+** add HEX format for color definitions
+   ex.: (set-bg-color (make-color-hex "#000000")) also you can use (set-bg-color "red")
+
+** add commands 'module-info', 'modules', 'load-file', 'loaded-modules'
+
+** add variables *scratchpad-group-name*, *menu-window-gravity*
+
+** add alias gselect-with-window -> gmove
+
+** add functions
+   'set-mode-line-{bg,fg,border}-color'
+   'set-screen-mode-line-format'
+   'set-screen-widget-line-format'
+   'make-hex-color'
+   'set-mode-line-{fg,bg,border}-color'
+   'set-mode-line-border-width'
+   'set-float-window-title-height'
+
+** add function 'startup-only' to execute code only with startup (not when 'initrc' command called)
+
+** add commands forget-desktop recall-desktop (for RFR model)
+
+** change function 'data-dir'->'data-dir' with optional parameter 'subdir'
+
+** change function data-dir-file->data-dir-file &key type subdir
+
+** change default color scheme
+
+** change modules format to asdf-compatible
+
+** change commands to functions
+   {remember,forget}-windows-current-{group,screen},version,ratwarp,ratrelwarp,ratclick,frame-windows
+
+** rename mode-line variables
+   *screen-mode-line-format*->*mode-line-format*
+   *screen-widget-line-format*->*info-line-format*
+   *screen-window-list-line-format*->*window-list-line-format*
+
+** rename macro when-not-null->if-not-null
+
+** remove commands 'groups', 'windows' (use vgroups and grouplist for visualisation and echo-groups for programming), 'version' (use help-short to see DSWM version)
+
+** remove macros 'defkey(s)-{top,root} as non functional in standard complectation
+
+** remove remember-group remember-screen as deprecated
+
 * Changes since 0.0.3
 ** synchronize code with newer stumpwm code
 
