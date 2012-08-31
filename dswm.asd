@@ -15,7 +15,7 @@
 (defsystem :dswm
   :name "DSWM"
   :author "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
-  :version "0.0.4-git"
+  :version "0.0.5"
   :maintainer "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
   :license "GNU General Public License"
   :description "A tiling, keyboard driven window manager"

@@ -74,9 +74,9 @@ Notes:
 ^BVersion: ~a
 License: GNU GPL v.2^b" (print-key *escape-key*) (data-dir) (print-key *escape-key*) (print-key *escape-key*) *version*))
 
-(defcommand version () ()
+(defun version () ()
 "Print version information and compilation date."
-  (message *version*))
+  (format nil *version*))
 
 (defun columnize (list columns &key col-aligns (pad 1) (char #\Space) (align :left))
   "Make conlumns for messages from list"
