@@ -365,12 +365,10 @@ current frame and raise it."
       (message "No window in current frame!")))
 
 
-(defcommand (echo-frame-windows tile-group) (&optional (fmt *window-format*)) (:rest)
+(defun echo-frame-windows (&optional (fmt *window-format*))
   "Display a list of all the windows in the current frame."
   (echo-windows fmt (current-group) (frame-windows (current-group)
                                                    (tile-group-current-frame (current-group)))))
-
-(defcommand-alias frame-windows echo-frame-windows)
 
 (defcommand (fullscreen tile-group) () ()
   "Toggle the fullscreen mode of the current widnow. Use this for clients
