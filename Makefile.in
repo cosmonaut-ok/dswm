@@ -76,8 +76,8 @@ install: dswm.info dswm
 	test -z "$(destdir)$(infodir)" || mkdir -p "$(destdir)$(infodir)"
 	install -m 644 dswm.info "$(destdir)$(infodir)"
 	install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)/dswm.info"
-	test -d "$(etcdir)/dss/dswm/" || mkdir -p "$(etcdir)/dss/dswm"
-	test -f "$(etcdir)/dss/dswm/dswm.lisp" || install -m 644 dswm.conf "$(etcdir)/dss/dswm/dswm.lisp"
+	test -d "$(destdir)$(etcdir)/dss/dswm/" || mkdir -p "$(destdir)$(etcdir)/dss/dswm"
+	test -f "$(destdir)$(etcdir)/dss/dswm/dswm.lisp" || install -m 644 dswm.conf "$(destdir)$(etcdir)/dss/dswm/dswm.lisp"
 	mkdir -p "$(destdir)$(datarootdir)/dswm/modules"
 	install -d -m 755 modules "$(destdir)$(datarootdir)/dswm/modules"
 	find modules -type f -exec install -D {} $(destdir)$(datarootdir)/dswm/{} \;
@@ -91,7 +91,7 @@ install: dswm.info dswm
 uninstall:
 	rm "$(destdir)$(bindir)/dswm"
 	rm -r "$(destdir)$(datarootdir)/dswm"
-	rm "$(etcdir)/dss/dswm/dswm.lisp"
+	rm "$(destdir)$(etcdir)/dss/dswm/dswm.lisp"
 	install-info --info-dir="$(destdir)$(infodir)" --remove "$(destdir)$(infodir)/dswm.info"
 	rm "$(destdir)$(infodir)/dswm.info"
 	test -f "$(destdir)$(datarootdir)/xsessions/dswm.desktop" && "$(destdir)$(datarootdir)/xsessions/dswm.desktop" || test -f "/usr/share/xsessions/dswm.desktop" && rm "/usr/share/xsessions/dswm.desktop"
