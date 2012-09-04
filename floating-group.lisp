@@ -249,7 +249,7 @@
                                                rely
                                                (xlib:drawable-y parent)
                                                (screen-float-window-title-height (current-screen))))))
-				  (xlib:warp-pointer (window-parent window) initial-width initial-height)
+				  ;; (xlib:warp-pointer (window-parent window) initial-width initial-height)
                                   ;; Don't let the window become too small
                                   (float-window-move-resize window
                                                             :width (max w *min-frame-width*)
