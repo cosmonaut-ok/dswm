@@ -16,6 +16,7 @@ make-image.lisp
 help.lisp
 module.lisp
 version.lisp
+dswm.lisp
 .dotest
 patches
 *#
