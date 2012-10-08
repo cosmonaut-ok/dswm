@@ -22,8 +22,8 @@ patches
 #*
 .#*
 modules/*#*
+modules/*
 dswm.desktop
 dswm.info
 dswm.texi
 dswm
-
