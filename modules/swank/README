@@ -1,0 +1,39 @@
+SWANK DSWM module - is a cut and modified SWANK
+server from SLIME package, adopted for usage
+with DSWM
+
+This module allows to create, delete and manage
+SWANK servers, which integrated to DSWM
+
+Available commands:
+swank-start-server
+swank-stop-server
+swank-restart-server
+swank-list-servers
+
+Available hooks:
+*new-connection-hook* This hook is run each time a
+connection is established. The connection structure
+is given as the argument. Backend code should treat
+the connection structure as opaque.
+*connection-closed-hook* This hook is run when a
+connection is closed. The connection as passed
+as an argument. Backend code should treat the
+ connection structure as opaque.
+*pre-reply-hook* Hook run (without arguments) 
+immediately before replying to an RPC
+*after-init-hook* "Hook run after user init files are loaded
+USAGE: (swank:add-hook swank:*after-init-hook* '(message "42"))
+
+FAQ
+Q. Is it SLIME?
+A. This is not SLIME. This it SWANK module for DSWM
+   README, news, documentation about SLIME you can 
+   find on official SLIME site: 
+   http://common-lisp.net/project/slime/
+   Also, you can download SLIME from it
+
+Q. Can I use it with stumpwm?
+A. It can't be used for StumpWM without modifications
+   If you want to help stumpwm and modify this to use
+   with stumpwm, you can do it yourself ;)
