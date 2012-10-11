@@ -454,9 +454,12 @@ frame. Possible values are:
 
 (defmacro forget-remember-rules (body message message-false)
   "Local macro. Forget or remember windows placement rules"
-  `(eval-with-message :body (progn ,body (dump-structure
-					  *window-placement-rules* t
-					  (data-dir-file "window-placement" "rules" "rules.d")))
+  `(eval-with-message :body (progn ,body
+				   (ensure-directories-exist
+				    (data-dir-file "window-placement" "rules" "rules.d"))
+				   (dump-structure
+				    *window-placement-rules* t
+				    (data-dir-file "window-placement" "rules" "rules.d")))
 		      :message-if-done ,message
 		      :message-if-false ,message-false))
 
