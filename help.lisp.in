@@ -121,6 +121,7 @@ License: GNU GPL v.2^b" (print-key *escape-key*) (data-dir) (print-key *escape-k
     (when (or (not (file-exists-p not-firststart-p))
 	       show)
       (progn (message-no-timeout *start-message-format*)
+	     (ensure-directories-exist not-firststart-p)
 	     (with-open-file (stream not-firststart-p :if-does-not-exist :create)
 			     t)))))
 
