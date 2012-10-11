@@ -916,8 +916,12 @@ sync-all-frame-windows to see the change.")
 	    :directory (append
 			(pathname-directory (user-homedir-pathname))
 			(list (concat ".dswm.d"	"/" subdir)))))))
-    (when (ensure-directories-exist directory)
-      directory)))
+    directory))
+;;
+;; OLD code. Remove it after changes
+;;   \/
+;; (when (ensure-directories-exist directory)
+;;   directory)))
 
 (defun data-dir-file (name &optional type subdir)
   "Return a pathname inside dswm's data dir with the specified name and type"
