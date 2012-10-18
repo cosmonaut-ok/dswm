@@ -47,7 +47,7 @@ loaded. When CATCH-ERRORS is nil, errors are left to be handled further up. "
   (let* ((user-rc (file-exists-p (data-dir-file "init" "lisp")))
 	 (user-initrc (file-exists-p (merge-pathnames (user-homedir-pathname)
 						   #p".dswm")))
-         (etc-rc (file-exists-p #p"@prefix@/etc/dss/dswm/dswm.lisp"))
+         (etc-rc (file-exists-p #p"/usr/etc/dss/dswm/dswm.lisp"))
          (rc (or user-initrc user-rc)))
     (progn
       (startup-only)
