@@ -13,9 +13,8 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with this software; see the file COPYING.  If not, write to
-;; the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
-;; Boston, MA 02111-1307 USA
+;; along with this software; see the file COPYING.  If not, see
+;; <http://www.gnu.org/licenses/>.
 
 ;; Commentary:
 ;;
@@ -249,7 +248,6 @@
                                                rely
                                                (xlib:drawable-y parent)
                                                (screen-float-window-title-height (current-screen))))))
-				  (xlib:warp-pointer (window-parent window) initial-width initial-height)
                                   ;; Don't let the window become too small
                                   (float-window-move-resize window
                                                             :width (max w *min-frame-width*)
