@@ -88,7 +88,6 @@ AC_OUTPUT(Makefile)
 AC_OUTPUT(make-image.lisp)
 AC_OUTPUT(module.lisp)
 AC_OUTPUT(help.lisp)
-AC_OUTPUT(dswm.lisp)
 AC_OUTPUT(dswm.desktop)
 AC_OUTPUT(dswm.texi)
 
