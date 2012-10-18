@@ -2,7 +2,7 @@ The Deep Space Window Manager
 ------------------------
 
 DSWM is a window manager written entirely in Common Lisp. It
-attempts to be highly customizable while relying entirely on the
+attempts to be highly and easy customizable while relying entirely on the
 keyboard for input. You will not find buttons, icons, title bars, tool
 bars, or any of the other conventional GUI widgets.
 
@@ -20,14 +20,9 @@ Build & Start DSWM
 Prerequisites
 =============
 
-* a common lisp distribution. CCL, CLISP, and SBCL all work.
+* a common lisp distribution. Now, officially supports only SBCL.
 * clx
 * cl-ppcre
-
-If you intend to use SBCL or CCL you need to install portable-clx. If
-you're using clisp, make sure you use at least version 2.42 and that
-clisp is compiled with new-clx. As of clisp 2.42, new-clx works fine
-with dswm. Any version before that is too buggy to run dswm.
 
 You can use asdf-install to install lisp libraries:
   $ sbcl
@@ -36,21 +31,13 @@ You can use asdf-install to install lisp libraries:
     * (asdf-install:install 'clx)
     * (asdf-install:install 'cl-ppcre)
 
-If using clisp, you'll need to install asdf first to use asdf-install.
-  $ mkdir -p ~/.cl/asdf && cd ~/.cl
-  $ wget http://cclan.cvs.sourceforge.net/*checkout*/cclan/asdf/asdf.lisp -O ~/.cl/asdf/asdf.lisp
-  $ echo "(load #p\"/home/USER/.cl/asdf/asdf\")" >> ~/.clisprc.lisp
-  $ mkdir -p ~/.cl/systems
-  $ echo "(push #p\"/home/USER/.cl/systems\" asdf:*central-registry*)" >> ~/.clisprc.lisp
-  $ wget http://common-lisp.net/project/asdf-install/asdf-install_latest.tar.gz
-  $ tar xf asdf-install_latest.tar.gz
-  $ ln -s ~/.cl/asdf-install/asdf-install/asdf-install.asd ~/.cl/systems/
-  $ clisp
-    * (asdf:operate 'asdf:compile-op 'asdf-install)
-    * (asdf:operate 'asdf:load-op 'asdf-install)
-    * (asdf-install:install :cl-ppcre)
+Or, using quicklisp:
+  $ sbcl
+    * (ql:quickload "clx")
+    * (ql:quickload "cl-ppcre")
 
-CCL has asdf built in, but you will need to get asdf-install like with clisp.
+NOTE: ensure, that it is already installed and loads automatically into SBCL
+You can get quicklisp from official site: http://www.quicklisp.org/beta/
 
 Your operating system distribution may also have these libraries
 available.
@@ -58,7 +45,7 @@ available.
 Building
 ========
 
-Building dswm from CVS requires that you build the configure script:
+Building dswm from GIT requires that you build the configure script:
 
 $ autoconf
 
@@ -66,30 +53,27 @@ If there's already a configure script then just run it.
 
 $ ./configure
 
-By default dswm elects sbcl. If you have both installed, you can
-explicitly select clisp like so:
+If your SBCL is in strange places you may need to tell the script where to find them:
 
-$ ./configure --with-lisp=clisp
-
-If your lisps are in strange places you may need to tell the script where to find them:
-
-$ configure --with-sbcl=/home/sabetts/opt/bin/sbcl --with-clisp=/usr/local/downstairs/to/the/left/clisp
+$ configure --with-sbcl=/home/sabetts/opt/bin/sbcl
 
 Now build it:
 
 $ make
 
-If all goes well, you should have a dswm binary now. Sorry there's
-no install yet. Just copy the binary wherever you want or run it out
-of the dswm/ directory. If autoconf worked properly, you can
-install the binary, along with the .info documentation with:
+If all goes well, you should have a dswm binary now. If autoconf 
+worked properly, you can install the binary, along with the .info
+documentation with:
 
 $ make install
 
 Now that you have a binary, call it from your ~/.xinitrc file:
 
-$ echo /path/to/dswm >> ~/.xinitrc
+$ echo exec /path/to/dswm >> ~/.xinitrc
 $ startx
+
+Also, if you use display manager (like GDM or some other), can login
+using it (DSWM puts dswm.desktop to xsessions path)
 
 Hopefully that will put you in X running dswm!
 
@@ -101,18 +85,6 @@ common is sluggishness. It may also cause dswm to become
 unresponsive. If you use SBCL, consider using a version built without
 threads.
 
-build.sh
---------
-Also available script dswm-install.sh for building and installing dswm
-
-CCL And Virtual Memory
-----------------------
-
-On 64bit platforms, CCL reserves a "very large" amount of virtual
-memory. If this bothers you for some reason, you can pass the -R or
---heap-reserve option to the binary in your ~/.xinitrc file. See
-http://ccl.clozure.com/manual/chapter15.1.html for an explanation.
-
 Help
 ----
 
@@ -120,16 +92,18 @@ There's a texinfo manual, dswm.texi. the build scripts generate an
 info file you can read in emacs or with the `info' program.
 
 For other stuff visit the dswm wiki:
+http://wiki.dss-project.org/doku.php/en:index
 
-http://dss-project.org/wiki/doku.php/dswm:en:index
+But, as it's not properly completed now, you can also visit stumpwm wiki too:
+https://github.com/sabetts/stumpwm/wiki/
 
-But, it's not properly completed now, so, you can wisit to stumpwm wiki too:
-
-http://antidesktop.net/cgi-bin/wiki.pl
-
-There is a #dswm channel on irc.freenoode.net for issues directly related to dswm
+Also, you can visit to #dswm channel on irc.freenoode.net for issues directly related to dswm
 
 Mailing lists: dswm-user@lists.sourceforge.net and dswm-devel@lists.sourceforge.net
 
-Also we have some useful forums here: http://dss-project.org/?q=forum
-
+Finally, you can see the DSWM news on official site
+http://dss-project.org/
+or read some useful information on DSWM blog
+english: http://dss-project.blogspot.com/
+russian: http://dss-project-ru.blogspot.com/
+ukrainian: http://dss-project-uk.blogspot.com/

@@ -44,7 +44,11 @@ release:
 	# git tag -a -m "version @PACKAGE_VERSION@" @PACKAGE_VERSION@
 	git archive --format=tar --prefix=dswm-@PACKAGE_VERSION@/ HEAD > dswm-@PACKAGE_VERSION@.tar
 	tar -xf dswm-@PACKAGE_VERSION@.tar
+<<<<<<< HEAD
+	rm -rf dswm-@PACKAGE_VERSION@/.git* dswm-@PACKAGE_VERSION@/autom4te.cache dswm-@PACKAGE_VERSION@/configure dswm-@PACKAGE_VERSION@/Makefile dswm-@PACKAGE_VERSION@/module.lisp dswm-@PACKAGE_VERSION@/make-image.lisp dswm-@PACKAGE_VERSION@/dswm.desktop
+=======
 	rm -rf dswm-@PACKAGE_VERSION@/.git* dswm-@PACKAGE_VERSION@/autom4te.cache dswm-@PACKAGE_VERSION@/configure dswm-@PACKAGE_VERSION@/Makefile dswm-@PACKAGE_VERSION@/module.lisp dswm-@PACKAGE_VERSION@/config/dswm.desktop
+>>>>>>> master
 	git log > dswm-@PACKAGE_VERSION@/ChangeLog
 	cp configure dswm-@PACKAGE_VERSION@/
 	tar -zcf dswm-@PACKAGE_VERSION@.tar.gz dswm-@PACKAGE_VERSION@
@@ -76,7 +80,11 @@ install: dswm.info dswm
 	install -m 644 dswm.info "$(destdir)$(infodir)"
 	install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)/dswm.info"
 	test -d "$(destdir)$(etcdir)/dss/dswm/" || mkdir -p "$(destdir)$(etcdir)/dss/dswm"
+<<<<<<< HEAD
+	test -f "$(destdir)$(etcdir)/dss/dswm/dswm.lisp" || install -m 644 dswm.conf "$(destdir)$(etcdir)/dss/dswm/dswm.lisp"
+=======
 	test -f "$(destdir)$(etcdir)/dss/dswm/dswm.lisp" || install -m 644 config/dswm.lisp "$(destdir)$(etcdir)/dss/dswm/dswm.lisp"
+>>>>>>> master
 	mkdir -p "$(destdir)$(datarootdir)/dswm/modules"
 	install -d -m 755 modules "$(destdir)$(datarootdir)/dswm/modules"
 	find modules -type f -exec install -D {} $(destdir)$(datarootdir)/dswm/{} \;
@@ -84,6 +92,11 @@ install: dswm.info dswm
 	install -m 644 AUTHORS "$(destdir)$(datarootdir)/dswm/"
 
 	## Install dswm.desktop for desktop managers
+<<<<<<< HEAD
+	test -d "$(destdir)$(datarootdir)/xsessions" && install -m 644 dswm.desktop "$(destdir)$(datarootdir)/xsessions" || install -m 644 dswm.desktop "/usr/share/xsessions/"
+	## Install dswm.desktop for KDM (f*cking KDE)
+	test -d "$(destdir)$(datarootdir)/apps/kdm/sessions" && install -m 644 dswm.desktop "$(destdir)$(datarootdir)/apps/kdm/sessions" || test -d "$(destdir)$(datarootdir)/apps/kdm/sessions" && install -m 644 dswm.desktop "$(destdir)$(datarootdir)/apps/kdm/sessions" || true
+=======
 	if test -d "$(data_dir)/xsessions/"; \
 	then install -m 644 config/dswm.desktop "$(data_dir)/xsessions"; \
 		if test -d "$(data_dir)/apps/kdm/sessions/"; \
@@ -102,15 +115,23 @@ install: dswm.info dswm
 		fi; \
 	     fi; \
 	fi
+>>>>>>> master
 
 uninstall:
 	rm "$(destdir)$(bindir)/dswm"
 	rm -r "$(destdir)$(datarootdir)/dswm"
 	rm "$(destdir)$(etcdir)/dss/dswm/dswm.lisp"
+<<<<<<< HEAD
+	install-info --info-dir="$(destdir)$(infodir)" --remove "$(destdir)$(infodir)/dswm.info"
+	rm "$(destdir)$(infodir)/dswm.info"
+	test -f "$(destdir)$(datarootdir)/xsessions/dswm.desktop" && "$(destdir)$(datarootdir)/xsessions/dswm.desktop" || test -f "/usr/share/xsessions/dswm.desktop" && rm "/usr/share/xsessions/dswm.desktop"
+	test -f "$(destdir)$(datarootdir)/apps/kdm/sessions/dswm.desktop" && rm "$(destdir)$(datarootdir)/apps/kdm/sessions/dswm.desktop" || test -f "$(destdir)$(datarootdir)/apps/kdm/sessions/dswm.desktop" && rm "$(destdir)$(datarootdir)/apps/kdm/sessions/dswm.desktop" || true
+=======
 	rm -r "$(destdir)$(etcdir)/dss/dswm/" || true
 	install-info --info-dir="$(destdir)$(infodir)" --remove "$(destdir)$(infodir)/dswm.info"
 	rm "$(destdir)$(infodir)/dswm.info"
 	test -f "$(data_dir)/xsessions/dswm.desktop" && "$(data_dir)/xsessions/dswm.desktop" || test -f "$(linux_style_data_dir)/xsessions/dswm.desktop" && rm "$(linux_style_data_dir)/xsessions/dswm.desktop"
 	test -L "$(data_dir)/apps/kdm/sessions/dswm.desktop" && rm "$(data_dir)/apps/kdm/sessions/dswm.desktop" || test -f "$(linux_style_data_dir)/apps/kdm/sessions/dswm.desktop" && rm "$(linux_style_data_dir)/apps/kdm/sessions/dswm.desktop" || true
+>>>>>>> master
 
 # End of file

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=DSWM
+Comment=Log in using the Deep Space Window Manager
+Exec=@prefix@/bin/dswm
+TryExec=@prefix@/bin/dswm
+Type=XSession
