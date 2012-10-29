@@ -39,6 +39,7 @@
 	  *display*
 	  *editor-bindings*
 	  *emacs*
+	  *event-processing-hook*
 	  *executing-dswm-command*
 	  *focus-frame-hook*
 	  *focus-group-hook*
@@ -255,6 +256,9 @@ window, the button clicked, and the x and y of the pointer.")
 (defvar *mode-line-click-hook* '()
   "Called whenever the mode-line is clicked. It is called with 4 arguments,
 the mode-line, the button clicked, and the x and y of the pointer.")
+
+(defvar *event-processing-hook* '()
+  "A hook, called, when any event occurs")
 
 (defvar *mode-line-position* :top
   "Specifies where the mode line is displayed. Valid values are :top and :bottom.")
