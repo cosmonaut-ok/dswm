@@ -1388,6 +1388,7 @@ $$$ *key-press-hook*
 $$$ *root-click-hook*
 $$$ *mode-line-click-hook*
 $$$ *urgent-window-hook*
+$$$ *event-processing-hook*
 
 @node Modules, Hacking, Hooks, Top
 @chapter Modules
