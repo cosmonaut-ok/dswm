@@ -40,50 +40,58 @@
   (setf *resize-increment* val)
   (update-resize-map))
 
-(defun update-resize-map ()
+(defun update-resize-map (fx fy fh fw dh dw)
   (let ((m (or *resize-map* (setf *resize-map* (make-sparse-keymap)))))
     (let ((i *resize-increment*))
-      (labels ((dk (m k c)
-                 (define-key m k (format nil c i))))
-        (dk m (kbd "Up") "resize 0 -~D")
-        (dk m (kbd "C-p") "resize 0 -~D")
-        (dk m (kbd "p") "resize 0 -~D")
-        (dk m (kbd "k") "resize 0 -~D")
-
-        (dk m (kbd "Down") "resize 0 ~D")
-        (dk m (kbd "C-n") "resize 0 ~D")
-        (dk m (kbd "n") "resize 0 ~D")
-        (dk m (kbd "j") "resize 0 ~D")
-
-        (dk m (kbd "Left") "resize -~D 0")
-        (dk m (kbd "C-b") "resize -~D 0")
-        (dk m (kbd "b") "resize -~D 0")
-        (dk m (kbd "h") "resize -~D 0")
-
-        (dk m (kbd "Right") "resize ~D 0")
-        (dk m (kbd "C-f") "resize ~D 0")
-        (dk m (kbd "f") "resize ~D 0")
-        (dk m (kbd "l") "resize ~D 0")
-        (define-key m (kbd "RET") "exit-iresize")
-        (define-key m (kbd "C-g") "abort-iresize")
-        (define-key m (kbd "ESC") "abort-iresize")))))
-
-(update-resize-map)
+      (labels ((dks (m keys c)
+                 (let ((cmd (format nil c i)))
+                   (dolist (k keys)
+                     (define-key m (kbd k) cmd)))))
+        (if (or (= fx 0)
+                (< (+ fx fw) dw))
+            (progn
+              (dks m '("Right" "f" "l" "C-f") "resize ~D 0")
+              (dks m '("Left"  "b" "h" "C-b") "resize -~D 0"))
+            (progn
+              (dks m '("Right" "f" "l" "C-f") "resize -~D 0")
+              (dks m '("Left"  "b" "h" "C-b") "resize ~D 0")))
+        (if (or (= fy 0)
+                (< (+ fy fh) dh))
+            (progn
+              (dks m '("Up" "p" "k" "C-p") "resize 0 -~D")
+              (dks m '("Down" "n" "j" "C-n") "resize 0 ~D"))
+            (progn
+              (dks m '("Up" "p" "k" "C-p") "resize 0 ~D")
+              (dks m '("Down" "n" "j" "C-n") "resize 0 -~D")))))
+    
+    (define-key m (kbd "RET") "exit-iresize")
+    (define-key m (kbd "C-g") "abort-iresize")
+    (define-key m (kbd "ESC") "abort-iresize")))
 
 (defcommand (iresize tile-group) () ()
   "Start the interactive resize mode. A new keymap specific to
 resizing the current frame is loaded. Hit @key{C-g}, @key{RET}, or
 @key{ESC} to exit."
-  (let ((frame (tile-group-current-frame (current-group))))
-    (if (atom (tile-group-frame-head (current-group) (frame-head (current-group) frame)))
+  (let* ((group (current-group))
+         (frame (tile-group-current-frame group))
+         (head-frame (frame-head group (tile-group-current-frame group)))
+         (dx (frame-x head-frame))
+         (dh (frame-height head-frame))
+         (dw (frame-width head-frame))
+         (fx (- (frame-x frame) dx))
+         (fy (frame-y frame))
+         (fh (frame-height frame))
+         (fw (frame-width frame)))
+    (if (atom (tile-group-frame-head group (frame-head group frame)))
         (message "There's only 1 frame!")
         (progn
           (when *resize-hides-windows*
-            (dolist (f (head-frames (current-group) (current-head)))
-              (clear-frame f (current-group))))
+            (dolist (f (head-frames group (current-head)))
+              (clear-frame f group)))
           (message "Resize Frame")
+          (update-resize-map fx fy fh fw dh fw)
           (push-top-map *resize-map*)
-          (draw-frame-outlines (current-group) (current-head)))
+          (draw-frame-outlines group (current-head)))
         ;;   (setf *resize-backup* (copy-frame-tree (current-group)))
         )))
 
