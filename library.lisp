@@ -61,6 +61,8 @@
 	  if-null
 	  insert-before
 	  intern1
+          link-p
+          link
 	  list-directory
 	  list-splice-replace
 	  mapcar-hash
@@ -475,10 +477,6 @@ ITEM. Return the new list."
         (nconc (subseq list 0 p) replacements (subseq list (1+ p)))
         list)))
 
-(defun font-height (font)
-  (+ (xlib:font-descent font)
-     (xlib:font-ascent font)))
-
 (defun format-expand (fmt-alist fmt &rest args)
   (let* ((chars (coerce fmt 'list))
          (output "")
@@ -716,3 +714,22 @@ display a message whenever you switch frames:
 	 message-if-false
 	 `(error ,message-if-false)
 	 nil))))
+
+(defun link (from to &key (type :symbolic))
+  (cond ((eq type :symbolic)
+         #+sbcl
+         (ignore-errors (sb-posix:symlink path ql-local-projects-dir))
+         #-sbcl
+         (error "Not implemented"))
+        ((eq type :hard)
+         (error "Hard link not implemented yet"))
+        (t
+         (error "Invalid type ~a" type))))
+
+(defun link-p (target)
+  #+sbcl
+  (sb-posix:s-islnk
+   (sb-posix:stat-mode
+    (sb-posix:lstat target)))
+  #-sbcl
+  (error "Not implemented"))
