@@ -477,6 +477,10 @@ ITEM. Return the new list."
         (nconc (subseq list 0 p) replacements (subseq list (1+ p)))
         list)))
 
+(defun font-height (font)
+  (+ (xlib:font-descent font)
+     (xlib:font-ascent font)))
+
 (defun format-expand (fmt-alist fmt &rest args)
   (let* ((chars (coerce fmt 'list))
          (output "")
@@ -718,7 +722,7 @@ display a message whenever you switch frames:
 (defun link (from to &key (type :symbolic))
   (cond ((eq type :symbolic)
          #+sbcl
-         (ignore-errors (sb-posix:symlink path ql-local-projects-dir))
+         (ignore-errors (sb-posix:symlink from to))
          #-sbcl
          (error "Not implemented"))
         ((eq type :hard)
