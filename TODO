@@ -3,3 +3,5 @@ BUG: don't save window-placement rules, when _current_ group is empty
 BUG: Troubles with etc folder (don't understand 'etcdir')
 Make different history for different input boxes
 Make good modules autocompleting
+Add 'place-existing-windows' to macro 'recall-desktop-snapshot'
+
