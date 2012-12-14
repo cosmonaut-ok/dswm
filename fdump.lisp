@@ -199,7 +199,7 @@
                       (restore tree))
                      (t
                       (mapcar #'copy tree))))
-	     (migrate (group gdump)
+	     (migrate (group gdump) ;; TODO: make migrate with convert-group
 		      (progn
 			(setf (group-number (current-group)) (find-free-hidden-group-number (current-screen)))
 			(let ((old-group (current-group))
@@ -341,8 +341,10 @@ window-placement.rules file in data dir"
 		       (when (file-exists-p *desktop-dump-file*)
 			 (restore-from-file *desktop-dump-file*))
 		       (when (file-exists-p *window-placement-dump-file*)
-			 (setf *window-placement-rules*
-			       (read-dump-from-file *window-placement-dump-file*)))
+			 (progn
+			   (setf *window-placement-rules*
+				 (read-dump-from-file *window-placement-dump-file*))
+			   (place-existing-windows)))
 		       ;; TODO: Add function for restore all programs, running in last session
 		       )
 		     :message-if-done "Snapshot recalled"

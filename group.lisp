@@ -241,6 +241,34 @@ are found return @code{NIL}."
   (dolist (window (group-windows from-group))
     (move-window-to-group window to-group)))
 
+(defun convert-group (group) ;; TODO: test, is it working :)
+  "NEW: Convert group from tiling to float mode and from float to tiling"
+  (let* ((original-group-number (group-number group))
+	 (original-group-name (group-name group))
+	 (original-screen (group-screen group))
+	 (original-group group)
+	 (tmp-group-number (find-free-hidden-group-number original-screen))
+	 (new-group
+	  (progn
+	    (setf (group-number original-group) tmp-group-number)
+	    (setf (group-name original-group) (concat "tmp-" original-group-name "-tmp"))
+	    (cond ((eq (type-of original-group) 'tile-group)
+		   (add-group original-screen
+			      original-group-name
+			      :type 'float-group
+			      :background t))
+		  ((eq (type-of original-group) 'float-group)
+		   (add-group (current-screen)
+			      original-group-name
+			      :type 'tile-group
+			      :background t))
+		  (t
+		   (error "Incorrect group type ~a" original-group))))))
+    (progn ;; TODO: replace to "and"
+      (kill-group original-group new-group)
+      (setf (group-number new-group) original-group-number)
+      (setf (group-name new-group) original-group-name))))
+
 (defun netwm-group (window &optional (screen (window-screen window)))
   "Get the window's desktop property and return a matching group, if
 there exists one."
@@ -358,6 +386,10 @@ current window of the current group to the new one."
     (when (and next win)
       (move-window-to-group win next)
       (really-raise-window win))))
+
+(defcommand gconvert () ()
+  "NEW: Convert current group from tiling to float and back"
+  (convert-group (current-group)))
 
 (defcommand gnew (name) ((:string "Input group name: "))
   "Create a new group with the specified name. The new group becomes the
