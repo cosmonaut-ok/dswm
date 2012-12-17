@@ -4,5 +4,7 @@ BUG: Troubles with etc folder (don't understand 'etcdir')
 Make different history for different input boxes
 Make good modules autocompleting
 +Add 'place-existing-windows' to macro 'recall-desktop-snapshot'
-+-Add gconvert command
 Rewrite 'migrate' in 'restore-group' function with 'convert-group' (not separate buggy code
+Add PREF C-n/C-p/C-j/TAB onto floating group
++-Add 'gconvert' command - converts tiling group to float and float to tiling
+Add window-placement rules to floating groups
