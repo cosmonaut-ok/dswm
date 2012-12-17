@@ -32,7 +32,7 @@ time.lisp color.lisp module.lisp dswm.lisp make-image.lisp
 all: @MAKE_ALL_DEPS@
 
 dswm.info: dswm.texi
-	makeinfo dswm.texi
+	makeinfo ../doc/dswm.texi
 
 dswm.texi: dswm.texi.in
 	$(LISP) $(@LISP@_INFOOPTS)
@@ -68,7 +68,7 @@ testbuild:
 clean:
 	rm -f *.fasl *.fas *.lib *.*fsl
 	rm -f *.log *.fns *.fn *.aux *.cp *.ky *.log *.toc *.pg *.tp *.vr *.vrs
-	rm -rf dswm dswm.texi dswm.info autom4te.cache  *.tar.* version.lisp module.lisp help.lisp config/dswm.desktop Makefile
+	rm -rf dswm ../doc/dswm.texi dswm.info autom4te.cache  *.tar.* version.lisp module.lisp help.lisp config/dswm.desktop Makefile
 install: dswm.info dswm
 	test -z "$(destdir)$(bindir)" || mkdir -p "$(destdir)$(bindir)"
 	install -m 755 dswm "$(destdir)$(bindir)"

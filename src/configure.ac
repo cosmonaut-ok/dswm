@@ -56,6 +56,6 @@ fi
 AC_OUTPUT(Makefile)
 AC_OUTPUT(module.lisp)
 AC_OUTPUT(help.lisp)
-AC_OUTPUT(config/dswm.desktop)
-AC_OUTPUT(dswm.texi)
+AC_OUTPUT(../config/dswm.desktop)
+AC_OUTPUT(../doc/dswm.texi)
 
