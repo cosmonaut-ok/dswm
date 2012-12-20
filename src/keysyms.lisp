@@ -130,8 +130,6 @@
 		   (or (dswm-key-dswm-name key)
 		       (dswm-key-keysym-name key)))))
 ;;;;
-;; TODO: make it with dswm-name part
-;;;;
 (define-keysym #xffffff "VoidSymbol")   ;Void symbol
 (define-keysym #xff08 "BackSpace" "DEL") ;Back space, back char
 (define-keysym #xff09 "Tab" "TAB")

@@ -152,6 +152,57 @@ A short for (concatenate 'string foo bar)."
                        :blue (convert blue)))))
 ;; /Here, because needed for +default-foreground-color+... etc
 
+;; Here, because need for some early defined macros
+
+(defun getenv (var)
+  "Get values of UNIX system environment variables"
+  (or #+:clisp (ext:getenv (string var))
+      #+:sbcl (sb-unix::posix-getenv (string var))))
+
+(defvar *data-dir* nil
+  "Set default data directory")
+
+(defun data-dir (&optional subdir)
+  (let* ((xdg-homedir (getenv "XDG_CONFIG_HOME"))
+	 (directory
+	  (cond ((not (null *data-dir*))
+		 (make-pathname :directory '(:absolute *data-dir* subdir)))
+		((not (null xdg-homedir))
+		 (make-pathname :directory '(:absolute xdg-homedir subdir)))
+		((null subdir)
+		 (make-pathname :directory
+				(append
+				 (pathname-directory (user-homedir-pathname))
+				 (list ".config" "dswm"))))
+		(t
+		 (make-pathname :directory
+				(append
+				 (pathname-directory (user-homedir-pathname))
+				 (list ".config" "dswm" subdir)))))))
+    directory))
+
+(defun data-dir-file (name &optional type subdir)
+  "Return a pathname inside dswm's data dir with the specified name and type"
+  (if (not (null type))
+      (make-pathname :name name :type type :defaults (data-dir subdir))
+    (make-pathname :name name :defaults (data-dir subdir))))
+
+(defun module-data-dir-file (module name &optional type subdir)
+  "Return a pathname inside dswm's module data dir with the specified name and type"
+  (let ((dir-path (concat (princ-to-string (data-dir)) "/modules.d/" module subdir))) ;; TODO: remove 'concat'. Make path in good style
+    (if (not (null type))
+	(make-pathname :name name :type type :defaults dir-path)
+	(make-pathname :name name :defaults dir-path))))
+
+(defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) type subdir &body body)
+  "Open a file in DSWM's data directory. keyword arguments are sent
+directly to OPEN. Note that IF-EXISTS defaults to :supersede, instead
+of :error."
+  (declare (ignorable if-exists))
+  `(with-open-file (,s ,(data-dir-file file type subdir)
+		       ,@keys) ,@body))
+;;; /Here, because need for some early defined macros
+
 ;;; Message Timer
 (defvar *suppress-abort-messages* nil
   "Suppress abort message when non-nil.")
@@ -907,45 +958,6 @@ Like :tight but no border is ever visible.
 
 After changing this variable you may need to call
 sync-all-frame-windows to see the change.")
-
-(defvar *data-dir* nil
-  "Set default data directory")
-
-(defun data-dir (&optional subdir)
-  (let ((directory
-	 (if (not (null *data-dir*))
-	     (make-pathname :directory (concat *data-dir* "/" subdir))
-	   (make-pathname
-	    :directory (append
-			(pathname-directory (user-homedir-pathname))
-			(list (concat ".dswm.d"	"/" subdir)))))))
-    directory))
-;;
-;; OLD code. Remove it after changes
-;;   \/
-;; (when (ensure-directories-exist directory)
-;;   directory)))
-
-(defun data-dir-file (name &optional type subdir)
-  "Return a pathname inside dswm's data dir with the specified name and type"
-  (if (not (null type))
-      (make-pathname :name name :type type :defaults (data-dir subdir))
-    (make-pathname :name name :defaults (data-dir subdir))))
-
-(defun module-data-dir-file (module name &optional type subdir)
-  "Return a pathname inside dswm's module data dir with the specified name and type"
-  (let ((dir-path (concat (princ-to-string (data-dir)) "/modules.d/" module subdir))) 
-    (if (not (null type))
-	(make-pathname :name name :type type :defaults dir-path)
-      (make-pathname :name name :defaults dir-path))))
-
-(defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) type subdir &body body)
-  "Open a file in DSWM's data directory. keyword arguments are sent
-directly to OPEN. Note that IF-EXISTS defaults to :supersede, instead
-of :error."
-  (declare (ignorable if-exists))
-  `(with-open-file (,s ,(data-dir-file file type subdir)
-		       ,@keys) ,@body))
 
 ;; Names of dump files
 (defvar *desktop-dump-file* (data-dir-file "desktop" "rules" "rules.d")

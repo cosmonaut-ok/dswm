@@ -22,7 +22,6 @@
 ;;
 ;; Code:
 
-;; TODO: make it good
 (in-package :dswm)
 
 (export '(scratchpad))
@@ -35,7 +34,6 @@
 	   (setf *scratchpad-group* (add-group (current-screen) *scratchpad-group-name*)
 		 (group-number *scratchpad-group*) 0))
 	 (switch-to-group cg))
-  ;; TODO: It`s just dirty hack. Replace it to good code!
   t)
 
 (defcommand scratchpad () ()

@@ -84,12 +84,7 @@
 	  walk-directory
 	  with-focus
 	  with-restarts-menu))
-
-(defun getenv (var)
-  "Get values of UNIX system environment variables"
-  (or #+:clisp (ext:getenv (string var))
-      #+:sbcl (sb-unix::posix-getenv (string var))))
-
+ 
 ;;;; Pathname operations
 (defun pathname-is-executable-p (pathname)
   "Return T if the pathname describes an executable file."
@@ -533,11 +528,12 @@ ITEM. Return the new list."
   (nconc list (list arg)))
 
 (defmacro add-to-list (list arg)
-  ;; TODO It's real pushnew analog
+  "Adds element to list, if this element is not a list member"
   `(if (not (member ,arg ,list))
-      (setq ,list (cons ,arg ,list))))
+       (pushnew ,arg ,list)))
 
 (defmacro remove-from-list (list arg)
+  "Removes element from list"
   `(labels
     ((rm-from-list (list arg)
 	(cond
@@ -548,12 +544,14 @@ ITEM. Return the new list."
     (setf ,list (rm-from-list ,list ,arg))))
 
 (defmacro if-not-null (value body &optional else-body)
+  "Replaces <<(if (not (null X)))>> construction. It`s really better"
   `(if (not (null ,value))
        ,body
      ,(if (not (null else-body))
 	  else-body)))
 
 (defmacro if-null (value body &optional else-body)
+  "Replaces <<(if (null X))>> construction. It`s really better"
   `(if (null ,value)
        ,body
      ,(if (not (null else-body))

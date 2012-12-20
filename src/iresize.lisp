@@ -92,7 +92,7 @@ resizing the current frame is loaded. Hit @key{C-g}, @key{RET}, or
           (update-resize-map fx fy fh fw dh fw)
           (push-top-map *resize-map*)
           (draw-frame-outlines group (current-head)))
-        ;;   (setf *resize-backup* (copy-frame-tree (current-group)))
+        ;;   (setf *resize-backup* (copy-frame-tree (current-group))) ;; TODO: WTF?
         )))
 
 (defun resize-unhide ()

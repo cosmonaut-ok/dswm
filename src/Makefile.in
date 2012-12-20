@@ -4,17 +4,17 @@ sbcl_BUILDOPTS=--load ./make-image.lisp
 
 clisp_INFOOPTS=-K full -on-error exit -x "(require 'asdf '(\"asdf.lisp\")) (load \"dswm.asd\") (load \"@PPCRE_PATH@/cl-ppcre.asd\") (asdf:operate 'asdf:load-op :dswm) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)"
 sbcl_INFOOPTS=--eval "(progn (require 'asdf) (require 'dswm) (load \"manual.lisp\"))" --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
-etcdir=/etc
 datarootdir = @datarootdir@
 prefix=@prefix@
 exec_prefix= @exec_prefix@
 bindir=@bindir@
 infodir=@infodir@
+etcdir = /etc/xdg
+data_dir=$(destdir)$(datarootdir)
 
 root_dir=${PWD}
 dest_dir=dswm-@PACKAGE_VERSION@
 ##
-data_dir=$(destdir)$(datarootdir)
 linux_style_data_dir=/usr/share/
 
 # You shouldn't have to edit past this
@@ -39,6 +39,21 @@ dswm.texi: ../doc/dswm.texi.in
 
 dswm: $(FILES)
 	$(LISP) $(@LISP@_BUILDOPTS)
+	######################################################
+	###################### WARNING! ######################
+	######################################################
+	###  Now DSWM uses freedesktop recomendations for  ###
+	###  configfiles placement. _NOTE_, that from now  ###
+	###    you must place your config directory from   ###
+	###  ~/.dswm.d to ~/.config/dswm (or according to  ###
+	###           variable XDG_CONFIG_HOME )           ###
+	###   File ~/.dswm will be working for some time,  ###
+	###    but it will be removed in future. Thanks!   ###
+	###  Also, you can find common configuration file  ###
+	###         at /etc/xdg/dss/dswm/dswm.lisp         ###
+	###       (or, according to XDG_CONFIG_DIRS)       ###
+	######################################################
+	######################################################
 
 release:
 	# TODO: We need to rewrite it!
@@ -76,7 +91,7 @@ install: dswm.info dswm
 	test -z "$(destdir)$(infodir)" || mkdir -p "$(destdir)$(infodir)"
 	install -m 644 dswm.info "$(destdir)$(infodir)"
 	install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)/dswm.info"
-	test -d "$(destdir)$(etcdir)/dss/dswm/" || mkdir -p "$(destdir)$(etcdir)/dss/dswm"
+	test -d "$(etcdir)/dss/dswm/" || mkdir -p "$(etcdir)/dss/dswm"
 	test -f "$(destdir)$(etcdir)/dss/dswm/dswm.lisp" || install -m 644 ../config/dswm.lisp "$(destdir)$(etcdir)/dss/dswm/dswm.lisp"
 	mkdir -p "$(destdir)$(datarootdir)/dswm/modules"
 	install -d -m 755 modules "$(destdir)$(datarootdir)/dswm/modules"

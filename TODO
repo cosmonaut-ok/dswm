@@ -7,4 +7,7 @@ Make good modules autocompleting
 Rewrite 'migrate' in 'restore-group' function with 'convert-group' (not separate buggy code
 Add PREF C-n/C-p/C-j/TAB onto floating group
 +-Add 'gconvert' command - converts tiling group to float and float to tiling
-Add window-placement rules to floating groups
++-Add window-placement rules to floating groups (added just to 'make-rule-for-window')
+Make 'abort-iresize' really abort ;)
+move from "/usr/share/dswm/" to XDG_DATA_DIRS/dss/dswm->/usr/share/dswm/
+move from "~/.config/dswm/modules.d" to XDG_DATA_HOME/dss/dswm-> ~/.local/share/dss/dswm/modules

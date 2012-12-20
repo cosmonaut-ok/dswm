@@ -45,8 +45,17 @@ rc files exist), the error if it didn't, and the rc file that was
 loaded. When CATCH-ERRORS is nil, errors are left to be handled further up. "
   (let* ((user-rc (file-exists-p (data-dir-file "init" "lisp")))
 	 (user-initrc (file-exists-p (merge-pathnames (user-homedir-pathname)
-						   #p".dswm")))
-         (etc-rc (file-exists-p #p"/etc/dss/dswm/dswm.lisp"))
+						      #p".dswm")))
+         (etc-rc
+	  (flet ((find-etc-file (where)
+		   (cond ((null (car where))
+			  nil)
+			 ((file-exists-p (make-pathname :directory (list :absolute (car where) "dss" "dswm") :name "dswm" :type "lisp"))
+			  (make-pathname :directory (list :absolute (car where) "dss" "dswm") :name "dswm" :type "lisp"))
+			 (t
+			  (find-etc-file (cdr where))))))
+	    (or (find-etc-file (ppcre:split "\\:+" (getenv "XDG_CONFIG_DIRS")))
+		(file-exists-p (make-pathname :directory '(:absolute "etc" "xdg" "dss" "dswm") :name "dswm" :type "lisp")))))
          (rc (or user-initrc user-rc)))
     (progn
       (startup-only)
@@ -60,7 +69,6 @@ loaded. When CATCH-ERRORS is nil, errors are left to be handled further up. "
 	      (values t nil etc-rc)))
 	(values t nil t))
       (if rc
-	  ;; TODO: Should we compile the file before we load it?
 	  (if catch-errors
 	      (handler-case (load rc)
 			    (error (c) (values nil (format nil "~a" c) rc))
