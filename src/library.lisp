@@ -347,7 +347,7 @@ DIRNAME does not exist."
 		  (lambda (file)
 		    (cond ((directory-pathname-p file)
 			   #+:sbcl (sb-posix:rmdir file)
-			   #+:clisp (ext:delete-dir file))
+			   #+:clisp (ext:delete-directory file))
 			  (t (delete-file file))))
 		  :directories t
 		  :if-does-not-exist if-does-not-exist)

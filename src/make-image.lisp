@@ -20,39 +20,68 @@
 ;; Commentary:
 ;;
 ;; Code:
+#-(or sbcl clisp openmcl ecl (and lispworks6 (not lispworks-personal-edition)))
+(error "This lisp implementation is not supported.")
 
-;;; SBCL
+#+lispworks
+(progn
+  (load-all-patches)
+  (lw:set-default-character-element-type 'lw:simple-char)
+
+  (unless
+      (dolist (install-path
+               '("quicklisp" ".quicklisp"))
+        (let ((quicklisp-init
+                (merge-pathnames (make-pathname :directory `(:relative ,install-path)
+                                                :name "setup.lisp")
+                                 (user-homedir-pathname))))
+          (when (probe-file quicklisp-init)
+            (load quicklisp-init)
+            (return t))))
+
+    (error "Quicklisp must be installed in order to build DsWM with ~S."
+           (lisp-implementation-type))))
+
+(require 'asdf)
+(asdf:oos 'asdf:load-op 'dswm)
+
 #+sbcl
-(progn
-  (require 'asdf)
-  (require 'dswm))
-#+sbcl
-(progn
-  (load "dswm.asd")
-  (sb-ext:save-lisp-and-die "dswm" :toplevel (lambda ()
-                                                  ;; asdf requires sbcl_home to be set, so set it to the value when the image was built
-                                                  (sb-posix:putenv (format nil "SBCL_HOME=~A" #.(sb-ext:posix-getenv "SBCL_HOME")))
-                                                  (dswm:dswm)
-                                                  0)
-                            :executable t))
+(sb-ext:save-lisp-and-die "dswm" :toplevel (lambda ()
+                                                ;; asdf requires sbcl_home to be set, so set it to the value when the image was built
+                                                (sb-posix:putenv (format nil "SBCL_HOME=~A" #.(sb-ext:posix-getenv "SBCL_HOME")))
+                                                (dswm:dswm)
+                                                0)
+                          :executable t)
 
-;;; CLISP
+#+clisp
+(ext:saveinitmem "dswm" :init-function (lambda ()
+                                            (dswm:dswm)
+                                            (ext:quit))
+                 :executable t :keep-global-handlers t :norc t :documentation "The DsWM Executable")
 
-;; Is there a better way to use asdf.lisp than including it with dswm?
-#+clisp
-(progn
-  (load "asdf.lisp")
-  (require 'asdf)
-  (load "dswm.asd"))
-;  (load "@PPCRE_PATH@/cl-ppcre.asd"))
-#+clisp
-(progn
-  (asdf:oos 'asdf:load-op 'dswm))
-#+clisp
-(progn
-  (ext:saveinitmem "dswm" :init-function (lambda ()
-                                              (dswm:dswm)
-                                              (ext:quit))
-                   :executable t :keep-global-handlers t :norc t :documentation "The DSWM Executable"))
+#+ccl
+(ccl:save-application "dswm" :prepend-kernel t :toplevel-function #'dswm:dswm)
 
-#-(or sbcl clisp) (error "This lisp implementation is not supported.")
+#+ecl
+(asdf:make-build 'dswm :type :program :monolithic t
+                 :move-here "."
+                 :name-suffix ""
+                 :epilogue-code '(dswm:dswm))
+
+;;; if you want to save an image
+#+(and lispworks)
+(hcl:save-image "dswm"
+                :multiprocessing t
+                :environment nil
+                :load-init-files t
+                :restart-function (compile nil
+                                           #'(lambda ()
+                                               (dswm:dswm)
+                                               (lw:quit :status 0))))
+
+;;; if you want to save a standalone executable
+#+(and lispworks nil)
+(lw:deliver #'dswm:dswm "dswm" 0
+            :interface nil
+            :multiprocessing t
+            :keep-pretty-printer t)

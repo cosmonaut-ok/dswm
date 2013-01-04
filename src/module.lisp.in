@@ -43,7 +43,7 @@
 
 ;; Add default modules directories
 (add-modules-dir "@prefix@/share/dswm/modules/")
-(push (data-dir "/modules.d/") asdf:*central-registry*)
+(push (data-dir "modules.d") asdf:*central-registry*) ;; TODO: resolve issue with "/". It's bad style
 
 (defun modules-list ()
   "Return a list of the available modules."
@@ -60,7 +60,7 @@
   "Find module from list avaliable modules"
   (labels ((system-p (dir-list name)
 	     (let ((system
-		    (make-pathname :directory (concat (princ-to-string (car dir-list)) "/" name)
+		    (make-pathname :directory (concat (princ-to-string (car dir-list)) "/" name) ;; TODO: resolve issue with "/". It's bad style
 				   :name name :type "asd")))
 	       (cond ((null dir-list) nil)
 		     ((file-exists-p system) system)

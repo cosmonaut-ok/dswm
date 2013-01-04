@@ -497,8 +497,8 @@ window along."
 optional arguments @var{gfmt} and @var{wfmt} can be used to override
 the default group formatting and window formatting, respectively."
   (echo-groups (current-screen)
-               (or gfmt *group-format*)
-               t (or wfmt *window-format*)))
+		 (or gfmt *group-format*)
+		 t (or wfmt *window-format*)))
 
 (defcommand gselect (to-group) ((:group "Select group: "))
   "Select the first group that starts with
