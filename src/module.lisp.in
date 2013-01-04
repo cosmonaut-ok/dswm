@@ -60,7 +60,7 @@
   "Find module from list avaliable modules"
   (labels ((system-p (dir-list name)
 	     (let ((system
-		    (make-pathname :directory (concat (princ-to-string (car dir-list)) "/" name) ;; TODO: resolve issue with "/". It's bad style
+		    (make-pathname :directory (list :absolute (princ-to-string (car dir-list)) name) ;; TODO: resolve issue with "/". It's bad style
 				   :name name :type "asd")))
 	       (cond ((null dir-list) nil)
 		     ((file-exists-p system) system)

@@ -11,3 +11,11 @@ Add PREF C-n/C-p/C-j/TAB onto floating group
 Make 'abort-iresize' really abort ;)
 move from "/usr/share/dswm/" to XDG_DATA_DIRS/dss/dswm->/usr/share/dswm/
 move from "~/.config/dswm/modules.d" to XDG_DATA_HOME/dss/dswm-> ~/.local/share/dss/dswm/modules
+
+bug on clisp, when set-font
+bug on clisp, when load-module
+
+CLISP: (make-pathname :directory (list :ABSOLUTE "home" "zz" "qq" "s-bindings"))
+SBCL: (make-pathname :directory (list :ABSOLUTE "home/zz" "s-bindings"))
+CLISP: NO SLASHES!
+WORKAROUND: if platform not windows: make list with "/" as separators if windows - make list with "\" as separators

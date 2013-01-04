@@ -1,0 +1,68 @@
+gsave files moved to ~/.dswm.d/save.d/
+
+data-dir -> data-dir &optional subdir
+data-dir-file data-dir-file &key type subdir
+possibly to use hex colors with function (make-color-hex "#000000")
+ Ex.: (set-bg-color (make-color-hex "#000000")) also you can use (set-bg-color "red")
+ Also you can use *colors* and (update-color-map) with hex colors
+ Ex.: (setf *colors* "#xb58900" "#xcb4b16" "#xdc322f" "#xd33682" "#x6c71c4") (update-color-map)
+ also:(setf *colors*  "yellow" "orange" "red" "magenta" "violet" "blue") (update-color-map)
+change default message-window-gravity to top
+add *menu-window-gravity*
+change default menu gravity to bottom-left
+updated default color scheme
+added load-file command
+added set-mode-line-{fg,bg,border}-color, set-mode-line-border-width functions
+when-not-null -> if-not-null macro
++if-null macro
+add *scratchpad-group-name*
+removed macros 'defkey(s)-{top,root} as non functional in standard complectation
+
+mode-line display phylosophy: when *screen-mode-line-format* is set - display it. If not set - display double line 
+format: first - *screen-widget-line-format* second - *screen-window-list-format*
+
+add set-mode-line-{bg,fg,border}-color functions
+
+add set-screen-mode-line-format set-screen-widget-line-format
+
+remove remember-group remember-screen as deprecated
+
+add forget-desktop recall-desktop (for RFR model)
+
+remember,forget deprecated
+
+remove groups as deprecated -> use vgroups and grouplist for visualisation and echo-groups for programming
+
+alias gselect-with-window -> gmove
+
+add set-float-window-title-height
+
+fixed bug with not working *screen-mode-line*
+
+command->function {remember,forget}-windows-current-{group,screen}
+
+Fixed error message on remember-windows-current-screen
+
+add (define-keymap-keys map 
+
+fill-keymap deprecated
+
+...widget-line... -> ...info-line...
+
+all names screen-{mode,info...}-line... -> {mode,info...}-line...
+
+new commands loaded-modules 
+
+list-modules -> modules
+
+remove 'groups' 'windows'. Use vgroups instead. Now it's more informative
+
+corrected history, when in 'colon' command
+
+corrected history in 'run-shell-command' command
+
+version,ratwarp,ratrelwarp,ratclick commands->functions
+
+to see the version, run 'help-short'
+
+frame-windows command->function
