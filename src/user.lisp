@@ -172,8 +172,8 @@ with base. Automagically update the cache."
                                 :end1 (length base)
                                 :end2 (length base)))) (path-cache-programs *path-cache*)))
 
-(defun complete-filename (base)
-  "Return the list of files in ")
+;; (defun complete-filename (base)
+;;   "Return the list of files in ")
 
 (defcommand run-shell-command (cmd &optional collect-output-p)
   ((:shell "Input command to run program: "))

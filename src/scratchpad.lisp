@@ -37,6 +37,7 @@
   t)
 
 (defcommand scratchpad () ()
+  "Show and hide scratchpad group"
   (let ((groups (screen-groups (current-screen))))
     (when (and
 	   (> (length groups) 1)
@@ -44,3 +45,19 @@
       (if (eq (current-group) *scratchpad-group*)
 	  (switch-to-group (nth 1 groups))
 	(switch-to-group *scratchpad-group*)))))
+
+(defcommand gmove-scratchpad () ()
+  "Move the current window to the specified group."
+  (if (eq (current-group) *scratchpad-group*)
+      (move-window-to-group (current-window) (cadr (screen-groups (current-screen))))
+    (move-window-to-group (current-window) *scratchpad-group*)))
+
+(defcommand gmove-marked-scratchpad () ()
+  "move the marked windows to the specified group."
+  (if (eq (current-group) *scratchpad-group*)
+      (dolist (i (marked-windows (current-group)))
+	(setf (window-marked i) nil)
+	(move-window-to-group i (cadr (screen-groups (current-screen)))))
+    (dolist (i (marked-windows (current-group)))
+      (setf (window-marked i) nil)
+      (move-window-to-group i *scratchpad-group*))))

@@ -82,7 +82,7 @@ then call (update-color-map).")
 			 (loop for c in *colors*
 			       as color = (handler-case
 					   (xlib:lookup-color scm c)
-					   (xlib:name-error (ne)
+					   (xlib:name-error (ne) ;; TODO Lookup, what mean it "ne"
 							    (make-color-hex c)))
 			       do (adjust-color color amt)
 			       collect (xlib:alloc-color scm color))))

@@ -19,3 +19,5 @@ CLISP: (make-pathname :directory (list :ABSOLUTE "home" "zz" "qq" "s-bindings"))
 SBCL: (make-pathname :directory (list :ABSOLUTE "home/zz" "s-bindings"))
 CLISP: NO SLASHES!
 WORKAROUND: if platform not windows: make list with "/" as separators if windows - make list with "\" as separators
+
++make commands gmove-scratchpad,gmove-marked-scratchpad, bind this commands

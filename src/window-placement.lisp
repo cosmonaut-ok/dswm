@@ -165,7 +165,7 @@ housekeeping."
 
 (defun make-rule-for-window (window &optional lock title)
   "Guess at a placement rule for WINDOW and add it to the current set."
-  (cond ((typep window 'tile-window) ;; TODO: Make rules for float windows
+  (cond ((typep window 'tile-window)
 	 (let* ((group (window-group window))
 		(group-name (group-name group))
 		(frame-number (frame-number (window-frame window)))
@@ -177,7 +177,7 @@ housekeeping."
 		       :role (and (not (equal role "")) role))
 		 *window-placement-rules*)))
 	((typep window 'float-window)
-	 (let* ((group (window-group window))
+	 (let* ((group (window-group window))  ;; TODO: make rules for float windows
 		(group-name (group-name group))
 		(role (window-role window))
 		(width (float-window-last-width window))

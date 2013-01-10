@@ -68,6 +68,7 @@ from most specific groups to most general groups.")
 
 (fill-keymap *top-map*
   (kbd "M-`") "scratchpad"
+  (kbd "M-~") "gmove-scratchpad"
   *escape-key* '*root-map*)
 
 (fill-keymap *root-map*
@@ -200,6 +201,8 @@ from most specific groups to most general groups.")
   (kbd "\"")    "grouplist"
   (kbd "m")     "gmove"
   (kbd "M")     "gmove-marked"
+  (kbd "s")     "gmove-scratchpad"
+  (kbd "S")     "gmove-marked-scratchpad"
   (kbd "k")     "gkill"
   (kbd "A")     "grename"
   (kbd "r")     "grename"

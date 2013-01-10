@@ -314,6 +314,7 @@
 		     :message-if-false "Nothing to forget"))
 
 (defcommand recall-desktop () ()
+  "Recall all groups, frames etc"
   (eval-with-message :body
 		     (restore-from-file *desktop-dump-file*)
 		     :message-if-done "Desktop rules recalled"

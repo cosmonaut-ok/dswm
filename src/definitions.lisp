@@ -124,6 +124,7 @@
 	  *xwin-to-window*
 	  data-dir
 	  data-dir-file
+	  find-etc-file
 	  module-data-dir-file
 	  with-data-file
 	  make-color-hex
@@ -166,9 +167,9 @@ A short for (concatenate 'string foo bar)."
   (let* ((xdg-homedir (getenv "XDG_CONFIG_HOME"))
 	 (directory
 	  (cond ((not (null *data-dir*))
-		 (make-pathname :directory '(:absolute *data-dir* subdir)))
+		 (make-pathname :directory (append (list :absolute *data-dir*) (ppcre:split "\\/+" subdir))))
 		((not (null xdg-homedir))
-		 (make-pathname :directory '(:absolute xdg-homedir subdir)))
+		 (make-pathname :directory (append (list :absolute xdg-homedir) (ppcre:split "\\/+" subdir))))
 		((null subdir)
 		 (make-pathname :directory
 				(append
@@ -178,7 +179,7 @@ A short for (concatenate 'string foo bar)."
 		 (make-pathname :directory
 				(append
 				 (pathname-directory (user-homedir-pathname))
-				 (list ".config" "dswm" subdir)))))))
+				 (append (list ".config" "dswm") (ppcre:split "\\/+" subdir))))))))
     directory))
 
 (defun data-dir-file (name &optional type subdir)
@@ -193,6 +194,27 @@ A short for (concatenate 'string foo bar)."
     (if (not (null type))
 	(make-pathname :name name :type type :defaults dir-path)
 	(make-pathname :name name :defaults dir-path))))
+
+(defun etc-dirs (&optional subdir)
+  (let ((xdg-etc-dirs (ppcre:split "\\:+" (getenv "XDG_CONFIG_DIRS"))))
+    (if (null xdg-etc-dirs)
+	(list (make-pathname :directory (append (list :absolute "etc" "xdg" "dss" "dswm") (ppcre:split "\\/+" subdir))))
+	(mapcar #'(lambda (x) (make-pathname :directory (append (list :absolute) (ppcre:split "\\/+" x) (ppcre:split "\\/+" subdir)))) xdg-etc-dirs))))
+
+(defun find-etc-file (name &optional type subdir)
+  (let* ((etc-pathnames
+	  (if (not (null type))
+	      (mapcar #'(lambda (x) (merge-pathnames x (make-pathname :name name :type type))) (etc-dirs subdir))
+	      (mapcar #'(lambda (x) (merge-pathnames x (make-pathname :name name))) (etc-dirs subdir)))))
+    (labels ((etc-file-exists-p (pathnames)
+			       (cond ((null pathnames)
+				      nil)
+				     ((file-exists-p (car pathnames))
+				      (car pathnames))
+				     (t
+				      (etc-file-exists-p (cdr pathnames))))))
+	   (etc-file-exists-p etc-pathnames))))
+
 
 (defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) type subdir &body body)
   "Open a file in DSWM's data directory. keyword arguments are sent

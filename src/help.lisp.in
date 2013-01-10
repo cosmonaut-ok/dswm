@@ -124,6 +124,10 @@ License: GNU GPL v.2^b" (print-key *escape-key*) (data-dir) (print-key *escape-k
 	     (with-open-file (stream not-firststart-p :if-does-not-exist :create)
 			     t)))))
 
+(defcommand help-short () ()
+  "Display short help"
+  (first-start t))
+
 (defcommand commands () ()
 "List all available commands."
   (let* ((screen (current-screen))
@@ -232,7 +236,6 @@ like xprop."
                                                   (split-seq values '(0)))))
                     (t values)))))))
 
-
 (defcommand info (&optional (fmt *window-info-format*)) (:rest)
   "Display information about the current window."
   (if (current-window)
@@ -261,17 +264,3 @@ submitting the bug report."
         (set-x-selection (format nil "~a~%~a" (first *last-unhandled-error*) (second *last-unhandled-error*)))
         (message "Copied to clipboard."))
       (message "There was no unhandled error!")))
-
-(defcommand help-short () ()
-  (first-start t))
-
-;; (defcommand help-license () ()
-;;   (message-no-timeout (cat (merge-pathnames
-;; 			    (string-as-directory "@prefix@/share/dswm/")
-;; 			    "COPYING"))))
-
-;; (defcommand help-authors () ()
-;;   (message-no-timeout (cat (merge-pathnames
-;; 			    (string-as-directory "@prefix@/share/dswm/")
-;; 			    "AUTHORS"))))
-

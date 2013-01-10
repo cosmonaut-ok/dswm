@@ -91,15 +91,15 @@
 		    (screen-urgent-windows (mode-line-screen ml))
 		    )))
 
-(defun fmt-head-window-list-with-urgent (ml)
-  "Using *window-format*, return a list windows from current group and all urgent windows."
-  ;; TODO: make. Is it needed?
-  )
+;; (defun fmt-head-window-list-with-urgent (ml)
+;;   "Using *window-format*, return a list windows from current group and all urgent windows."
+;;   ;; TODO: make. Is it needed?
+;;   )
 
-(defun fmt-head-window-list-with-blink-urgent (ml)
-  "Using *window-format*, return a list windows from current group and all blinking urgent windows."
-  ;; TODO: make. Is it needed?
-)
+;; (defun fmt-head-window-list-with-blink-urgent (ml)
+;;   "Using *window-format*, return a list windows from current group and all blinking urgent windows."
+;;   ;; TODO: make. Is it needed?
+;; )
 
 (defun fmt-window-list (ml)
    "Using *window-format*, return a 1 line list of the windows, space seperated."
