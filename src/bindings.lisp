@@ -88,7 +88,7 @@ from most specific groups to most general groups.")
   *escape-fake-key* "send-escape"
   (kbd ";")   "colon"
   (kbd ":")   "eval"
-  (kbd "v")   "version"
+  ;; (kbd "v")   "version" ;; TODO: use it!
   (kbd "m")   "move-window-to-frame"
   (kbd "C-m") "lastmsg"
   (kbd "G")   "vgroups"
