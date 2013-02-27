@@ -28,3 +28,5 @@ BUG: Error In Command 'recall-desktop': error opening #P"/home/cosmonaut/.dswm.d
                                                 No such file or directory
 with user euXXXX !
 
+
+FEATURE: port to CLISP,CCL,LW,ECL(CMUCL)
