@@ -17,8 +17,33 @@ MY="$(dirname $0)"
 
 function do_test() # module test_name
 {
-    # MY_PATH=$"$1"_dir/"$2"
-    # echo $"$1"_dir/"$2"
+    case $1 in
+	"frame")
+	    MY_PATH="$frame_dir/$2"
+	    ;;
+	"group")
+	    MY_PATH="$group_dir/$2"
+	    ;;
+	"window")
+	    MY_PATH="$window_dir/$2"
+	    ;;
+	"frame")
+	    MY_PATH="$frame_dir/$2"
+	    ;;
+	"screen")
+	    MY_PATH="$screen_dir/$2"
+	    ;;
+	"module")
+	    MY_PATH="$module_dir/$2"
+	    ;;
+	"modeline")
+	    MY_PATH="$modeline_dir/$2"
+	    ;;
+	"rfr")
+	    MY_PATH="$rfr_dir/$2"
+	    ;;
+    esac
+
     MY_PATH="$frame_dir"/$2
 
     if [ -f $MY_PATH ]; then
@@ -41,8 +66,9 @@ function do_test() # module test_name
 		    sleep $STEP
 		fi
 	    done
-	    echo "[ Test $MY_PATH DONE ]"
+	    echo "[ Complex test DONE ]"
 	done < $MY_PATH
+	echo "[ Test $MY_PATH DONE ]"
     else
 	echo "No file, named $MY_PATH"
     fi
