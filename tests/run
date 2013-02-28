@@ -1,0 +1,64 @@
+#!/bin/bash
+
+TESTDIR="tests"
+window_dir="$TESTDIR/window"
+group_dir="$TESTDIR/group"
+frame_dir="$TESTDIR/frame"
+screen_dir="$TESTDIR/screen"
+module_dir="$TESTDIR/module"
+rfr_dir="$TESTDIR/rfr"
+modeline_dir="$TESTDIR/modeline"
+
+GROUPS="window group frame screen module modeline rfr"
+
+MY="$(dirname $0)"
+
+. config.conf
+
+function do_test() # module test_name
+{
+    # MY_PATH=$"$1"_dir/"$2"
+    # echo $"$1"_dir/"$2"
+    MY_PATH="$frame_dir"/$2
+
+    if [ -f $MY_PATH ]; then
+	echo "Doing $MY_PATH... "
+	while read string; do
+	    for i in $(echo $string | sed 's/\;/\ /g'); do
+		echo -n "Doing $i... "
+		$MY/dsish $(echo $i | sed 's/\_/\ /g')
+		if [ "$DEBUG" == "1" ]; then
+			echo ""
+		    $MY/dsish copy-unhandled-error
+		fi
+		if [ $? == 0 ]; then
+		    echo "[ done ]"
+		else
+		    echo "[ Failed ]"
+		fi
+		
+		if [ "$STEP" != "" ]; then
+		    sleep $STEP
+		fi
+	    done
+	    echo "[ Test $MY_PATH DONE ]"
+	done < $MY_PATH
+    else
+	echo "No file, named $MY_PATH"
+    fi
+
+}
+
+# function do_group()
+# {
+
+
+# }
+
+# function do_all()
+# {
+
+
+# }
+
+do_test $1 $2
