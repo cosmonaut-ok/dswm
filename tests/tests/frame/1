@@ -1,7 +1,8 @@
 vsplit;remove
 hsplit;remove
-resize_10_10
-only;hsplit
+hsplit;resize_10_10;only
+vsplit;resize_10_10;only
+hsplit
 only;hsplit;fselect_1;fselect_2;fselect_8
-fnext;fother
-fselect_1;fclear
+hsplit;fnext;fother
+fselect_1;fclear;only

@@ -1,5 +1,28 @@
 #!/bin/bash
 
+# Copyright (C) 2007 Jonathan Moore Liles
+# Copyright (C) 2013 Alexander aka 'CosmonauT' Vynnyk
+#
+# Maintainer: Alexander aka 'CosmonauT' Vynnyk
+#
+# DSWM Test Tool is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# DSWM Test Tool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+# Boston, MA 02111-1307 USA
+
+### DSWM Testing Tool.
+
+
 TESTDIR="tests"
 window_dir="$TESTDIR/window"
 group_dir="$TESTDIR/group"
@@ -14,6 +37,67 @@ GROUPS="window group frame screen module modeline rfr"
 MY="$(dirname $0)"
 
 . config.conf
+
+
+
+############### deepshell part ###############
+
+if sleep --version 2>/dev/null | grep -q GNU
+then
+    DELAY=0.1
+else
+    DELAY=1
+fi
+
+function wait_result ()
+{
+    while :; do
+	RESULT=`xprop -root -f DSWM_COMMAND_RESULT 8s DSWM_COMMAND_RESULT 2>/dev/null`
+	
+	if echo "$RESULT" | grep -v -q 'not found.$'; then
+	    if ! echo "$RESULT" | grep -q '= $'; then
+		echo ""
+		echo -n "Execution INFO: "
+		echo $RESULT | sed 's/[^"]*"//;s/"$//;s/\\n/\n/g;s/\\"/"/g;s/\n\+$//;
+	    		s/\^[*[:digit:]]\{2\}//g;s/\^[Bbn]//g;'
+	    fi
+	    return 1
+	fi
+	sleep $DELAY
+    done
+    xprop -root -remove DSWM_COMMAND_RESULT
+    if echo "$RESULT" | grep -q '= $'
+    then
+    	return 1
+    fi
+    echo $RESULT | sed 's/[^"]*"//;s/"$//;s/\\n/\n/g;s/\\"/"/g;s/\n\+$//;
+			s/\^[*[:digit:]]\{2\}//g;s/\^[Bbn]//g;'
+}
+
+function send_cmd ()
+{
+    local cmd="$1"
+    
+    if [ "$cmd" = "dswm-quit" ]
+    then
+	cmd=quit
+    elif [ "$cmd" = "quit" ]
+    then
+	exit
+    fi
+    
+    xprop -root -f DSWM_COMMAND 8s -set DSWM_COMMAND "$cmd"
+    
+    wait_result
+
+}
+
+function usage ()
+{
+    echo "USAGE: $0 section_name test_name"
+}
+
+############### /deepshell part ##############
 
 function do_test() # module test_name
 {
@@ -51,10 +135,10 @@ function do_test() # module test_name
 	while read string; do
 	    for i in $(echo $string | sed 's/\;/\ /g'); do
 		echo -n "Doing $i... "
-		$MY/dsish $(echo $i | sed 's/\_/\ /g')
+		run_shell $(echo $i | sed 's/\_/\ /g')
 		if [ "$DEBUG" == "1" ]; then
-			echo ""
-		    $MY/dsish copy-unhandled-error
+		    echo ""
+		    run_shell copy-unhandled-error
 		fi
 		if [ $? == 0 ]; then
 		    echo "[ done ]"
@@ -86,5 +170,87 @@ function do_test() # module test_name
 
 
 # }
+
+
+############### deepshell part ###############
+
+function run_shell ()
+{
+
+READLINE=yes
+
+if [ "x$1" = "x-r" ]
+then
+    READLINE=no
+    shift 1
+fi
+
+if [ $# -gt 0 ]
+then
+    [ "$1" = "--help" ] && usage
+    if [ "$1" = "-e" ]
+    then
+	if [ $# -ne 2 ]
+	then
+	    echo "'-e' requires exactly one argument!"
+	    exit
+	fi
+	shift 1
+	IFS=''
+	ARGS=`cat /dev/stdin`
+	if send_cmd "$1 $ARGS"; then
+	    exit 0
+	fi
+    else
+	IFS=' '
+	if send_cmd "$*"; then
+	    exit 0
+	fi
+    fi
+else
+    if [ -t 0 ]
+    then
+	if [ $READLINE = yes ] && type rlwrap >/dev/null 2>&1
+	then
+	    # Note: $TEMP is not conventional; it is left here purely
+	    # for backwards compatibility.
+	    COMMANDS="${TEMP:-${TEMPDIR:-/var/tmp}}/dsish.commands.$$"
+	    echo `send_cmd "commands"` | sed 's/[[:space:]]\+/\n/g' | sort > "$COMMANDS"
+	    rlwrap -f "$COMMANDS" "$0" -r
+	    rm -f "$COMMANDS"
+	    exit
+	fi
+
+	tput setaf 5
+        echo Welcome to the DSWM Interactive SHell.
+        tput sgr0
+        echo -n 'Type '
+        tput setaf 2
+        echo -n commands
+        tput sgr0
+        echo \ for a list of commands.
+
+        IFS='
+'
+	echo -n "> "
+	while read REPLY
+	do
+	    tput bold
+	    tput setaf 2
+	    send_cmd "$REPLY"
+	    tput sgr0
+
+	    echo -n "> "
+	done
+    else
+	while read REPLY
+	do
+	    send_cmd "$REPLY"
+	done
+    fi
+fi
+}
+
+############### /deepshell part ##############
 
 do_test $1 $2
