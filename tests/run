@@ -111,9 +111,6 @@ function do_test() # module test_name
 	"window")
 	    MY_PATH="$window_dir/$2"
 	    ;;
-	"frame")
-	    MY_PATH="$frame_dir/$2"
-	    ;;
 	"screen")
 	    MY_PATH="$screen_dir/$2"
 	    ;;
@@ -127,8 +124,6 @@ function do_test() # module test_name
 	    MY_PATH="$rfr_dir/$2"
 	    ;;
     esac
-
-    MY_PATH="$frame_dir"/$2
 
     if [ -f $MY_PATH ]; then
 	echo "Doing $MY_PATH... "
