@@ -52,7 +52,7 @@ fi
 function wait_result ()
 {
     while :; do
-	RESULT=`xprop -root -f DSWM_COMMAND_RESULT 8s DSWM_COMMAND_RESULT 2>/dev/null`
+	RESULT=`xprop -display $DISPLAY -root -f DSWM_COMMAND_RESULT 8s DSWM_COMMAND_RESULT 2>/dev/null`
 	
 	if echo "$RESULT" | grep -v -q 'not found.$'; then
 	    if ! echo "$RESULT" | grep -q '= $'; then
@@ -65,7 +65,7 @@ function wait_result ()
 	fi
 	sleep $DELAY
     done
-    xprop -root -remove DSWM_COMMAND_RESULT
+    xprop -display $DISPLAY -root -remove DSWM_COMMAND_RESULT
     if echo "$RESULT" | grep -q '= $'
     then
     	return 1
@@ -86,7 +86,7 @@ function send_cmd ()
 	exit
     fi
     
-    xprop -root -f DSWM_COMMAND 8s -set DSWM_COMMAND "$cmd"
+    xprop -display $DISPLAY -root -f DSWM_COMMAND 8s -set DSWM_COMMAND "$cmd"
     
     wait_result
 
