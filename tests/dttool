@@ -24,7 +24,8 @@
 
 MY="$(dirname $0)"
 
-. config.conf
+if [ -f $(dirname $0)/dttool.conf ]; then
+    . dttool.conf
 
 #### INIT ####
 if sleep --version 2>/dev/null | grep -q GNU
@@ -50,11 +51,8 @@ fi
 	"module")
 	    MY_PATH="$module_dir"
 	    ;;
-	"modeline")
-	    MY_PATH="$modeline_dir"
-	    ;;
-	"rfr")
-	    MY_PATH="$rfr_dir"
+	"other")
+	    MY_PATH="$other_dir"
 	    ;;
     esac
 
@@ -106,15 +104,52 @@ function send_cmd ()
 
 function usage ()
 {
-    echo "USAGE:   $0 <section_name>/all/-c [test_name]/commands"
-    echo "         Optionally you can set DISPLAY variable. Ex:"
-    echo "         DISPLAY=:1 $0 section_name test_name"
-    echo "NOTE:    you can use in scripts DSWM commands in format: command_argument"
-    echo "         commands must be \":\" separated"
-    echo "      -c commands(standard syntax) "
-    echo "         also you can use command sleep_X. Script execution sleeps for X seconds"
-    echo "EXAMPLE: put to file in \"tests/frame\" directory next:"
-    echo "         hsplit:exec_xterm:sleep_3:only:delete"
+
+    cat <<EOF
+Usage: $0 [-t/-c/-s/-h] [<section_name>] [<test_name>]
+
+NAME:
+       dttool - simple testing tool for DSWM.
+
+DESCRIPTION:
+       DTTool is a simple testing tool for DSWM, based on Jonathan Moore Liles's
+       stumpish (Stump Interactive Shell). It can do DSWM commands sequences 
+       from the files and as arguments with output to stdout.
+       All tests locates in 6 groups: "frame", "window", "group", "screen", "module"
+       and "other". You can run one test from any group, all group or all
+       available tests.
+       DTTool has a configfile in same directory as "dttool", named dttool.conf
+       in same directory, as script “dttool”. Each group located in directory:
+       <PATH_TO_DTTOOL>/tests/<groupname>1). Tests, which are members of group,
+       named <groupname>, locates in this directory. So, your file with tests
+       will be located in <PATH_TO_DTTOOL>/tests/<groupname>/<yout_test_file_name>
+       ommands separates by ":" symbol, arguments separates from commands by "_"
+       symbol. So, you can create file, named “gnew-gkill” for example, in group
+       "group" with next content: 
+           gnew_test:exec_xterm:delete:gselect_test:gkill
+       after that, you can run it: 
+           ./dttool -t group gnew-gkill
+
+OPTIONS:
+       <NO OPTIONS> execute DSWM command, given as argument
+       -t           do testing group or single test from testing group
+       -s           enter to interactive shell
+       -h           display this help
+
+EXAMPLES:
+       $0 -t group test_1                               # do tests, in file named test_1, which located in group, namged "group"
+       $0 -t frame                                      # do all tests in group "frame"
+       $0 -t all                                        # do all available tests
+       $0 gnew_test                                     # create new DSWM group, named "test"
+       $0 gnew test                                     # create new DSWM group, named "test" (another syntax)
+       $0 gnew_test1:gnew_test2                         # execute 2 commands: "gnew test1" and "gnew test2"
+       $0 gnew test1:gnew test2                         # execute 2 commands: "gnew test1" and "gnew test2" (another syntax)
+       DISPLAY=:1 $0 gnew_test                          # use envirnoment variable DISPLAY, different from default value
+       echo '(group-windows (current-group))' | $0 eval # eval some code on DSWM
+EOF
+
+exit 0
+
 }
 
 function do_commands ()
@@ -259,6 +294,40 @@ function run_shell ()
     fi
 }
 
+function dswm_shell ()
+{
+    if type rlwrap >/dev/null 2>&1; then
+	    # Note: $TEMP is not conventional; it is left here purely
+	    # for backwards compatibility.
+	COMMANDS="${TEMP:-${TEMPDIR:-/var/tmp}}/dttool.commands.$$"
+	echo `send_cmd "commands"` | sed 's/[[:space:]]\+/\n/g' | sort > "$COMMANDS"
+	rlwrap -f "$COMMANDS" "$0" -r
+	rm -f "$COMMANDS"
+	exit
+    fi
+    
+    tput setaf 5
+    echo Welcome to the DSWM Testing Tool\`s interactive shell.
+    tput sgr0
+    echo -n 'Type '
+    tput setaf 2
+    echo -n commands
+    tput sgr0
+    echo \ for a list of commands.
+    
+    IFS='
+'
+    echo -n "> "
+    while read REPLY; do
+	tput bold
+	tput setaf 2
+	send_cmd "$REPLY"
+	tput sgr0
+	echo ""
+	echo -n "> "
+    done
+}
+
 ############### /deepshell part ##############
 
 if [ "$1" == "-t" ]; then
@@ -269,8 +338,16 @@ if [ "$1" == "-t" ]; then
     elif [ ! -z "$2" ] && [ -z "$3" ]; then
 	do_group $2
     fi
+elif [ "$1" == "-s" ]; then
+    dswm_shell
+elif [ "$1" == "-h" ]; then
+    usage
 elif [ ! -z "$1" ]; then
     do_commands $@
 else
     usage
+fi
+
+else
+    echo "no configfile, named $(dirname $0)/dttool.conf"
 fi
