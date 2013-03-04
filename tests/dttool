@@ -162,7 +162,7 @@ function do_commands ()
 	    
 	    if [ ! -z "$(echo $i | grep -e '^sleep*')" ]; then
 		$(echo $i | sed 's/\_/\ /g')
-			    echo "[ done ]"
+			    echo "done"
 	    else
 		
 		run_shell $(echo $i | sed 's/\_/\ /g')
