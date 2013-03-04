@@ -27,7 +27,7 @@
 MY="$(dirname $0)"
 
 if [ -f $(dirname $0)/dttool.conf ]; then
-    . dttool.conf
+    . $(dirname $0)/dttool.conf
 
 if sleep --version 2>/dev/null | grep -q GNU
 then
