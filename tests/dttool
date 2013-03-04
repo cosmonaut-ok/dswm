@@ -22,12 +22,13 @@
 
 ### DSWM Testing Tool.
 
+#### INIT ####
+
 MY="$(dirname $0)"
 
 if [ -f $(dirname $0)/dttool.conf ]; then
     . dttool.conf
 
-#### INIT ####
 if sleep --version 2>/dev/null | grep -q GNU
 then
     DELAY=0.1
@@ -35,26 +36,34 @@ else
     DELAY=1
 fi
 
-    case $2 in
-	"frame")
-	    MY_PATH="$frame_dir"
-	    ;;
-	"group")
-	    MY_PATH="$group_dir"
-	    ;;
-	"window")
-	    MY_PATH="$window_dir"
-	    ;;
-	"screen")
-	    MY_PATH="$screen_dir"
-	    ;;
-	"module")
-	    MY_PATH="$module_dir"
-	    ;;
-	"other")
-	    MY_PATH="$other_dir"
-	    ;;
-    esac
+READLINE=yes
+
+if [ "x$1" = "x-r" ]
+then
+    READLINE=no
+    shift 1
+fi
+
+case $2 in
+    "frame")
+	MY_PATH="$frame_dir"
+	;;
+    "group")
+	MY_PATH="$group_dir"
+	;;
+    "window")
+	MY_PATH="$window_dir"
+	;;
+    "screen")
+	MY_PATH="$screen_dir"
+	;;
+    "module")
+	MY_PATH="$module_dir"
+	;;
+    "other")
+	MY_PATH="$other_dir"
+	;;
+esac
 
 #### /INIT ####
 
@@ -119,12 +128,12 @@ DESCRIPTION:
        and "other". You can run one test from any group, all group or all
        available tests.
        DTTool has a configfile in same directory as "dttool", named dttool.conf
-       in same directory, as script “dttool”. Each group located in directory:
+       in same directory, as script "dttool". Each group located in directory:
        <PATH_TO_DTTOOL>/tests/<groupname>1). Tests, which are members of group,
        named <groupname>, locates in this directory. So, your file with tests
        will be located in <PATH_TO_DTTOOL>/tests/<groupname>/<yout_test_file_name>
        ommands separates by ":" symbol, arguments separates from commands by "_"
-       symbol. So, you can create file, named “gnew-gkill” for example, in group
+       symbol. So, you can create file, named "gnew-gkill" for example, in group
        "group" with next content: 
            gnew_test:exec_xterm:delete:gselect_test:gkill
        after that, you can run it: 
