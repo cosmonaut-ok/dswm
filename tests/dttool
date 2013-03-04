@@ -106,14 +106,50 @@ function send_cmd ()
 
 function usage ()
 {
-    echo "USAGE:   $0 <section_name>/all [test_name]"
+    echo "USAGE:   $0 <section_name>/all/-c [test_name]/commands"
     echo "         Optionally you can set DISPLAY variable. Ex:"
     echo "         DISPLAY=:1 $0 section_name test_name"
     echo "NOTE:    you can use in scripts DSWM commands in format: command_argument"
-    echo "         commands must be \";\" separated"
+    echo "         commands must be \":\" separated"
+    echo "      -c commands(standard syntax) "
     echo "         also you can use command sleep_X. Script execution sleeps for X seconds"
     echo "EXAMPLE: put to file in \"tests/frame\" directory next:"
-    echo "         hsplit;exec_xterm;sleep_3;only;delete"
+    echo "         hsplit:exec_xterm:sleep_3:only:delete"
+}
+
+function do_commands ()
+{
+    echo $1
+    for i in $(echo "$1" | sed 's/\:/\ /g'); do
+	if [ ! -z "$(echo $i | grep -E '^\#')" ]; then
+	    break
+	else
+	    echo -n "    >>> Doing $i... "
+	    
+	    if [ ! -z "$(echo $i | grep -e '^sleep*')" ]; then
+		$(echo $i | sed 's/\_/\ /g')
+			    echo "[ done ]"
+	    else
+		
+		run_shell $(echo $i | sed 's/\_/\ /g')
+		
+		if [ "$DEBUG" == "1" ]; then
+		    echo ""
+		    run_shell copy-unhandled-error
+		fi
+		
+		if [ $? == 0 ]; then
+		    echo "done"
+		else
+		    echo "Failed!"
+		fi
+		
+		if [ "$STEP" != "" ]; then
+		    sleep $STEP
+		fi
+	    fi
+	fi
+    done
 }
 
 function do_test() # module test_name
@@ -124,36 +160,7 @@ function do_test() # module test_name
 	    if [ ! -z "$string" ] && [ -z "$(echo $string | grep -E '^\#')" ]; then
 		echo "  >> DOING $string..."
 		
-		for i in $(echo $string | sed 's/\;/\ /g'); do
-		    if [ ! -z "$(echo $i | grep -E '^\#')" ]; then
-			break
-		    else
-			echo -n "    >>> Doing $i... "
-			
-			if [ ! -z "$(echo $i | grep -e '^sleep*')" ]; then
-			    $(echo $i | sed 's/\_/\ /g')
-			    echo "[ done ]"
-			else
-			    
-			    run_shell $(echo $i | sed 's/\_/\ /g')
-			    
-			    if [ "$DEBUG" == "1" ]; then
-				echo ""
-				run_shell copy-unhandled-error
-			    fi
-			    
-			    if [ $? == 0 ]; then
-				echo "done"
-			    else
-				echo "Failed!"
-			    fi
-			    
-			    if [ "$STEP" != "" ]; then
-				sleep $STEP
-			    fi
-			fi
-		    fi
-		done
+		do_commands $string
 		
 		echo "  >> DONE"
 	    fi
@@ -255,7 +262,9 @@ function run_shell ()
 
 ############### /deepshell part ##############
 
-if [ "$1" == "all" ]; then
+if [ "$1" == "-c" ]; then
+    do_commands $2
+elif [ "$1" == "all" ]; then
     do_all
 elif [ ! -z "$1" ] && [ ! -z "$2" ]; then
     do_test $1 $2
