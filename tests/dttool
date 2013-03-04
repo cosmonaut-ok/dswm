@@ -1,0 +1,266 @@
+#!/bin/bash
+
+# Copyright (C) 2007 Jonathan Moore Liles
+# Copyright (C) 2013 Alexander aka 'CosmonauT' Vynnyk
+#
+# Maintainer: Alexander aka 'CosmonauT' Vynnyk
+#
+# DSWM Test Tool is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# DSWM Test Tool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, write to
+# the Free Software Foundation, Inc., 59 Temple Place, Suite 330,
+# Boston, MA 02111-1307 USA
+
+### DSWM Testing Tool.
+
+MY="$(dirname $0)"
+
+. config.conf
+
+#### INIT ####
+if sleep --version 2>/dev/null | grep -q GNU
+then
+    DELAY=0.1
+else
+    DELAY=1
+fi
+
+    case $1 in
+	"frame")
+	    MY_PATH="$frame_dir"
+	    ;;
+	"group")
+	    MY_PATH="$group_dir"
+	    ;;
+	"window")
+	    MY_PATH="$window_dir"
+	    ;;
+	"screen")
+	    MY_PATH="$screen_dir"
+	    ;;
+	"module")
+	    MY_PATH="$module_dir"
+	    ;;
+	"modeline")
+	    MY_PATH="$modeline_dir"
+	    ;;
+	"rfr")
+	    MY_PATH="$rfr_dir"
+	    ;;
+    esac
+
+#### /INIT ####
+
+function wait_result ()
+{
+    while :; do
+	RESULT=`xprop -display $DISPLAY -root -f DSWM_COMMAND_RESULT 8s DSWM_COMMAND_RESULT 2>/dev/null`
+	
+	if echo "$RESULT" | grep -v -q 'not found.$'; then
+	    if ! echo "$RESULT" | grep -q '= $'; then
+		echo ""
+		echo -n "    }}} Execution INFO: "
+		echo $RESULT | sed 's/[^"]*"//;s/"$//;s/\\n/\n/g;s/\\"/"/g;s/\n\+$//;
+	    		s/\^[*[:digit:]]\{2\}//g;s/\^[Bbn]//g;'
+		echo -n "    }}} "
+	    fi
+	    return 1
+	fi
+	sleep $DELAY
+    done
+
+    xprop -display $DISPLAY -root -remove DSWM_COMMAND_RESULT
+
+    if [ ! -z "$(echo "$RESULT" | grep -q '= $')" ]; then
+    	return 1
+    fi
+
+    echo $RESULT | sed 's/[^"]*"//;s/"$//;s/\\n/\n/g;s/\\"/"/g;s/\n\+$//;
+			s/\^[*[:digit:]]\{2\}//g;s/\^[Bbn]//g;'
+}
+
+function send_cmd ()
+{
+    local cmd="$1"
+    
+    if [ "$cmd" = "dswm-quit" ]; then
+	cmd=quit
+    elif [ "$cmd" = "quit" ]; then
+	exit 0
+    fi
+    
+    xprop -display $DISPLAY -root -f DSWM_COMMAND 8s -set DSWM_COMMAND "$cmd"
+    
+    wait_result
+
+}
+
+function usage ()
+{
+    echo "USAGE:   $0 <section_name>/all [test_name]"
+    echo "         Optionally you can set DISPLAY variable. Ex:"
+    echo "         DISPLAY=:1 $0 section_name test_name"
+    echo "NOTE:    you can use in scripts DSWM commands in format: command_argument"
+    echo "         commands must be \";\" separated"
+    echo "         also you can use command sleep_X. Script execution sleeps for X seconds"
+    echo "EXAMPLE: put to file in \"tests/frame\" directory next:"
+    echo "         hsplit;exec_xterm;sleep_3;only;delete"
+}
+
+function do_test() # module test_name
+{
+    if [ -f "$MY_PATH/$2" ]; then
+	echo "> DOING test group $MY_PATH/$2..."
+	while read string; do
+	    if [ ! -z "$string" ] && [ -z "$(echo $string | grep -E '^\#')" ]; then
+		echo "  >> DOING $string..."
+		
+		for i in $(echo $string | sed 's/\;/\ /g'); do
+		    if [ ! -z "$(echo $i | grep -E '^\#')" ]; then
+			break
+		    else
+			echo -n "    >>> Doing $i... "
+			
+			if [ ! -z "$(echo $i | grep -e '^sleep*')" ]; then
+			    $(echo $i | sed 's/\_/\ /g')
+			    echo "[ done ]"
+			else
+			    
+			    run_shell $(echo $i | sed 's/\_/\ /g')
+			    
+			    if [ "$DEBUG" == "1" ]; then
+				echo ""
+				run_shell copy-unhandled-error
+			    fi
+			    
+			    if [ $? == 0 ]; then
+				echo "done"
+			    else
+				echo "Failed!"
+			    fi
+			    
+			    if [ "$STEP" != "" ]; then
+				sleep $STEP
+			    fi
+			fi
+		    fi
+		done
+		
+		echo "  >> DONE"
+	    fi
+	done < $MY_PATH/$2
+	
+	echo "> [ DONE ]"
+	echo ""
+    else
+	echo "No file, named $MY_PATH/$2"
+    fi
+    
+}
+
+function do_group()
+{
+    for i in $(find $MY_PATH -type f); do
+	do_test $1 $(basename $i)
+    done
+
+}
+
+function do_all()
+{
+
+    for i in $(find $TESTDIR -type d); do
+	$0 $(basename $i)
+    done
+    
+}
+
+function run_shell ()
+{
+    
+    READLINE=yes
+    
+    if [ "x$1" = "x-r" ]; then
+	READLINE=no
+	shift 1
+    fi
+    
+    if [ $# -gt 0 ]; then
+	[ "$1" = "--help" ] && usage
+	if [ "$1" = "-e" ]; then
+	    if [ $# -ne 2 ]; then
+		echo "'-e' requires exactly one argument!"
+		exit
+	    fi
+	    shift 1
+	    IFS=''
+	    ARGS=`cat /dev/stdin`
+	    if send_cmd "$1 $ARGS"; then
+		exit 0
+	    fi
+	else
+	    IFS=' '
+	    if send_cmd "$*"; then
+		exit 0
+	    fi
+	fi
+    else
+	if [ -t 0 ]; then
+	    if [ $READLINE = yes ] && type rlwrap >/dev/null 2>&1; then
+	    # Note: $TEMP is not conventional; it is left here purely
+	    # for backwards compatibility.
+		COMMANDS="${TEMP:-${TEMPDIR:-/var/tmp}}/dsish.commands.$$"
+		echo `send_cmd "commands"` | sed 's/[[:space:]]\+/\n/g' | sort > "$COMMANDS"
+		rlwrap -f "$COMMANDS" "$0" -r
+		rm -f "$COMMANDS"
+		exit
+	    fi
+	    
+	    tput setaf 5
+            echo Welcome to the DSWM Interactive SHell.
+            tput sgr0
+            echo -n 'Type '
+            tput setaf 2
+            echo -n commands
+            tput sgr0
+            echo \ for a list of commands.
+	    
+            IFS='
+'
+	    echo -n "> "
+	    while read REPLY; do
+		tput bold
+		tput setaf 2
+		send_cmd "$REPLY"
+		tput sgr0
+		
+		echo -n "> "
+	    done
+	else
+	    while read REPLY; do
+		send_cmd "$REPLY"
+	    done
+	fi
+    fi
+}
+
+############### /deepshell part ##############
+
+if [ "$1" == "all" ]; then
+    do_all
+elif [ ! -z "$1" ] && [ ! -z "$2" ]; then
+    do_test $1 $2
+elif [ ! -z "$1" ] && [ -z "$2" ]; then
+    do_group $1
+else
+    usage
+fi
