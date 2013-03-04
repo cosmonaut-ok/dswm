@@ -1,0 +1,4 @@
+## Test, is there possible to delete all groups except scratchpad
+## We really don't need it
+gselect_Main:gkill:gkill:gkill
+gnew_.test:gselect_Main:gkill:gkill:gkill:gnew_Main:gselect_.test:gkill

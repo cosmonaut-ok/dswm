@@ -341,9 +341,9 @@ function dswm_shell ()
 
 if [ "$1" == "-t" ]; then
     if [ "$2" == "all" ]; then
-	echo do_all
+	do_all
     elif [ ! -z "$2" ] && [ ! -z "$3" ]; then
-	echo do_test $2 $3
+	do_test $2 $3
     elif [ ! -z "$2" ] && [ -z "$3" ]; then
 	do_group $2
     fi
