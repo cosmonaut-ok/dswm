@@ -1,0 +1,15 @@
+gselect_scratchpad
+gnew_test;gkill
+gnew-float_test;gkill
+gnewbg_test;gselect_test;gkill
+gnewbg-float_test;gselect_test;gkill
+gselect_Main;exec_xterm;sleep_2;gnew-with-window_test;delete;gkill
+gselect_Main;exec_xterm;sleep_2gnew-float-with-window_test;delete;gkill
+gselect_Main;exec_xterm;sleep_2;mark;gnew-with-marked_test;delete;gkill
+gselect_Main;exec_xterm;sleep_2;mark;gnew-float-with-marked_test;delete;gkill
+gnew_test;exec_xterm;sleep_2;gkill
+gnew_test1;gnew_test2;gselect_test1;exec_xterm;sleep_2;gselect_test2;exec_xterm;sleep_2;gmerge_test1;delete;delete;gkill;gselect_test1;gkill
+gnew_test1;gnew_test2;gprev;gnext;gselect_Main;gother
+gnew_test1;gnew_test2;exec_xterm;sleep_2;gprev-with-window;gnext-with-window;delete;gkill;gselect_test2;gkill
+gnew_test1;gnew_test2;exec_xterm;sleep_2;gmove_test1;gselect_test1;gselect-with-window_test2;delete;gkill;gselect_test1;gkill
+gnew_test1;gnew_test2;exec_xterm;sleep_2;mark;gprev-with-marked;gnext-with-marked;delete;gkill;gselect_test2;gkill
