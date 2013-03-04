@@ -34,7 +34,7 @@ else
     DELAY=1
 fi
 
-    case $1 in
+    case $2 in
 	"frame")
 	    MY_PATH="$frame_dir"
 	    ;;
@@ -119,8 +119,7 @@ function usage ()
 
 function do_commands ()
 {
-    echo $1
-    for i in $(echo "$1" | sed 's/\:/\ /g'); do
+    for i in $(echo "$@" | sed 's/\ /\_/g' | sed 's/\:/\ /g'); do
 	if [ ! -z "$(echo $i | grep -E '^\#')" ]; then
 	    break
 	else
@@ -262,14 +261,16 @@ function run_shell ()
 
 ############### /deepshell part ##############
 
-if [ "$1" == "-c" ]; then
-    do_commands $2
-elif [ "$1" == "all" ]; then
-    do_all
-elif [ ! -z "$1" ] && [ ! -z "$2" ]; then
-    do_test $1 $2
-elif [ ! -z "$1" ] && [ -z "$2" ]; then
-    do_group $1
+if [ "$1" == "-t" ]; then
+    if [ "$2" == "all" ]; then
+	echo do_all
+    elif [ ! -z "$2" ] && [ ! -z "$3" ]; then
+	echo do_test $2 $3
+    elif [ ! -z "$2" ] && [ -z "$3" ]; then
+	do_group $2
+    fi
+elif [ ! -z "$1" ]; then
+    do_commands $@
 else
     usage
 fi

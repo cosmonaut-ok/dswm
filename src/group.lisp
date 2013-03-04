@@ -547,7 +547,7 @@ to the next group."
          ;; If no "visible" group is found, try with all groups
          (to-group (or (next-group dead-group (non-hidden-groups groups))
                        (next-group dead-group groups))))
-    (if to-group
+    (if (and to-group (not (eq (group-number to-group) 0))) ;; to-group must not be scratchpad!
         (if (or (not %interactivep%)
             (not (group-windows dead-group))
             (y-or-n-p
