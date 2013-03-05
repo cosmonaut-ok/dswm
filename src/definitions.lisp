@@ -38,7 +38,7 @@
 	  *destroy-window-hook*
 	  *display*
 	  *editor-bindings*
-	  *emacs*
+	  *editor*
 	  *event-processing-hook*
 	  *executing-dswm-command*
 	  *focus-frame-hook*
@@ -167,9 +167,9 @@ A short for (concatenate 'string foo bar)."
   (let* ((xdg-homedir (getenv "XDG_CONFIG_HOME"))
 	 (directory
 	  (cond ((not (null *data-dir*))
-		 (make-pathname :directory (append (list :absolute *data-dir*) (ppcre:split "\\/+" subdir))))
+		 (make-pathname :directory (append (list :absolute) (ppcre:split "\\/+" *data-dir*) (ppcre:split "\\/+" subdir))))
 		((not (null xdg-homedir))
-		 (make-pathname :directory (append (list :absolute xdg-homedir) (ppcre:split "\\/+" subdir))))
+		 (make-pathname :directory (append (list :absolute) (ppcre:split "\\/+" xdg-homedir) (ppcre:split "\\/+" subdir))))
 		((null subdir)
 		 (make-pathname :directory
 				(append
@@ -441,8 +441,8 @@ current group.")
 (defvar *browser* "conkeror"
   "Default web browser")
 
-(defvar *emacs* "emacs"
-  "Default emacs implementation")
+(defvar *editor* "emacs"
+  "Default editor")
 
 (defvar *maxsize-border-width* 1
   "The width in pixels given to the borders of windows with maxsize or ratio hints.")

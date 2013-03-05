@@ -38,7 +38,7 @@
 	  ratwarp
 	  ratrelwarp
 	  ratclick
-	  emacs
+	  editor
 	  browser
 	  terminal))
 
@@ -352,10 +352,13 @@ current frame instead of switching to the window."
   #-asdf (message "^B^1*Sorry, DSWM can only be reloaded with asdf (for now.)")
   #+asdf (message "Reloading DSWM...^B^2*Done^n."))
 
-(defcommand emacs () ()
+(defcommand editor () ()
   "Start emacs unless it is already running, in which case focus it."
   ;; Working for emacs and xemacs. FIXME: do for climacs
-  (run-or-raise *emacs* '(:class "Emacs")))
+  (let ((ed (coerce *editor* 'list)))
+    (eval `(run-or-raise ,*editor*
+			 '(:class ,(coerce (cons (char-upcase (car ed))
+						 (cdr ed)) 'string))))))
 
 (defcommand browser () ()
   "Start default browser, defined in *browser* variable unless it is already running, in which case focus it."

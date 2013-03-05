@@ -43,7 +43,7 @@
 
 ;; Add default modules directories
 (add-modules-dir "@prefix@/share/dswm/modules/")
-(push (data-dir "modules.d") asdf:*central-registry*) ;; TODO: resolve issue with "/". It's bad style
+(push (data-dir "modules.d") asdf:*central-registry*) ;; FIXME: it set statical value, when compilling!
 
 (defun modules-list ()
   "Return a list of the available modules."
@@ -59,20 +59,21 @@
 (defun find-system-file (name)
   "Find module from list avaliable modules"
   (labels ((system-p (dir-list name)
-	     (let ((system
-		    (make-pathname :directory (list :absolute (princ-to-string (car dir-list)) name) ;; TODO: resolve issue with "/". It's bad style
-				   :name name :type "asd")))
-	       (cond ((null dir-list) nil)
-		     ((file-exists-p system) system)
-		     (t (system-p (cdr dir-list) name))))))
-    (system-p asdf:*central-registry* name)))
+		     (let ((system
+			    (make-pathname :directory (append (list :absolute)
+							      (remove "" (ppcre:split "\\/+" (princ-to-string (car dir-list))) :test #'equal) (list name)) ;; TODO: resolve issue with "/". It's bad style
+			    :name name :type "asd")))
+		       (cond ((null dir-list) nil)
+			     ((file-exists-p system) system)
+			     (t (system-p (cdr dir-list) name))))))
+	  (system-p asdf:*central-registry* name)))
 
-(defcommand load-module (name &optional force-p) ((:module "Input module name: "))
-  "Loads the contributed module with the given NAME."
+(defcommand load-module (name &optional force-p) ((:module "Input module name: ")) ;; TODO: rewrite. Not passing test 'module 1'
+  "Loads the contributed module with the given NAME."                              ;; Maybe, because incorrect 'find-system-file' function
   (let ((dir (dirname (find-system-file name))))
     (if (or (not (member name *loaded-modules-list* :test 'equal)) force-p)
 	(progn
-	  (and (push dir asdf:*central-registry*) (require name))
+	  (and (push (string-as-directory dir) asdf:*central-registry*) (require name))
 	  (push name *loaded-modules-list*)
 	  (format nil "Module ~a loaded successfully" name))
       (message "Module already loaded"))))
