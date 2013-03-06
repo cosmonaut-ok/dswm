@@ -42,3 +42,7 @@ gprev-with-window and move it to module 'advanced-commands'
 
 USE standard modules: s-bindings, advanded-commands, ql4ds. And use script deepshell as standard shell interface to 
 DSWM
+
+
+Make test for setting and unsetting font
+

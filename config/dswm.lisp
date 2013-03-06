@@ -95,6 +95,10 @@
 
 ;;;; Message window font
 ;; May to be present in all popular linux systems
+;;;; Because clisp doesn`t support UTF8 by default
+#+clisp
+(set-font "-*-fixed-medium-r-*-*-14-*-*-*-*-*-*")
+#-clisp
 (set-font "-*-fixed-medium-r-*-*-14-*-*-*-*-*-iso10646-1")
 
 ;;;; Loading some external modules by default
