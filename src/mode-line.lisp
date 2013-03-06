@@ -549,7 +549,7 @@ critical."
 (defun set-mode-line-any-color (val color)
   "Set any mode-line color for the specified screen"
   (and
-   (set (intern (concat "*MODE-LINE-" (princ-to-string val) "-COLOR*")) color)
+   (setf (symbol-value (intern (concat "*MODE-LINE-" (princ-to-string val) "-COLOR*"))) color)
    (maybe-refresh-mode-line (current-screen) (current-head))))
    
 (defun set-mode-line-fg-color (color)

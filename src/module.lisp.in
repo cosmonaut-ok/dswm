@@ -41,9 +41,10 @@
   "Add the location of the contrib modules"
   (push (string-as-directory dir) asdf:*central-registry*))
 
-;; Add default modules directories
-(add-modules-dir "@prefix@/share/dswm/modules/")
-(push (data-dir "modules.d") asdf:*central-registry*) ;; FIXME: it set statical value, when compilling!
+;; TODO: remake!!!!!
+;; ;; Add default modules directories
+;; (add-modules-dir "@prefix@/share/dswm/modules/")
+;; (add-modules-dir (princ-to-string (data-dir)) "modules.d") ;; FIXME: it set statical value, when compilling!
 
 (defun modules-list ()
   "Return a list of the available modules."
@@ -54,15 +55,17 @@
 	  (when (and (not (member local-name mod-list :test 'equal))
 		     (file-exists-p (make-pathname :defaults subpath :name local-name :type "asd")))
 	    (push local-name mod-list)))))
-    (reverse mod-list)))
+    (sort mod-list #'string-lessp)))
 
 (defun find-system-file (name)
   "Find module from list avaliable modules"
   (labels ((system-p (dir-list name)
 		     (let ((system
-			    (make-pathname :directory (append (list :absolute)
-							      (remove "" (ppcre:split "\\/+" (princ-to-string (car dir-list))) :test #'equal) (list name)) ;; TODO: resolve issue with "/". It's bad style
-			    :name name :type "asd")))
+			    (make-pathname :directory
+                                           (cons :absolute
+                                                 (string-to-path-list
+                                                  (princ-to-string (car dir-list)) name))
+                                           :name name :type "asd")))
 		       (cond ((null dir-list) nil)
 			     ((file-exists-p system) system)
 			     (t (system-p (cdr dir-list) name))))))

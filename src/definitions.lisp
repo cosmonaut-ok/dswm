@@ -160,6 +160,10 @@ A short for (concatenate 'string foo bar)."
   (or #+:clisp (ext:getenv (string var))
       #+:sbcl (sb-unix::posix-getenv (string var))))
 
+(defun string-to-path-list (&rest strings)
+  "Convert string to list for `make-pathname` function"
+  (mapcan #'(lambda (x) (remove "" (ppcre:split "\\/+" x) :test 'equal)) strings))
+
 (defvar *data-dir* nil
   "Set default data directory")
 
@@ -167,39 +171,42 @@ A short for (concatenate 'string foo bar)."
   (let* ((xdg-homedir (getenv "XDG_CONFIG_HOME"))
 	 (directory
 	  (cond ((not (null *data-dir*))
-		 (make-pathname :directory (append (list :absolute) (ppcre:split "\\/+" *data-dir*) (ppcre:split "\\/+" subdir))))
+		 (make-pathname
+                  :directory (cons :absolute (string-to-path-list *data-dir* subdir))))
 		((not (null xdg-homedir))
-		 (make-pathname :directory (append (list :absolute) (ppcre:split "\\/+" xdg-homedir) (ppcre:split "\\/+" subdir))))
-		((null subdir)
-		 (make-pathname :directory
-				(append
-				 (pathname-directory (user-homedir-pathname))
-				 (list ".config" "dswm"))))
+		 (make-pathname
+                  :directory (cons :absolute (string-to-path-list xdg-homedir subdir))))
 		(t
-		 (make-pathname :directory
-				(append
-				 (pathname-directory (user-homedir-pathname))
-				 (append (list ".config" "dswm") (ppcre:split "\\/+" subdir))))))))
+		 (make-pathname
+                  :directory (cons :absolute
+                                   (string-to-path-list (princ-to-string (user-homedir-pathname))
+                                                        ".config" "dswm" subdir)))))))
     directory))
 
 (defun data-dir-file (name &optional type subdir)
   "Return a pathname inside dswm's data dir with the specified name and type"
   (if (not (null type))
-      (make-pathname :name name :type type :defaults (data-dir subdir))
-    (make-pathname :name name :defaults (data-dir subdir))))
+      (make-pathname :directory (cons :absolute
+				      (string-to-path-list
+				       (princ-to-string (data-dir subdir))))
+		     :name name :type type)
+    (make-pathname :directory (cons :absolute
+				    (string-to-path-list
+				     (princ-to-string (data-dir subdir))))
+		   :name name)))
 
 (defun module-data-dir-file (module name &optional type subdir)
   "Return a pathname inside dswm's module data dir with the specified name and type"
-  (let ((dir-path (concat (princ-to-string (data-dir)) "/modules.d/" module subdir))) ;; TODO: remove 'concat'. Make path in good style
+  (let ((dir (string-to-path-list (princ-to-string (data-dir)) "modules.d" module subdir)))
     (if (not (null type))
-	(make-pathname :name name :type type :defaults dir-path)
-	(make-pathname :name name :defaults dir-path))))
+	(make-pathname :directory (list :absolute dir) :name name :type type)
+      (make-pathname :directory (list :absolute dir) :name name))))
 
 (defun etc-dirs (&optional subdir)
   (let ((xdg-etc-dirs (ppcre:split "\\:+" (getenv "XDG_CONFIG_DIRS"))))
     (if (null xdg-etc-dirs)
-	(list (make-pathname :directory (append (list :absolute "etc" "xdg" "dss" "dswm") (ppcre:split "\\/+" subdir))))
-	(mapcar #'(lambda (x) (make-pathname :directory (append (list :absolute) (ppcre:split "\\/+" x) (ppcre:split "\\/+" subdir)))) xdg-etc-dirs))))
+	(list (make-pathname :directory (cons :absolute (string-to-path-list "etc" "xdg" "dss" "dswm" subdir))))
+      (mapcar #'(lambda (x) (make-pathname :directory (cons :absolute (string-to-path-list x subdir)))) xdg-etc-dirs))))
 
 (defun find-etc-file (name &optional type subdir)
   (let* ((etc-pathnames
