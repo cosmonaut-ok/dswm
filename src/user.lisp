@@ -176,7 +176,7 @@ with base. Automagically update the cache."
 ;;   "Return the list of files in ")
 
 (defun shell-program ()
-  (let ((shell (or *shell-program* (getenv "SHELL") (which "sh"))))
+  (let ((shell (or *shell-program* (getenv "SHELL") (princ-to-string (which "sh")))))
     (if-null shell
 	     (error "No shell found and it was not defined in *shell-program* variable")
 	     (princ-to-string shell))))
@@ -359,20 +359,25 @@ current frame instead of switching to the window."
   #+asdf (message "Reloading DSWM...^B^2*Done^n."))
 
 (defcommand editor () ()
-  "Start emacs unless it is already running, in which case focus it."
-  ;; Working for emacs and xemacs. FIXME: do for climacs
-  (let ((ed (coerce *editor* 'list)))
-    (eval `(run-or-raise ,*editor*
-			 '(:class ,(coerce (cons (char-upcase (car ed))
-						 (cdr ed)) 'string))))))
+  (let* ((ed (or
+	      *editor*
+	      (getenv "EDITOR")
+	      (princ-to-string (which "emacs"))))
+	 (ed-coerce (coerce ed 'list))
+	 (ed-class 
+	  (coerce (cons (char-upcase (car ed-coerce)) (cdr ed-coerce)) 'string)))
+    (if-null ed
+	     (error "No editor found, and it was not defined in *browser* variable")
+	     (run-or-raise ed (list :class ed-class)))))
+
 
 (defcommand browser (&optional url) ()
   "Start default browser, defined in *browser* variable unless it is already running, in which case focus it."
   (let* ((br (or
 	      *browser*
 	      (getenv "BROWSER")
-	      (which "conkeror")
-	      (which "firefox")))
+	      (princ-to-string (which "conkeror"))
+	      (princ-to-string (which "firefox"))))
 	 (br-coerce (coerce br 'list))
 	 (br-class 
 	  (coerce (cons (char-upcase (car br-coerce)) (cdr br-coerce)) 'string)))
@@ -384,7 +389,7 @@ current frame instead of switching to the window."
 
 (defcommand terminal (&optional commans) ()
   "Run default terminal"
-  (let ((term (or *terminal* (getenv "TERM") (which "xterm"))))
+  (let ((term (or *terminal* (getenv "TERM") (princ-to-string (which "xterm")))))
     (if-null term
 	     (error "No terminal emulator found, and it was not defined in variable *terminal*")
 	     (run-shell-commands term))))
