@@ -1,3 +1,8 @@
+0.1
+added 'which' function
+
+0.0.5
+
 gsave files moved to ~/.dswm.d/save.d/
 
 data-dir -> data-dir &optional subdir

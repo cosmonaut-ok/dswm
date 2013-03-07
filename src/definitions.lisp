@@ -445,7 +445,7 @@ current group.")
 (defvar *terminal* "xterm"
   "Default terminal emulator")
 
-(defvar *browser* "conkeror"
+(defvar *browser* nil
   "Default web browser")
 
 (defvar *editor* "emacs"

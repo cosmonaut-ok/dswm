@@ -82,6 +82,7 @@
 	  split-string
 	  string-as-directory
 	  walk-directory
+	  which
 	  with-focus
 	  with-restarts-menu))
  
@@ -735,3 +736,21 @@ display a message whenever you switch frames:
     (sb-posix:lstat target)))
   #-sbcl
   (error "Not implemented"))
+
+(defun which (file)
+  (let ((pathlist (ppcre:split "\\:+" (getenv "PATH"))))
+    (labels
+     ((car-exists-p (list)
+		    (cond ((null list)
+			   nil)
+			  ((file-exists-p
+			    (make-pathname :directory
+					   (cons :absolute
+						 (string-to-path-list (car list)))
+					   :name file))
+			   (make-pathname :directory
+					  (cons :absolute
+						(string-to-path-list (car list)))
+					  :name file))
+			  (t (car-exists-p (cdr list))))))
+     (car-exists-p pathlist))))

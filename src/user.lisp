@@ -360,12 +360,20 @@ current frame instead of switching to the window."
 			 '(:class ,(coerce (cons (char-upcase (car ed))
 						 (cdr ed)) 'string))))))
 
-(defcommand browser () ()
+(defcommand browser (&optional url) ()
   "Start default browser, defined in *browser* variable unless it is already running, in which case focus it."
-  (let ((br (coerce *browser* 'list)))
-    (eval `(run-or-raise ,*browser*
-			 '(:class ,(coerce (cons (char-upcase (car br))
-						 (cdr br)) 'string))))))
+  (let* ((br (or
+	      *browser*
+	      (getenv "BROWSER")
+	      (which "conkeror")
+	      (which "firefox")))
+	 (br-coerce (coerce br 'list))
+	 (br-class 
+	  (coerce (cons (char-upcase (car br-coerce)) (cdr br-coerce)) 'string)))
+    (if-not-null url
+		 (run-shell-command (concat br url))
+		 (run-or-raise br (list :class br-class)))))
+
 
 (defcommand terminal () ()
   "Run default terminal"
