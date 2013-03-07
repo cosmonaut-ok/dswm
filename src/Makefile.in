@@ -1,7 +1,7 @@
 LISP=@LISP_PROGRAM@
 
 sbcl_BUILDOPTS=--load ./make-image.lisp
-clisp_BUILDOPTS=-K full -i /etc/common-lisp/gentoo-init.lisp -on-error exit < ./make-image.lisp
+clisp_BUILDOPTS=-K full -C -on-error exit < ./make-image.lisp
 ccl_BUILDOPTS=--load ./make-image.lisp
 ecl_BUILDOPTS=-shell ./make-image.lisp
 lw_BUILDOPTS=-build ./make-image.lisp
