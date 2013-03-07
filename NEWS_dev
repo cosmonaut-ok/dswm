@@ -1,5 +1,6 @@
 0.1
 added 'which' function
+increased speed of 'programs-in-path' function working (first start of 'exec' command, which uses this function was really painful)
 
 0.0.5
 

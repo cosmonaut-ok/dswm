@@ -128,13 +128,13 @@ seperated by a colon."
       for dir = (probe-path p)
       when dir
       nconc (loop
-               for file in (union
-                            ;; SBCL doesn't match files with types if type
-                            ;; is not wild and CLISP won't match files
-                            ;; without a type when type is wild. So cover all the bases
-                            (directory-no-deref (merge-pathnames (make-pathname :name :wild) dir))
-                            (directory-no-deref (merge-pathnames (make-pathname :name :wild :type :wild) dir))
-                            :test 'equal)
+               for file in 
+	       ;; SBCL doesn't match files with types if type
+	       ;; is not wild and CLISP won't match files
+	       ;; without a type when type is wild. So cover all the bases
+	       ;; TODO: check other compilers
+	       #+clisp (directory-no-deref (merge-pathnames (make-pathname :name :wild) dir))
+	       #-clisp (directory-no-deref (merge-pathnames (make-pathname :name :wild :type :wild) dir))
                for namestring = (file-namestring file)
                when (pathname-is-executable-p file)
                collect (if full-path
@@ -175,6 +175,12 @@ with base. Automagically update the cache."
 ;; (defun complete-filename (base)
 ;;   "Return the list of files in ")
 
+(defun shell-program ()
+  (let ((shell (or *shell-program* (getenv "SHELL") (which "sh"))))
+    (if-null shell
+	     (error "No shell found and it was not defined in *shell-program* variable")
+	     (princ-to-string shell))))
+
 (defcommand run-shell-command (cmd &optional collect-output-p)
   ((:shell "Input command to run program: "))
   "Run the specified shell command. If @var{collect-output-p} is @code{T}
@@ -182,8 +188,8 @@ then run the command synchonously and collect the output. Be
 careful. If the shell command doesn't return, it will hang DSWM. In
 such a case, kill the shell command to resume DSWM."
   (if collect-output-p
-      (run-prog-collect-output *shell-program* "-c" cmd)
-      (run-prog *shell-program* :args (list "-c" cmd) :wait nil)))
+      (run-prog-collect-output (shell-program) "-c" cmd)
+    (run-prog (shell-program) :args (list "-c" cmd) :wait nil)))
 
 (defcommand-alias exec run-shell-command)
 
@@ -370,14 +376,18 @@ current frame instead of switching to the window."
 	 (br-coerce (coerce br 'list))
 	 (br-class 
 	  (coerce (cons (char-upcase (car br-coerce)) (cdr br-coerce)) 'string)))
-    (if-not-null url
-		 (run-shell-command (concat br url))
-		 (run-or-raise br (list :class br-class)))))
+    (if-null br
+	     (error "No browser found, and it was not defined in *browser* variable")
+	     (if-not-null url
+			  (run-shell-command (concat br url))
+			  (run-or-raise br (list :class br-class))))))
 
-
-(defcommand terminal () ()
+(defcommand terminal (&optional commans) ()
   "Run default terminal"
-  (run-shell-commands *terminal*))
+  (let ((term (or *terminal* (getenv "TERM") (which "xterm"))))
+    (if-null term
+	     (error "No terminal emulator found, and it was not defined in variable *terminal*")
+	     (run-shell-commands term))))
 
 (defcommand lastcmd () ()
   "Repeat last inserted command"

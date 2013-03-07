@@ -439,10 +439,10 @@ current group.")
 (defvar *display* nil
   "The display for the X server")
 
-(defvar *shell-program* "/bin/sh"
+(defvar *shell-program* nil
   "The shell program used by @code{run-shell-command}.")
 
-(defvar *terminal* "xterm"
+(defvar *terminal* nil
   "Default terminal emulator")
 
 (defvar *browser* nil

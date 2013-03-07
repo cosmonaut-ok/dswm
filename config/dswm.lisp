@@ -21,10 +21,13 @@
 ;; (set-prefix-key (kbd "C-z"))
 
 ;;;; Terminal emulator program (default xterm)
-;; (setf *terminal* "urxvt")
+;; (setf *terminal* "xterm")
 
 ;;;; Web Browser (default conkeror)
 ;; (setf *browser* "firefox")
+
+;;;; Default shell program
+;; (setf *shell-program* "/bin/sh")
 
 ;;;; Emacs implementation (default emacs, can be used xemacs, climacs etc)
 ;; (setf *emacs* "xemacs")
