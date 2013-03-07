@@ -359,6 +359,7 @@ current frame instead of switching to the window."
   #+asdf (message "Reloading DSWM...^B^2*Done^n."))
 
 (defcommand editor () ()
+  "Start default DSWM editor unless it is already running, in which case focus it."
   (let* ((ed (or
 	      *editor*
 	      (getenv "EDITOR")
