@@ -17,7 +17,7 @@ prefix=@prefix@
 exec_prefix= @exec_prefix@
 bindir=@bindir@
 infodir=@infodir@
-etcdir = /etc/xdg
+etcdir = $(shell if [ ! -z ${XDG_CONFIG_DIRS} ]; then echo ${XDG_CONFIG_DIRS} | cut -d':' -f1; else echo /etc/xdg; fi)
 data_dir=$(destdir)$(datarootdir)
 
 root_dir=${PWD}
