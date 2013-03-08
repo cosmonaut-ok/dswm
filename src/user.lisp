@@ -360,16 +360,15 @@ current frame instead of switching to the window."
 
 (defcommand editor () ()
   "Start default DSWM editor unless it is already running, in which case focus it."
-  (let* ((ed (or
-	      *editor*
-	      (getenv "EDITOR")
-	      (princ-to-string (which "emacs"))))
-	 (ed-coerce (coerce ed 'list))
+  (let* ((ed (or *editor*
+		 (getenv "EDITOR")
+		 (princ-to-string (which "emacs"))))
+	 (ed-coerce (coerce (princ-to-string ed) 'list))
 	 (ed-class 
 	  (coerce (cons (char-upcase (car ed-coerce)) (cdr ed-coerce)) 'string)))
     (if-null ed
-	     (error "No editor found, and it was not defined in *browser* variable")
-	     (run-or-raise ed (list :class ed-class)))))
+	     (error "No editor found, and it was not defined in *editor* variable")
+	     (run-or-raise (princ-to-string ed) (list :class ed-class)))))
 
 
 (defcommand browser (&optional url) ()
@@ -377,16 +376,16 @@ current frame instead of switching to the window."
   (let* ((br (or
 	      *browser*
 	      (getenv "BROWSER")
-	      (princ-to-string (which "conkeror"))
-	      (princ-to-string (which "firefox"))))
+	      (which "conkeror")
+	      (which "firefox")))
 	 (br-coerce (coerce br 'list))
 	 (br-class 
 	  (coerce (cons (char-upcase (car br-coerce)) (cdr br-coerce)) 'string)))
     (if-null br
 	     (error "No browser found, and it was not defined in *browser* variable")
 	     (if-not-null url
-			  (run-shell-command (concat br url))
-			  (run-or-raise br (list :class br-class))))))
+			  (run-shell-command (concat (princ-to-string br) url))
+			  (run-or-raise (princ-to-string br) (list :class br-class))))))
 
 (defcommand terminal (&optional commans) ()
   "Run default terminal"
