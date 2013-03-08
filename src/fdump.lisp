@@ -50,25 +50,6 @@
           sdump-groups
           sdump-number))
 
-(defstruct fdump
-  number x y width height windows current)
-
-;; group dump
-(defstruct gdump
-  number name tree current)
-
-;; floating group dump
-(defstruct fgdump
-  number name)
-
-;; screen dump
-(defstruct sdump
-  number groups current)
-
-;; desktop dump
-(defstruct ddump
-  screens current)
-
 ;; (defun dump-group (group &optional (window-dump-fn 'window-id))
 ;;   (labels ((dump (f)
 ;;              (make-fdump

@@ -63,7 +63,7 @@
             (progn
               (dks m '("Up" "p" "k" "C-p") "resize 0 ~D")
               (dks m '("Down" "n" "j" "C-n") "resize 0 -~D")))))
-    
+
     (define-key m (kbd "RET") "exit-iresize")
     (define-key m (kbd "C-g") "abort-iresize")
     (define-key m (kbd "ESC") "abort-iresize")))
@@ -89,7 +89,7 @@ resizing the current frame is loaded. Hit @key{C-g}, @key{RET}, or
             (dolist (f (head-frames group (current-head)))
               (clear-frame f group)))
           (message "Resize Frame")
-          (update-resize-map fx fy fh fw dh fw)
+          (update-resize-map fx fy fh fw dh dw)
           (push-top-map *resize-map*)
           (draw-frame-outlines group (current-head)))
         ;;   (setf *resize-backup* (copy-frame-tree (current-group))) ;; TODO: WTF?

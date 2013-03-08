@@ -25,9 +25,12 @@
 
 (in-package :dswm)
 
-;; (export '(
-;; 	  ;; TODO:
-;; 	  ))
+(export '(
+	  remove-group-from-rules
+	  remove-screen-from-rules
+	  update-group-in-rules
+	  update-screen-in-rules
+	  ))
 
 (define-dswm-type :rfr (input prompt)
   (or (argument-pop-rest input)
@@ -36,6 +39,143 @@
 
 (defun rfr-elements ()
   (list "frame" "group" "screen" "window" "current-frame" "current-group" "current-screen" "current-window" "desktop" "help"))
+
+(defun sdump-member-of-list-p (sdump dump-list)
+  "Check, if screen is member of dump part"
+  (cond ((null dump-list) nil)
+	((eq (sdump-number sdump) (sdump-number (car dump-list)))
+	 (car dump-list))
+	(t (sdump-member-of-list-p sdump (cdr dump-list)))))
+
+(defun replace-sdump-member-of-list (sdump dump-list)
+  "Replace, sdump to new sdump with same ID in sdumps list"
+  (cond ((null dump-list) nil)
+	((eq (sdump-number sdump) (sdump-number (car dump-list)))
+	 (cons sdump (cdr dump-list)))
+	(t
+	 (cons (car dump-list) (replace-sdump-member-of-list sdump (cdr dump-list))))))
+
+(defun remove-sdump-member-of-list (sdump dump-list)
+  "Remove, sdump from sdumps list"
+  (cond ((null dump-list) nil)
+	((eq (sdump-number sdump) (sdump-number (car dump-list)))
+	 (cdr dump-list))
+	(t
+	 (cons (car dump-list) (remove-sdump-member-of-list sdump (cdr dump-list))))))
+
+(defun gdump-member-of-list-p (gdump dump-list) ;; TODO
+  "Check, if gdump is member of dump part"
+  (cond ((null dump-list)
+  	 nil)
+  	((eq (type-of (car dump-list)) 'gdump)
+  	 (if (or
+  	      (eq (gdump-number gdump) (gdump-number (car dump-list)))
+  	      (eq (gdump-name gdump) (gdump-number (car dump-list))))
+  	     (car dump-list)
+  	     (gdump-member-of-list-p gdump (cdr dump-list))))
+  	((eq (type-of (car dump-list)) 'fgdump)
+  	 (if (or
+  	      (eq (gdump-number gdump) (fgdump-number (car dump-list)))
+  	      (eq (gdump-name gdump) (fgdump-number (car dump-list))))
+  	     (car dump-list)
+  	     (gdump-member-of-list-p gdump (cdr dump-list))))))
+
+(defun replace-gdump-member-of-list (gdump dump-list) ;; TODO
+  "Replace, group dump with new group dump in dump list"
+  (cond ((null dump-list)
+  	 nil)
+  	((eq (type-of (car dump-list)) 'gdump)
+  	 (if (or
+  	      (eq (gdump-number gdump) (gdump-number (car dump-list)))
+  	      (eq (gdump-name gdump) (gdump-number (car dump-list))))
+	     (cons (dump-group gdump) (cdr dump-list))
+  	     (cons (car dump-list) (replace-gdump-member-of-list gdump (cdr dump-list)))))
+  	((eq (type-of (car dump-list)) 'fgdump)
+  	 (if (or
+  	      (eq (group-number gdump) (fgdump-number (car dump-list)))
+  	      (eq (group-name gdump) (fgdump-number (car dump-list))))
+	     (cons (dump-group gdump) (cdr dump-list))
+  	     (cons (car dump-list) (replace-gdump-member-of-list gdump (cdr dump-list)))))))
+
+(defun remove-gdump-member-of-list (gdump dump-list) ;; TODO
+  "Remove, group dump with new group dump in dump list"
+  (cond ((null dump-list)
+  	 nil)
+  	((eq (type-of (car dump-list)) 'gdump)
+  	 (if (or
+  	      (eq (gdump-number gdump) (gdump-number (car dump-list)))
+  	      (eq (gdump-number gdump) (gdump-number (car dump-list))))
+	     (cdr dump-list)
+  	     (cons (car dump-list) (remove-gdump-member-of-list gdump (cdr dump-list)))))
+  	((eq (type-of (car dump-list)) 'fgdump)
+  	 (if (or
+  	      (eq (gdump-number gdump) (fgdump-number (car dump-list)))
+  	      (eq (gdump-name gdump) (fgdump-number (car dump-list))))
+	     (cdr dump-list)
+  	     (cons (car dump-list) (remove-gdump-member-of-list gdump (cdr dump-list)))))))
+
+(defun update-group-in-rules (&optional (group (current-group)) (screen (current-screen)))
+  "Insert or replace group into desktop rules tree"
+  (let* ((dumped-screen (dump-screen screen))
+	 (dumped-group (dump-group group))
+	 (sdump-member (sdump-member-of-list-p
+			dumped-screen
+			(ddump-screens *desktop-rules*)))
+	 (gdump-member (gdump-member-of-list-p
+			dumped-group
+			(sdump-groups sdump-member))))
+    (cond ((and
+	    (not (null sdump-member))
+	    (not (null gdump-member)))
+	   (replace-gdump-member-of-list dumped-group (sdump-groups sdump-member)))
+	  ((and
+	    (not (null sdump-member))
+	    (null gdump-member))
+	   (push dumped-group (sdump-groups sdump-member)))
+	  (t
+	   (push dumped-screen (ddump-screens *desktop-rules*)) ;; TODO: DSWM::*DESKTOP-RULES* ;note: deleting unreachable code
+	   (update-group-in-rules group screen)))))
+
+(defun remove-group-from-rules (&optional (group (current-group)) (screen (current-screen)))
+  "Remove group from desktop rules tree"
+  (let* ((dumped-screen (dump-screen screen))
+	 (dumped-group (dump-group group))
+	 (sdump-member (sdump-member-of-list-p
+			dumped-screen
+			(ddump-screens *desktop-rules*)))
+	 (gdump-member (gdump-member-of-list-p
+			dumped-group
+			(sdump-groups sdump-member))))
+    (cond ((and
+	    (not (null sdump-member))
+	    (not (null gdump-member)))
+	   (remove-gdump-member-of-list dumped-group (sdump-groups sdump-member)))
+	  ((and
+	    (not (null sdump-member))
+	    (null gdump-member))
+	   (error "No group, named ~a" (group-name group)))
+	  (t (error "No screen with ID ~a" (screen-id screen)))))) ;; TODO: "No screen with ID ~a"; note: deleting unreachable code
+
+(defun update-screen-in-rules (&optional (screen (current-screen)))
+  "Insert or replace screen into desktop rules tree"
+  (let* ((dumped-screen (dump-screen screen))
+	 (sdump-member (sdump-member-of-list-p
+			dumped-screen
+			(ddump-screens *desktop-rules*))))
+    (if (not (null sdump-member))
+	(replace-sdump-member-of-list dumped-screen (ddump-screens *desktop-rules*))
+	(push dumped-screen (ddump-screens *desktop-rules*)))))
+
+(defun remove-screen-from-rules (&optional (screen (current-screen)))
+  "Remove screen from desktop rules tree"
+  (let* ((dumped-screen (dump-screen screen))
+	 (sdump-member (sdump-member-of-list-p
+			dumped-screen
+			(ddump-screens *desktop-rules*))))
+    (if (not (null sdump-member))
+	(remove-sdump-member-of-list dumped-screen (ddump-screens *desktop-rules*))
+	(warn "No screen with ID ~a. Nothing to remove" (screen-id screen)))))
+
 
 ;; (defcommand remember (what) ((:rfr "What do you want to remember (type `help` for help)? "))
 ;;   (cond ((equal what "frame")
@@ -293,3 +433,4 @@
 ;; /END
 ;;;;
 ;;;;
+

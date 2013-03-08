@@ -928,7 +928,27 @@ this to @code{:dswm} if you find yourself using a lot of internal
 dswm symbols. Setting this variable anywhere but in your rc file
 will have no effect.")
 
-(defvar *desktop-rules* '()
+;; frame dump
+(defstruct fdump
+  number x y width height windows current)
+
+;; group dump
+(defstruct gdump
+  number name tree current)
+
+;; floating group dump
+(defstruct fgdump
+  number name)
+
+;; screen dump
+(defstruct sdump
+  number groups current)
+
+;; desktop dump
+(defstruct ddump
+  screens current)
+
+(defvar *desktop-rules* (make-ddump :screens nil :current nil)
   "List of rules governing desktop rules")
 
 (defvar *window-placement-rules* '()
