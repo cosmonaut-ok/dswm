@@ -31,8 +31,9 @@
 	  describe-function
 	  describe-command
 	  where-is
-	  show-window-properties
-	  list-window-properties))
+	  frame-info
+	  window-info
+	  window-full-info))
 
 ;; Version
 (defparameter *version*
@@ -193,7 +194,7 @@ command prints the command bound to the specified key sequence."
 
 ;;; Window-properties commands
 
-(defcommand show-window-properties () ()
+(defcommand window-info () ()
   "Shows the properties of the current window. These properties can be
 used for matching windows with run-or-raise or window placement
 rules."
@@ -205,7 +206,7 @@ rules."
                         (window-role w)
                         (window-title w))))
 
-(defcommand list-window-properties () ()
+(defcommand window-full-info () ()
   "List all the properties of the current window and their values,
 like xprop."
   (message-no-timeout
@@ -236,11 +237,13 @@ like xprop."
                                                   (split-seq values '(0)))))
                     (t values)))))))
 
-(defcommand info (&optional (fmt *window-info-format*)) (:rest)
+(defcommand frame-info (&optional (fmt *window-info-format*)) (:rest)
   "Display information about the current window."
   (if (current-window)
       (message "~a" (format-expand *window-formatters* fmt (current-window)))
       (message "No Current Window")))
+
+(defcommand-alias info frame-info)
 
 (defcommand modifiers () ()
   "List the modifiers dswm recognizes and what MOD-X it thinks they're on."
