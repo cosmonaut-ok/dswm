@@ -58,7 +58,7 @@ dswm: $(FILES)
 	###   File ~/.dswm will be working for some time,  ###
 	###    but it will be removed in future. Thanks!   ###
 	###  Also, you can find common configuration file  ###
-	###         at /etc/xdg/dss/dswm/dswm.lisp         ###
+	###           at /etc/xdg/dswm/dswm.lisp           ###
 	###       (or, according to XDG_CONFIG_DIRS)       ###
 	######################################################
 	######################################################
@@ -88,7 +88,7 @@ testbuild:
 	cd /tmp/$(dest_dir).build
 	autoconf
 	./configure --prefix=/usr/local
-	printf '\n\nNow, run \"cd /tmp/$(dest_dir).build && sudo rm -rf $(etcdir)/dss/dswm && sudo make install && cd $(root_dir)\" to install DSWM\n\n'
+	printf '\n\nNow, run \"cd /tmp/$(dest_dir).build && sudo rm -rf $(etcdir)/dswm && sudo make install && cd $(root_dir)\" to install DSWM\n\n'
 clean:
 	rm -f *.fasl *.fas *.lib *.*fsl
 	rm -f *.log *.fns *.fn *.aux *.cp *.ky *.log *.toc *.pg *.tp *.vr *.vrs
@@ -99,8 +99,8 @@ install: dswm.info dswm
 	test -z "$(destdir)$(infodir)" || mkdir -p "$(destdir)$(infodir)"
 	install -m 644 dswm.info "$(destdir)$(infodir)"
 	install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)/dswm.info"
-	test -d "$(etcdir)/dss/dswm/" || mkdir -p "$(etcdir)/dss/dswm"
-	test -f "$(destdir)$(etcdir)/dss/dswm/dswm.lisp" || install -m 644 ../config/dswm.lisp "$(destdir)$(etcdir)/dss/dswm/dswm.lisp"
+	test -d "$(etcdir)/dswm/" || mkdir -p "$(etcdir)/dswm"
+	test -f "$(destdir)$(etcdir)/dswm/dswm.lisp" || install -m 644 ../config/dswm.lisp "$(destdir)$(etcdir)/dswm/dswm.lisp"
 	mkdir -p "$(destdir)$(datarootdir)/dswm/modules"
 	install -d -m 755 modules "$(destdir)$(datarootdir)/dswm/modules"
 	find modules -type f -exec install -D {} $(destdir)$(datarootdir)/dswm/{} \;
@@ -130,8 +130,8 @@ install: dswm.info dswm
 uninstall:
 	rm "$(destdir)$(bindir)/dswm"
 	rm -r "$(destdir)$(datarootdir)/dswm"
-	rm "$(destdir)$(etcdir)/dss/dswm/dswm.lisp"
-	rm -r "$(destdir)$(etcdir)/dss/dswm/" || true
+	rm "$(destdir)$(etcdir)/dswm/dswm.lisp"
+	rm -r "$(destdir)$(etcdir)/dswm/" || true
 	install-info --info-dir="$(destdir)$(infodir)" --remove "$(destdir)$(infodir)/dswm.info"
 	rm "$(destdir)$(infodir)/dswm.info"
 	test -f "$(data_dir)/xsessions/dswm.desktop" && "$(data_dir)/xsessions/dswm.desktop" || test -f "$(linux_style_data_dir)/xsessions/dswm.desktop" && rm "$(linux_style_data_dir)/xsessions/dswm.desktop"

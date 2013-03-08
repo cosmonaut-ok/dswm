@@ -1,5 +1,0 @@
-class : screen move to screen.lisp
-
-data-dir dir &optional subdir
-
-- macro with-data-file

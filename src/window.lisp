@@ -896,7 +896,7 @@ needed."
       (move-screen-to-head screen))
     (when last-win
       (update-decoration last-win))))
-  
+
 (defmethod focus-window (window)
   "Make the window visible and give it keyboard focus."
   (dformat 3 "focus-window: ~s~%" window)
@@ -1110,7 +1110,3 @@ override the default window formatting."
     (set-window-geometry window
                          :width w
                          :height h)))
-
-(defcommand place-existing-windows () ()
-  "Re-arrange existing windows according to placement rules."
-  (sync-window-placement))

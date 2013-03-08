@@ -205,7 +205,7 @@ A short for (concatenate 'string foo bar)."
 (defun etc-dirs (&optional subdir)
   (let ((xdg-etc-dirs (ppcre:split "\\:+" (getenv "XDG_CONFIG_DIRS"))))
     (if (null xdg-etc-dirs)
-	(list (make-pathname :directory (cons :absolute (string-to-path-list "etc" "xdg" "dss" "dswm" subdir))))
+	(list (make-pathname :directory (cons :absolute (string-to-path-list "etc" "xdg" "dswm" subdir))))
       (mapcar #'(lambda (x) (make-pathname :directory (cons :absolute (string-to-path-list x subdir)))) xdg-etc-dirs))))
 
 (defun find-etc-file (name &optional type subdir)
@@ -694,7 +694,7 @@ loads the rc file.")
 
 (defvar *interactivep* nil
   "True when a defcommand is executed from colon or a keybinding")
- 
+
 ;;; The restarts menu macro
 
 ;; Misc. utility functions
@@ -927,6 +927,9 @@ window, and returns the preferred frame or a list of the above preferences.")
 this to @code{:dswm} if you find yourself using a lot of internal
 dswm symbols. Setting this variable anywhere but in your rc file
 will have no effect.")
+
+(defvar *desktop-rules* '()
+  "List of rules governing desktop rules")
 
 (defvar *window-placement-rules* '()
   "List of rules governing window placement. Use define-frame-preference to

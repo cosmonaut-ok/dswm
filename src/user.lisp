@@ -216,7 +216,8 @@ such a case, kill the shell command to resume DSWM."
 (defcommand run-in-terminal (cmd)
   ((:shell "Input shell command to run it in terminal: "))
   "Run command in terminal"
-  (run-shell-command (concat *terminal* " -e " cmd)))
+  (terminal cmd))
+  ;; (run-shell-command (concat *terminal* " -e " cmd)))
 
 (defcommand echo (string) ((:rest "Echo: "))
   "Display @var{string} in the message bar."
@@ -387,12 +388,14 @@ current frame instead of switching to the window."
 			  (run-shell-command (concat (princ-to-string br) url))
 			  (run-or-raise (princ-to-string br) (list :class br-class))))))
 
-(defcommand terminal (&optional commans) ()
+(defcommand terminal (&optional command) ()
   "Run default terminal"
   (let ((term (or *terminal* (getenv "TERM") (princ-to-string (which "xterm")))))
     (if-null term
 	     (error "No terminal emulator found, and it was not defined in variable *terminal*")
-	     (run-shell-commands term))))
+	     (if (null command)
+		 (run-shell-commands term)
+	       (run-shell-command (concat term " -e " command))))))
 
 (defcommand lastcmd () ()
   "Repeat last inserted command"

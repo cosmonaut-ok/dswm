@@ -1,3 +1,4 @@
+;; fdump.lisp -- Layout save and restore routines.
 ;; Copyright (C) 2007-2008 Jonathan Liles, Shawn Betts
 ;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
@@ -37,25 +38,17 @@
           fdump-windows
           fdump-x
           fdump-y
-	  fgdump
-	  fgdump-name
-	  fgdump-number
           gdump
           gdump-current
           gdump-name
           gdump-number
           gdump-tree
           place-existing-windows
+          restore
           sdump
           sdump-current
           sdump-groups
-          sdump-number
-	  snapshot-desktop
-	  remember-desktop
-	  forget-desktop
-	  recall-desktop
-	  recall-desktop-snapshot))
-
+          sdump-number))
 
 (defstruct fdump
   number x y width height windows current)
@@ -64,6 +57,7 @@
 (defstruct gdump
   number name tree current)
 
+;; floating group dump
 (defstruct fgdump
   number name)
 
@@ -75,89 +69,97 @@
 (defstruct ddump
   screens current)
 
-(defun dump-structure (structure to-fs file &optional backup-p)
-  "Dump some code, values etc to file or just to output"
-  (if to-fs
-      (progn
-	(when (and backup-p (file-exists-p file))
-	  (copy-file
-	   file
-	   (merge-pathnames
-	    (make-pathname :type (concat (pathname-type file) "~")) file)
-	   :overwrite t))
-	(with-open-file (fp file :direction :output :if-exists :supersede)
-			(with-standard-io-syntax
-			 (let ((*package* (find-package :dswm))
-			       (*print-pretty* t))
-			   (prin1 structure fp))))
-	structure)
-    structure))
+;; (defun dump-group (group &optional (window-dump-fn 'window-id))
+;;   (labels ((dump (f)
+;;              (make-fdump
+;;               :windows (mapcar window-dump-fn (frame-windows group f))
+;;               :current (and (frame-window f)
+;;                             (funcall window-dump-fn (frame-window f)))
+;;               :number (frame-number f)
+;;               :x (frame-x f)
+;;               :y (frame-y f)
+;;               :width (frame-width f)
+;;               :height (frame-height f)))
+;;            (copy (tree)
+;;              (cond ((null tree) tree)
+;;                    ((typep tree 'frame)
+;;                     (dump tree))
+;;                    (t
+;;                     (mapcar #'copy tree)))))
+;;     (make-gdump
+;;      ;; we only use the name and number for screen and desktop restores
+;;      :number (group-number group)
+;;      :name (group-name group)
+;;      :tree (copy (tile-group-frame-tree group))
+;;      :current (frame-number (tile-group-current-frame group)))))
 
-(defun dump-group (group &key (window-dump-fn 'window-id)
-			 (to-fs nil)
-			 (file
-			  (data-dir-file
-			   (concat "group-" (prin1-to-string (group-name group))) "rules" "rules.d"))
-			 (backup-p nil))
+(defun dump-group (group &optional (window-dump-fn 'window-id))
+  "Make group dump"
   (labels ((dump (f)
-		 (make-fdump
-		  :windows (mapcar window-dump-fn (frame-windows group f))
-		  :current (and (frame-window f)
-				(funcall window-dump-fn (frame-window f)))
-		  :number (frame-number f)
-		  :x (frame-x f)
-		  :y (frame-y f)
-		  :width (frame-width f)
-		  :height (frame-height f)))
+	     (make-fdump
+	      :windows (mapcar window-dump-fn (frame-windows group f))
+	      :current (and (frame-window f)
+			    (funcall window-dump-fn (frame-window f)))
+	      :number (frame-number f)
+	      :x (frame-x f)
+	      :y (frame-y f)
+	      :width (frame-width f)
+	      :height (frame-height f)))
            (copy (tree)
-		 (cond ((null tree) tree)
-		       ((typep tree 'frame)
-			(dump tree))
-		       (t
-			(mapcar #'copy tree)))))
-    (let ((group-dump
-	   (cond ((eq (type-of group) 'tile-group)
-		  (make-gdump
-		   ;; we only use the name and number for screen and desktop restores
-		   :number (group-number group)
-		   :name (group-name group)
-		   :tree (copy (tile-group-frame-tree group))
-		   :current (frame-number (tile-group-current-frame group))))
-		 ((eq (type-of group) 'float-group)
-		  (make-fgdump
-		   :number (group-number group)
-		   :name (group-name group))))))
-      (if (ensure-directories-exist (dirname file))
-	  (dump-structure group-dump to-fs file backup-p)
-	(message "Error: directory does not exists")))))
+	     (cond ((null tree) tree)
+		   ((typep tree 'frame)
+		    (dump tree))
+		   (t
+		    (mapcar #'copy tree)))))
+    (cond ((eq (class-of group) 'tile-group)
+	   (make-gdump
+	    ;; we only use the name and number for screen and desktop restores
+	    :number (group-number group)
+	    :name (group-name group)
+	    :tree (copy (tile-group-frame-tree group))
+	    :current (frame-number (tile-group-current-frame group))))
+	  ((eq (class-of group) 'float-group)
+	   (make-fgdump
+	    :number (group-number group)
+	    :name (group-name group))))))
 
-(defun dump-screen (screen &key
-			   (to-fs nil)
-			   (file (data-dir-file
-				  (concat "screen-" (prin1-to-string
-						     (screen-id screen))) "rules" "rules.d"))
-			   (backup-p nil))
-  "Makes dump of given screen"
-  (let
-      ((screen-dump
-	(make-sdump :number (screen-id screen)
-		    :current (group-number (screen-current-group screen))
-		    :groups (mapcar 'dump-group (sort-groups screen)))))
-    (if (ensure-directories-exist (dirname file))
-	(dump-structure screen-dump to-fs file backup-p)
-      (message "Error: Directory does not exists"))))
+(defun dump-screen (screen)
+  (make-sdump :number (screen-id screen)
+              :current (group-number (screen-current-group screen))
+              :groups (mapcar 'dump-group (sort-groups screen))))
 
-(defun dump-desktop (&key
-		     (to-fs nil)
-		     (file (data-dir-file "desktop" "rules" "rules.d"))
-		     (backup-p nil))
-  "Makes full dump of desktop"
-  (let ((desktop-dump
-	 (make-ddump :screens (mapcar 'dump-screen *screen-list*)
-		     :current (screen-id (current-screen)))))
-    (if (ensure-directories-exist (dirname file))
-	(dump-structure desktop-dump to-fs file backup-p)
-      (message "ERROR: Directory does not exists"))))
+(defun dump-desktop ()
+  (make-ddump :screens (mapcar 'dump-screen *screen-list*)
+              :current (screen-id (current-screen))))
+
+(defun dump-to-file (foo file &key backup-p)
+  "Dump foo structure to file"
+  (when (and backup-p (file-exists-p file))
+    (let ((directory (pathname-directory file))
+	  (name (pathname-name file))
+	  (suffix "~"))
+      (copy-file file
+		 (make-pathname
+		  :directory directory
+		  :name (concat name suffix))
+		 :overwrite t)))
+  (with-open-file (fp file :direction :output :if-exists :supersede)
+    (with-standard-io-syntax
+      (let ((*package* (find-package :dswm))
+            (*print-pretty* t))
+        (prin1 foo fp)))))
+
+(defun dump-group-to-file (file)
+  "Dumps the frames of the current group of the current screen to the named file."
+  (dump-to-file (dump-group (current-group)) file))
+
+(defun dump-screen-to-file (file)
+  "Dumps the frames of all groups of the current screen to the named file"
+  (dump-to-file (dump-screen (current-screen)) file))
+
+(defun dump-desktop-to-file (file)
+  "Dumps the frames of all groups of all screens to the named file"
+  (dump-to-file (dump-desktop) file))
 
 
 ;;;
@@ -168,8 +170,57 @@
       (let ((*package* (find-package :dswm)))
         (read fp)))))
 
+;; (defun restore-group (group gdump &optional auto-populate (window-dump-fn 'window-id))
+;;   (let ((windows (group-windows group)))
+;;     (labels ((give-frame-a-window (f)
+;;                (unless (frame-window f)
+;;                  (setf (frame-window f) (find f windows :key 'window-frame))))
+;;              (restore (fd)
+;;                (let ((f (make-frame
+;;                          :number (fdump-number fd)
+;;                          :x (fdump-x fd)
+;;                          :y (fdump-y fd)
+;;                          :width (fdump-width fd)
+;;                          :height (fdump-height fd))))
+;;                  ;; import matching windows
+;;                  (if auto-populate
+;;                      (choose-new-frame-window f group)
+;;                      (progn
+;;                        (dolist (w windows)
+;;                          (when (equal (fdump-current fd) (funcall window-dump-fn w))
+;;                            (setf (frame-window f) w))
+;;                          (when (find (funcall window-dump-fn w) (fdump-windows fd) :test 'equal)
+;;                            (setf (window-frame w) f)))))
+;;                  (when (fdump-current fd)
+;;                    (give-frame-a-window f))
+;;                  f))
+;;              (copy (tree)
+;;                (cond ((null tree) tree)
+;;                      ((typep tree 'fdump)
+;;                       (restore tree))
+;;                      (t
+;;                       (mapcar #'copy tree)))))
+;;       ;; clear references to old frames
+;;       (dolist (w windows)
+;;         (setf (window-frame w) nil))
+;;       (setf (tile-group-frame-tree group) (copy (gdump-tree gdump))
+;;             (tile-group-current-frame group) (find (gdump-current gdump) (group-frames group) :key 'frame-number))
+;;       ;; give any windows still not in a frame a frame
+;;       (dolist (w windows)
+;;         (unless (window-frame w)
+;;           (setf (window-frame w) (tile-group-current-frame group))))
+;;       ;; FIXME: if the current window was blank in the dump, this does not honour that.
+;;       (give-frame-a-window (tile-group-current-frame group))
+;;       ;; raise the curtains
+;;       (dolist (w windows)
+;;         (if (eq (frame-window (window-frame w)) w)
+;;             (unhide-window w)
+;;             (hide-window w)))
+;;       (sync-all-frame-windows group)
+;;       (focus-frame group (tile-group-current-frame group)))))
+
 (defun restore-group (group gdump &optional auto-populate (window-dump-fn 'window-id))
-  ;; TODO: make from-fs option, like in dump-group
+  "Restore group from group dump"
   (let ((windows (group-windows group)))
     (labels ((give-frame-a-window (f)
                (unless (frame-window f)
@@ -198,82 +249,47 @@
                      ((typep tree 'fdump)
                       (restore tree))
                      (t
-                      (mapcar #'copy tree))))
-	     (migrate (group gdump) ;; TODO: make migrate with convert-group
-		      (progn
-			(setf (group-number (current-group)) (find-free-hidden-group-number (current-screen)))
-			(let ((old-group (current-group))
-			      (new-group
-			       (cond ((eq (type-of gdump) 'fgdump)
-				      (add-group (current-screen)
-						 (concat "~" (group-name group) "~")
-						 :type 'float-group
-						 :background t))
-				     ((eq (type-of gdump) 'gdump)
-				      (add-group (current-screen)
-						 (concat "~" (group-name group) "~")
-						 :type 'tile-group
-						 :background t))
-				     (t
-				      (error "Incorrect group dump type")))))
-			  (progn
-			    (kill-group (current-group) new-group)
-			    (switch-to-group new-group)
-			    (setf (group-name (current-group)) (group-name old-group)))
-			  (restore-group (current-group) gdump)
-			  ))))
+                      (mapcar #'copy tree)))))
       (cond
-       ((and (eq (type-of group) 'tile-group)
-	     (eq (type-of gdump) 'gdump))
+	((and (eq (type-of group) 'tile-group)
+	      (eq (type-of gdump) 'gdump))
 	;; clear references to old frames
-	(dolist (w windows)
-	  (setf (window-frame w) nil))
-	(setf (tile-group-frame-tree group) (copy (gdump-tree gdump))
-	      (tile-group-current-frame group) (find (gdump-current gdump) (group-frames group) :key 'frame-number))
-	;; give any windows still not in a frame a frame
-	(dolist (w windows)
-	  (unless (window-frame w)
-	    (setf (window-frame w) (tile-group-current-frame group))))
-	;; FIXME: if the current window was blank in the dump, this does not honour that.
-	(give-frame-a-window (tile-group-current-frame group))
-	;; raise the curtains
-	(dolist (w windows)
-	  (if (eq (frame-window (window-frame w)) w)
-	      (unhide-window w)
-	    (hide-window w)))
-	(sync-all-frame-windows group)
-	(focus-frame group (tile-group-current-frame group)))
-       ;; If group is float and dump is float
-       ((and (eq (type-of group) 'float-group)
-	     (eq (type-of gdump) 'fgdump))
-	(setf (group-name group) (fgdump-name gdump)))
-       ;; If group is float and dump is tile or group is tile and dump is float
-       (t
-       	(migrate group gdump))
-       ))))
+	 (dolist (w windows)
+	   (setf (window-frame w) nil))
+	 (setf (tile-group-frame-tree group) (copy (gdump-tree gdump))
+	       (tile-group-current-frame group) (find (gdump-current gdump) (group-frames group) :key 'frame-number))
+	 ;; give any windows still not in a frame a frame
+	 (dolist (w windows)
+	   (unless (window-frame w)
+	     (setf (window-frame w) (tile-group-current-frame group))))
+	 ;; FIXME: if the current window was blank in the dump, this does not honour that.
+	 (give-frame-a-window (tile-group-current-frame group))
+	 ;; raise the curtains
+	 (dolist (w windows)
+	   (if (eq (frame-window (window-frame w)) w)
+	       (unhide-window w)
+	       (hide-window w)))
+	 (sync-all-frame-windows group)
+	 (focus-frame group (tile-group-current-frame group)))
+	;; If group is float and dump is float
+	((and (eq (type-of group) 'float-group)
+	      (eq (type-of gdump) 'fgdump))
+	 (setf (group-name group) (fgdump-name gdump)))
+	;; If group is float and dump is tile or group is tile and dump is float
+	(t
+	 (convert-group group) ;; TODO: TEST! TEST! TEST!!!
+	 (restore-group group gdump))))))
 
 (defun restore-screen (screen sdump)
   "Restore all frames in all groups of given screen. Create groups if
  they don't already exist."
   (dolist (gdump (sdump-groups sdump))
-    (cond ((eq (type-of gdump) 'gdump)
-	   (format t "~a~%" (gdump-name gdump))
-	   (restore-group
-	    (or
-	     (find-group screen (gdump-name gdump))
-	     ;; FIXME: if the group doesn't exist then
-	     ;; windows won't be migrated from existing
-	     ;; groups
-	     (add-group screen (gdump-name gdump)))
-	    gdump))
-	  ((eq (type-of gdump) 'fgdump)
-	   (format t "~a~%" (fgdump-name gdump))
-	   (format t "~a"
-		   (restore-group
-		    (or
-		     (find-group screen (fgdump-name gdump))
-		     (add-group screen (fgdump-name gdump) :type 'float-group))
-		    gdump))))))
+    (restore-group (or (find-group screen (gdump-name gdump))
+                       ;; FIXME: if the group doesn't exist then
+                       ;; windows won't be migrated from existing
+                       ;; groups
+                       (add-group screen (gdump-name gdump)))
+                   gdump)))
 
 (defun restore-desktop (ddump)
   "Restore all frames, all groups, and all screens."
@@ -287,7 +303,7 @@
   "Restores screen, groups, or frames from named file, depending on file's contents."
   (let ((dump (read-dump-from-file file)))
     (typecase dump
-      ((or gdump fgdump)
+      (gdump
        (restore-group (current-group) dump)
        (message "Group restored."))
       (sdump
@@ -299,54 +315,5 @@
       (t
        (message "Don't know how to restore ~a" dump)))))
 
-(defcommand remember-desktop () ()
-  "Dumps the frames of all groups of all screens to the default dump file"
-    (eval-with-message :body
-		     (dump-desktop :to-fs t :file *desktop-dump-file*)
-		     :message-if-done "Desktop rules saved"
-		     :message-if-false "Can't save desktop"))
-
-(defcommand forget-desktop () ()
-  "Forget all frames, groups and screen rules"
-  (eval-with-message :body
-		     (delete-file *desktop-dump-file*)
-		     :message-if-done "Desktop rules forgot"
-		     :message-if-false "Nothing to forget"))
-
-(defcommand recall-desktop () ()
-  "Recall all groups, frames etc"
-  (eval-with-message :body
-		     (restore-from-file *desktop-dump-file*)
-		     :message-if-done "Desktop rules recalled"
-		     :message-if-false "Can't recall desktop rules"))
-
-(defcommand snapshot-desktop () ()
-  "Make rules of all existing windows, bind it to groups and frames,
-where they located now and dump all groups frames and window placement
-rules to frame-froup-placement.rules and window-placement.rules in
-data dir"
-  (eval-with-message :body
-		     (progn
-		       (remember-all-windows '(t) '(nil))
-		       (dump-desktop :to-fs t))
-		     :message-if-done "Snapshot created"
-		     :message-if-false "Can't create snapshot"))
-
-(defcommand recall-desktop-snapshot () ()
-  "Restores frame and group placement rules (like numbers, names,
-splitting rules etc) and window placement rules of all groups and
-frames of the current desktop from frame-froup-placement.rules and
-window-placement.rules file in data dir"
-  (eval-with-message :body
-		     (progn
-		       (when (file-exists-p *desktop-dump-file*)
-			 (restore-from-file *desktop-dump-file*))
-		       (when (file-exists-p *window-placement-dump-file*)
-			 (progn
-			   (setf *window-placement-rules*
-				 (read-dump-from-file *window-placement-dump-file*))
-			   (place-existing-windows)))
-		       ;; TODO: Add function for restore all programs, running in last session
-		       )
-		     :message-if-done "Snapshot recalled"
-		     :message-if-false "Can't recall snapshot"))
+;; Maybe it needed?
+;; (defcommand-alias restore restore-from-file)
