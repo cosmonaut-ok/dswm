@@ -32,13 +32,11 @@
 	  update-screen-in-rules
 	  ))
 
+(defvar *rfr-elements* '("frame" "group" "screen" "window" "current-frame" "current-group" "current-screen" "current-window" "desktop" "all" "help"))
+
 (define-dswm-type :rfr (input prompt)
   (or (argument-pop-rest input)
-      (completing-read (current-screen) prompt (rfr-elements) :require-match t)))
-
-
-(defun rfr-elements ()
-  (list "frame" "group" "screen" "window" "current-frame" "current-group" "current-screen" "current-window" "desktop" "help"))
+      (completing-read (current-screen) prompt *rfr-elements* :require-match t)))
 
 (defun sdump-member-of-list-p (sdump dump-list)
   "Check, if screen is member of dump part"
@@ -176,137 +174,123 @@
 	(remove-sdump-member-of-list dumped-screen (ddump-screens *desktop-rules*))
 	(warn "No screen with ID ~a. Nothing to remove" (screen-id screen)))))
 
+;;;;
+;; remember
+;;;;
 
-;; (defcommand remember (what) ((:rfr "What do you want to remember (type `help` for help)? "))
-;;   (cond ((equal what "frame")
-;; 	 )
-;; 	((equal what "group")
-;; 	 )
-;; 	((equal what "screen")
-;; 	 )
-;; 	((equal what "window")
-;; 	 )
-;; 	((equal what "current-frame")
-;; 	 )
-;; 	((equal what "current-group")
-;; 	 )
-;; 	((equal what "current-screen")
-;; 	 )
-;; 	((equal what "current-window")
-;; 	 )
-;; 	((equal what "desktop")
-;; 	 )
-;; 	((equal what "help")
-;; 	 )))
+(defun remember-group (&optional (group (current-group)))
+  (message "Locked"))
 
+(defun remember-screen (&optional (screen (current-screen)))
+  (message "Locked"))
 
+(defun remember-desktop ()
+  (let ((desktop-dump (desktop-dump)))
+    (progn
+    (setf *desktop-rules* desktop-dump)
+    (if (ensure-directories-exist *desktop-dump-file*)
+	(dump-to-file (dump-desktop) *desktop-dump-file*)
+      (message "Cannot save desktop rules to file ~a. Cannot create directory" *desktop-dump-file*)))))
 
+(defun remember-window-placement (&optional (window (current-window)))
+  (message "Locked"))
 
-;; ;;remember
-;; (defun remember-group (&optional (group (current-group)))
+(defun remember-group-windows-placement (&optional (group (current-group)))
+  (message "Locked"))
 
-;;   )
+(defun remember-screen-windows-placement (&optional (screen (current-screen)))
+  (message "Locked"))
 
-;; (defun remember-screen (&optional (screen (current-screen)))
-;;   )
+(defun remember-all-window-placement ()
+  (message "Locked"))
 
-;; (defun remember-frame (&optional (frame (tile-group-current-frame (current-group))) ;; TODO: only for tile groups
-;;   )
+(defun remember-all ()
+  "Make rules of all existing windows, bind it to groups and frames,
+where they located now and dump all groups frames and window placement
+rules to frame-froup-placement.rules and window-placement.rules in
+data dir"
+  (eval-with-message
+   :body
+   (progn
+     ;; (remember-all-windows '(t) '(nil)) ;; TODO: add part for window-placement rules
+     (remember-desktop))
+   :message-if-done "Rules remembered"
+   :message-if-false "Can`t remember rules"))
 
-;; (defun remember-window-place (&optional (window (current-window)))
-;;   )
+;;;;
+;; forget
+;;;;
 
-;; (defun remember-group-windows-places (&optional (group (current-group)))
-;;   )
+(defun forget-group (&optional (group (current-group)))
+  (message "Locked"))
 
-;; (defun remember-screen-windows-places (&optional (screen (current-screen)))
-;;   )
+(defun forget-screen (&optional (screen (current-screen)))
+  (message "Locked"))
 
-;; (defun remember-all ()
-;;   "Make rules of all existing windows, bind it to groups and frames,
-;; where they located now and dump all groups frames and window placement
-;; rules to frame-froup-placement.rules and window-placement.rules in
-;; data dir"
-;;   (eval-with-message
-;;    :body
-;;    (progn
-;;      (remember-all-windows '(t) '(nil))
-;;      (dump-desktop :to-fs t))
-;;    :message-if-done "Snapshot created"
-;;    :message-if-false "Can't create snapshot"))
+(defun forget-window-placement (&optional (window (current-window)))
+  (message "Locked"))
 
-;; (defun remember-all-window-places ()
-;;   )
+(defun forget-group-windows-placement (&optional (group (current-group)))
+  (message "Locked"))
 
-;; ;; forget
-;; (defun forget-group (&optional (group (current-group)))
-;;   )
+(defun forget-screen-windows-placement (&optional (screen (current-screen)))
+  (message "Locked"))
 
-;; (defun forget-screen (&optional (screen (current-screen)))
-;;   )
+(defun forget-all-window-placement ()
+  (message "Locked"))
 
-;; (defun forget-frame (&optional (frame (tile-group-current-frame (current-group))) ;; TODO: only for tile groups
-;;   )
+(defun forget-all ()
+  "Remove all placement rules and rule files"
+  (progn
+    (setf *window-placement-rules* nil)
+    (setf *desktop-rules* nil)
+    (when (file-exists-p *window-placement-dump-file*)
+      (delete-file *window-placement-dump-file*))
+    (when (file-exists-p *desktop-dump-file*)
+      (delete-file *desktop-dump-file*))))
 
-;; (defun forget-window-place (&optional (window (current-window)))
-;;   )
+;;;;
+;; recall
+;;;;
 
-;; (defun forget-group-windows-places (&optional (group (current-group)))
-;;   )
+(defun recall-group (&optional (group (current-group)))
+  (message "Locked"))
 
-;; (defun forget-screen-windows-places (&optional (screen (current-screen)))
-;;   )
+(defun recall-screen (&optional (screen (current-screen)))
+  (message "Locked"))
 
-;; (defun forget-all ()
-;;   )
+(defun recall-frame (&optional (frame (tile-group-current-frame (current-group)))) ;; TODO: only for tile groups
+  (message "Locked"))
 
-;; (defun forget-all-window-places ()
-;;   )
+(defun recall-window-placement (&optional (window (current-window)))
+  (message "Locked"))
 
+(defun recall-group-windows-placement (&optional (group (current-group)))
+  (message "Locked"))
 
-;; ;;recall
-;; (defun recall-group (&optional (group (current-group)))
-;;   )
+(defun recall-screen-windows-placement (&optional (screen (current-screen)))
+  (message "Locked"))
 
-;; (defun recall-screen (&optional (screen (current-screen)))
-;;   )
+(defun recall-all-window-placement ()
+  (message "Locked"))
 
-;; (defun recall-frame (&optional (frame (tile-group-current-frame (current-group))) ;; TODO: only for tile groups
-;;   )
-
-;; (defun recall-window-place (&optional (window (current-window)))
-;;   )
-
-;; (defun recall-group-windows-places (&optional (group (current-group)))
-;;   )
-
-;; (defun recall-screen-windows-places (&optional (screen (current-screen)))
-;;   )
-
-;; (defun recall-all ()
-;;   "Recall frame and group and windows placement rules of all groups and frames"
-;;   (eval-with-message
-;;    :body
-;;    (progn
-;;      (when (file-exists-p *desktop-dump-file*)
-;;        (restore-from-file *desktop-dump-file*))
-;;      (when (file-exists-p *window-placement-dump-file*)
-;;        (progn
-;; 	 (setf *window-placement-rules*
-;; 	       (read-dump-from-file *window-placement-dump-file*))
-;; 	 (place-existing-windows)))
-;;      ;; TODO: Add function for restore all programs, running in last session
-;;      t) ;; unfortunately someone function gives "NIL"; TODO: fix it!
-;;    :message-if-done "Snapshot recalled"
-;;    :message-if-false "Can't recall snapshot"))
-;; )
-
-;; (defun recall-all-window-placement ()
-;;   )
-
-
-
-
+(defun recall-all ()
+  "Recall frame and group and windows placement rules of all groups and frames"
+  (eval-with-message
+   :body
+   (progn
+     (when (file-exists-p *desktop-dump-file*)
+       (restore-from-file *desktop-dump-file*))
+     (when (file-exists-p *window-placement-dump-file*)
+       (progn
+	 (setf *window-placement-rules*
+	       (read-dump-from-file *window-placement-dump-file*))
+	 (sync-window-placement)))
+     ;; TODO: Add function for restore all programs, running in last session
+     t) ;; unfortunately sync-window-placement gives nil, because dolist
+   :message-if-done "All rules recalled"
+   :message-if-false "Can't recall rules"))
+)
 
 ;; ;;;;
 ;; ;;;;
@@ -347,6 +331,12 @@
 ;;   (dolist (i (screen-groups screen))
 ;;     (remove-rules-for-group i)))
 
+(defmacro with-dump-to-file (body file)
+  `(if (ensure-directories-exist file)
+       (dump-to-file ,body ,file)
+     (error "Cannot dump file ~a. Cannot create directory" ,file)))
+
+
 ;; (defmacro forget-remember-rules (body message message-false)
 ;;   "Local macro. Forget or remember windows placement rules"
 ;;   `(eval-with-message :body (progn ,body
@@ -357,6 +347,10 @@
 ;; 				    (data-dir-file "window-placement" "rules" "rules.d")))
 ;; 		      :message-if-done ,message
 ;; 		      :message-if-false ,message-false))
+
+;;;;
+;; Commands
+;;;;
 
 ;; (defcommand (remember-window tile-group) (lock title)
 ;;   ((:y-or-n "Lock to group? ")
@@ -427,6 +421,73 @@
 ;;    (setf *window-placement-rules* nil)
 ;;    "Rules forgotten"
 ;;    "Can't forgot rules. Check write permissions to dswm data directory and files") )
+
+(defcommand remember (what) ((:rfr "What element do you want to remember? "))
+  (cond ((equal what "frame")
+	 )
+	((equal what "group")
+	 )
+	((equal what "screen")
+	 )
+	((equal what "window")
+	 )
+	((equal what "current-frame")
+	 )
+	((equal what "current-group")
+	 )
+	((equal what "current-screen")
+	 )
+	((equal what "current-window")
+	 )
+	((equal what "desktop")
+	 )
+	))
+
+(defcommand forget (what) ((:rfr "What element do you want to forget? "))
+  (cond ;; ((equal what "frame")
+	;;  )
+	;; ((equal what "group")
+	;;  )
+	;; ((equal what "screen")
+	;;  )
+	;; ((equal what "window")
+	;;  )
+	;; ((equal what "current-frame")
+	;;  )
+	;; ((equal what "current-group")
+	;;  )
+	;; ((equal what "current-screen")
+	;;  )
+	;; ((equal what "current-window")
+	;;  )
+	;; ((equal what "desktop")
+	;;  )
+	((equal what "all")
+	 (forget-all))
+	;; ((equal what "help")
+	;;  )
+	))
+
+(defcommand recall (what) ((:rfr "What element do you want to recall? "))
+  (cond 
+   ;; ((equal what "group")
+   ;; 	 )
+   ;; 	((equal what "screen")
+   ;; 	 )
+   ;; 	((equal what "window")
+   ;; 	 )
+   ;; 	((equal what "current-frame")
+   ;; 	 )
+   ;; 	((equal what "current-group")
+   ;; 	 )
+   ;; 	((equal what "current-screen")
+   ;; 	 )
+   ;; 	((equal what "current-window")
+   ;; 	 )
+   ;; 	((equal what "desktop")
+   ;; 	 )
+   ((equal what "all")
+    (recall-all))))
 
 ;;;;
 ;;;;

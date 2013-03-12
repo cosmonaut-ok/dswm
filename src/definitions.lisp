@@ -955,6 +955,9 @@ will have no effect.")
   "List of rules governing window placement. Use define-frame-preference to
 add rules")
 
+(defvar *desktop-rules* '()
+  "List of rules governing desktop")
+
 (defvar *mouse-focus-policy* :click
   "The mouse focus policy decides how the mouse affects input
 focus. Possible values are :ignore, :sloppy, and :click. :ignore means

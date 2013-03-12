@@ -50,30 +50,6 @@
           sdump-groups
           sdump-number))
 
-;; (defun dump-group (group &optional (window-dump-fn 'window-id))
-;;   (labels ((dump (f)
-;;              (make-fdump
-;;               :windows (mapcar window-dump-fn (frame-windows group f))
-;;               :current (and (frame-window f)
-;;                             (funcall window-dump-fn (frame-window f)))
-;;               :number (frame-number f)
-;;               :x (frame-x f)
-;;               :y (frame-y f)
-;;               :width (frame-width f)
-;;               :height (frame-height f)))
-;;            (copy (tree)
-;;              (cond ((null tree) tree)
-;;                    ((typep tree 'frame)
-;;                     (dump tree))
-;;                    (t
-;;                     (mapcar #'copy tree)))))
-;;     (make-gdump
-;;      ;; we only use the name and number for screen and desktop restores
-;;      :number (group-number group)
-;;      :name (group-name group)
-;;      :tree (copy (tile-group-frame-tree group))
-;;      :current (frame-number (tile-group-current-frame group)))))
-
 (defun dump-group (group &optional (window-dump-fn 'window-id))
   "Make group dump"
   (labels ((dump (f)
@@ -115,20 +91,23 @@
 
 (defun dump-to-file (foo file &key backup-p)
   "Dump foo structure to file"
-  (when (and backup-p (file-exists-p file))
-    (let ((directory (pathname-directory file))
-	  (name (pathname-name file))
-	  (suffix "~"))
-      (copy-file file
-		 (make-pathname
-		  :directory directory
-		  :name (concat name suffix))
-		 :overwrite t)))
-  (with-open-file (fp file :direction :output :if-exists :supersede)
-    (with-standard-io-syntax
-      (let ((*package* (find-package :dswm))
-            (*print-pretty* t))
-        (prin1 foo fp)))))
+  (if (ensure-directories-exist file)
+      (progn
+	(when (and backup-p (file-exists-p file))
+	  (let ((directory (pathname-directory file))
+		(name (pathname-name file))
+		(suffix "~"))
+	    (copy-file file
+		       (make-pathname
+			:directory directory
+			:name (concat name suffix))
+		       :overwrite t)))
+	(with-open-file (fp file :direction :output :if-exists :supersede)
+		      (with-standard-io-syntax
+		       (let ((*package* (find-package :dswm))
+			     (*print-pretty* t))
+			 (prin1 foo fp)))))
+    (error "Cannot dump file ~a. Cannot create directory" file)))
 
 (defun dump-group-to-file (file)
   "Dumps the frames of the current group of the current screen to the named file."
@@ -261,16 +240,40 @@
 	 (convert-group group) ;; TODO: TEST! TEST! TEST!!!
 	 (restore-group group gdump))))))
 
+
+;; (defun restore-screen (screen sdump)
+;;   "Restore all frames in all groups of given screen. Create groups if
+;;  they don't already exist."
+;;   (dolist (gdump (sdump-groups sdump))
+;;     (restore-group (or (find-group screen (gdump-name gdump))
+;;                        ;; FIXME: if the group doesn't exist then
+;;                        ;; windows won't be migrated from existing
+;;                        ;; groups
+;;                        (add-group screen (gdump-name gdump)))
+;;                    gdump)))
+
 (defun restore-screen (screen sdump)
   "Restore all frames in all groups of given screen. Create groups if
  they don't already exist."
   (dolist (gdump (sdump-groups sdump))
-    (restore-group (or (find-group screen (gdump-name gdump))
-                       ;; FIXME: if the group doesn't exist then
-                       ;; windows won't be migrated from existing
-                       ;; groups
-                       (add-group screen (gdump-name gdump)))
-                   gdump)))
+    (cond ((eq (type-of gdump) 'gdump)
+	   (format t "~a~%" (gdump-name gdump))
+	   (restore-group
+	    (or
+	     (find-group screen (gdump-name gdump))
+	     ;; FIXME: if the group doesn't exist then
+	     ;; windows won't be migrated from existing
+	     ;; groups
+	     (add-group screen (gdump-name gdump)))
+	    gdump))
+	  ((eq (type-of gdump) 'fgdump)
+	   (format t "~a~%" (fgdump-name gdump))
+	   (format t "~a"
+		   (restore-group
+		    (or
+		     (find-group screen (fgdump-name gdump))
+		     (add-group screen (fgdump-name gdump) :type 'float-group))
+		    gdump))))))
 
 (defun restore-desktop (ddump)
   "Restore all frames, all groups, and all screens."
@@ -284,7 +287,7 @@
   "Restores screen, groups, or frames from named file, depending on file's contents."
   (let ((dump (read-dump-from-file file)))
     (typecase dump
-      (gdump
+      ((or gdump fgdump)
        (restore-group (current-group) dump)
        (message "Group restored."))
       (sdump
