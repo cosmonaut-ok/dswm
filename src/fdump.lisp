@@ -130,55 +130,6 @@
       (let ((*package* (find-package :dswm)))
         (read fp)))))
 
-;; (defun restore-group (group gdump &optional auto-populate (window-dump-fn 'window-id))
-;;   (let ((windows (group-windows group)))
-;;     (labels ((give-frame-a-window (f)
-;;                (unless (frame-window f)
-;;                  (setf (frame-window f) (find f windows :key 'window-frame))))
-;;              (restore (fd)
-;;                (let ((f (make-frame
-;;                          :number (fdump-number fd)
-;;                          :x (fdump-x fd)
-;;                          :y (fdump-y fd)
-;;                          :width (fdump-width fd)
-;;                          :height (fdump-height fd))))
-;;                  ;; import matching windows
-;;                  (if auto-populate
-;;                      (choose-new-frame-window f group)
-;;                      (progn
-;;                        (dolist (w windows)
-;;                          (when (equal (fdump-current fd) (funcall window-dump-fn w))
-;;                            (setf (frame-window f) w))
-;;                          (when (find (funcall window-dump-fn w) (fdump-windows fd) :test 'equal)
-;;                            (setf (window-frame w) f)))))
-;;                  (when (fdump-current fd)
-;;                    (give-frame-a-window f))
-;;                  f))
-;;              (copy (tree)
-;;                (cond ((null tree) tree)
-;;                      ((typep tree 'fdump)
-;;                       (restore tree))
-;;                      (t
-;;                       (mapcar #'copy tree)))))
-;;       ;; clear references to old frames
-;;       (dolist (w windows)
-;;         (setf (window-frame w) nil))
-;;       (setf (tile-group-frame-tree group) (copy (gdump-tree gdump))
-;;             (tile-group-current-frame group) (find (gdump-current gdump) (group-frames group) :key 'frame-number))
-;;       ;; give any windows still not in a frame a frame
-;;       (dolist (w windows)
-;;         (unless (window-frame w)
-;;           (setf (window-frame w) (tile-group-current-frame group))))
-;;       ;; FIXME: if the current window was blank in the dump, this does not honour that.
-;;       (give-frame-a-window (tile-group-current-frame group))
-;;       ;; raise the curtains
-;;       (dolist (w windows)
-;;         (if (eq (frame-window (window-frame w)) w)
-;;             (unhide-window w)
-;;             (hide-window w)))
-;;       (sync-all-frame-windows group)
-;;       (focus-frame group (tile-group-current-frame group)))))
-
 (defun restore-group (group gdump &optional auto-populate (window-dump-fn 'window-id))
   "Restore group from group dump"
   (let ((windows (group-windows group)))
@@ -239,18 +190,6 @@
 	(t
 	 (convert-group group) ;; TODO: TEST! TEST! TEST!!!
 	 (restore-group group gdump))))))
-
-
-;; (defun restore-screen (screen sdump)
-;;   "Restore all frames in all groups of given screen. Create groups if
-;;  they don't already exist."
-;;   (dolist (gdump (sdump-groups sdump))
-;;     (restore-group (or (find-group screen (gdump-name gdump))
-;;                        ;; FIXME: if the group doesn't exist then
-;;                        ;; windows won't be migrated from existing
-;;                        ;; groups
-;;                        (add-group screen (gdump-name gdump)))
-;;                    gdump)))
 
 (defun restore-screen (screen sdump)
   "Restore all frames in all groups of given screen. Create groups if

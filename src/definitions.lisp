@@ -89,6 +89,7 @@
 	  *record-last-msg-override*
 	  *resize-hides-windows*
 	  *resize-map*
+	  *rfr-permanent-p*
 	  *root-click-focuses-frame*
 	  *root-click-hook*
 	  *run-or-raise-all-groups*
@@ -949,11 +950,17 @@ will have no effect.")
   screens current)
 
 (defvar *desktop-rules* (make-ddump :screens nil :current nil)
-  "List of rules governing desktop rules")
+  "List of rules governing desktop")
 
 (defvar *window-placement-rules* '()
   "List of rules governing window placement. Use define-frame-preference to
 add rules")
+
+(defvar *rfr-elements*
+  '("all" "group" "screen" "window" "group-windows" "screen-windows" "all-windows" "desktop"))
+
+(defvar *rfr-permanent-p* t
+  "Change, if desktop and window-placement rules remembers after session end")
 
 (defvar *desktop-rules* '()
   "List of rules governing desktop")

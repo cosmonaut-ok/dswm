@@ -64,7 +64,6 @@
    (if role (string-match (window-role window) role) t)
    (if title (string-match (window-title window) title) t) t))
 
-
 (defun window-matches-rule-p (w rule)
   "Returns T if window matches rule"
   (destructuring-bind (group-name frame raise lock
@@ -119,23 +118,28 @@
                        (values)))))
         (values))))
 
-(defun sync-window-placement ()
-  "Re-arrange existing windows according to placement rules" ;; TODO: make rules restoration for floating windows!
+(defun sync-window-placement (window)
+  "Re-arrange window according to placement rules" ;; TODO: make rules restoration for floating windows!
+  (let ((screen (window-screen window)))
+    (multiple-value-bind (to-group frame raise)
+			 (with-current-screen screen
+					      (get-window-placement screen window))
+			 (declare (ignore raise))
+			 (when to-group
+			   (cond ((eq (type-of to-group) 'tile-group)
+				  (unless (eq (window-group window) to-group)
+				    (move-window-to-group window to-group))
+				  (unless (eq (window-frame window) frame)
+				    (pull-window window frame)))
+				 ((eq (type-of to-group) 'float-group)
+				  t
+				  ))))))
+
+(defun sync-windows-placement ()
+  "Re-arrange existing windows according to placement rules"
   (dolist (screen *screen-list*)
     (dolist (window (screen-windows screen))
-      (multiple-value-bind (to-group frame raise)
-          (with-current-screen screen
-            (get-window-placement screen window))
-        (declare (ignore raise))
-	(when to-group
-	  (cond ((eq (class-of to-group) 'tile-group)
-		 (unless (eq (window-group window) to-group)
-		   (move-window-to-group window to-group))
-		 (unless (eq (window-frame window) frame)
-		   (pull-window window frame)))
-		((eq (class-of to-group) 'float-group)
-		 t
-		 )))))))
+      (sync-window-placement window))))
 
 (defun assign-window (window group &optional (where :tail))
   "Assign the window to the specified group and perform the necessary
@@ -246,4 +250,4 @@ housekeeping."
 
 (defcommand place-existing-windows () ()
   "Re-arrange existing windows according to placement rules."
-  (sync-window-placement))
+  (sync-windows-placement))
