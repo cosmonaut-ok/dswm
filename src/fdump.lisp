@@ -68,14 +68,14 @@
 		    (dump tree))
 		   (t
 		    (mapcar #'copy tree)))))
-    (cond ((eq (class-of group) 'tile-group)
+    (cond ((eq (type-of group) 'tile-group)
 	   (make-gdump
 	    ;; we only use the name and number for screen and desktop restores
 	    :number (group-number group)
 	    :name (group-name group)
 	    :tree (copy (tile-group-frame-tree group))
 	    :current (frame-number (tile-group-current-frame group))))
-	  ((eq (class-of group) 'float-group)
+	  ((eq (type-of group) 'float-group)
 	   (make-fgdump
 	    :number (group-number group)
 	    :name (group-name group))))))

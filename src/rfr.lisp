@@ -45,13 +45,13 @@
 	 (car dump-list))
 	(t (sdump-member-of-list-p sdump (cdr dump-list)))))
 
-(defun replace-sdump-member-of-list (sdump dump-list)
+(defun update-sdump-member-of-list (sdump dump-list)
   "Replace, sdump to new sdump with same ID in sdumps list"
   (cond ((null dump-list) nil)
 	((eq (sdump-number sdump) (sdump-number (car dump-list)))
 	 (cons sdump (cdr dump-list)))
 	(t
-	 (cons (car dump-list) (replace-sdump-member-of-list sdump (cdr dump-list))))))
+	 (cons (car dump-list) (update-sdump-member-of-list sdump (cdr dump-list))))))
 
 (defun remove-sdump-member-of-list (sdump dump-list)
   "Remove, sdump from sdumps list"
@@ -78,7 +78,7 @@
   	     (car dump-list)
   	     (gdump-member-of-list-p gdump (cdr dump-list))))))
 
-(defun replace-gdump-member-of-list (gdump dump-list) ;; TODO
+(defun update-gdump-member-of-list (gdump dump-list) ;; TODO
   "Replace, group dump with new group dump in dump list"
   (cond ((null dump-list)
   	 nil)
@@ -87,13 +87,13 @@
   	      (eq (gdump-number gdump) (gdump-number (car dump-list)))
   	      (eq (gdump-name gdump) (gdump-number (car dump-list))))
 	     (cons (dump-group gdump) (cdr dump-list))
-  	     (cons (car dump-list) (replace-gdump-member-of-list gdump (cdr dump-list)))))
+  	     (cons (car dump-list) (update-gdump-member-of-list gdump (cdr dump-list)))))
   	((eq (type-of (car dump-list)) 'fgdump)
   	 (if (or
   	      (eq (group-number gdump) (fgdump-number (car dump-list)))
   	      (eq (group-name gdump) (fgdump-number (car dump-list))))
 	     (cons (dump-group gdump) (cdr dump-list))
-  	     (cons (car dump-list) (replace-gdump-member-of-list gdump (cdr dump-list)))))))
+  	     (cons (car dump-list) (update-gdump-member-of-list gdump (cdr dump-list)))))))
 
 (defun remove-gdump-member-of-list (gdump dump-list) ;; TODO
   "Remove, group dump with new group dump in dump list"
@@ -125,7 +125,7 @@
     (cond ((and
 	    (not (null sdump-member))
 	    (not (null gdump-member)))
-	   (replace-gdump-member-of-list dumped-group (sdump-groups sdump-member)))
+	   (update-gdump-member-of-list dumped-group (sdump-groups sdump-member)))
 	  ((and
 	    (not (null sdump-member))
 	    (null gdump-member))
@@ -161,7 +161,7 @@
 			dumped-screen
 			(ddump-screens *desktop-rules*))))
     (if (not (null sdump-member))
-	(replace-sdump-member-of-list dumped-screen (ddump-screens *desktop-rules*))
+	(update-sdump-member-of-list dumped-screen (ddump-screens *desktop-rules*))
 	(push dumped-screen (ddump-screens *desktop-rules*)))))
 
 (defun remove-screen-from-rules (&optional (screen (current-screen)))
@@ -178,31 +178,41 @@
 ;; remember
 ;;;;
 
-(defun remember-group (&optional (group (current-group)))
-  (message "Locked"))
+(defun remember-group (&key (group (current-group)) permantnt-p)
+  (progn
+    (update-gdump-member-of-list (gdump group) *desktop-rules*)
+    (if-not-null permantnt-p
+		 (dump-to-file *desktop-rules* *desktop-dump-file*))))
 
-(defun remember-screen (&optional (screen (current-screen)))
-  (message "Locked"))
+(defun remember-screen (&key (screen (current-screen)) permantnt-p)
+  (progn
+    (update-gdump-member-of-list (gdump group) *desktop-rules*)
+    (if-not-null permantnt-p
+		 (dump-to-file *desktop-rules* *desktop-dump-file*))))
 
 (defun remember-desktop ()
   (let ((desktop-dump (desktop-dump)))
     (progn
     (setf *desktop-rules* desktop-dump)
-    (if (ensure-directories-exist *desktop-dump-file*)
-	(dump-to-file (dump-desktop) *desktop-dump-file*)
-      (message "Cannot save desktop rules to file ~a. Cannot create directory" *desktop-dump-file*)))))
+    (dump-to-file (dump-desktop) *desktop-dump-file*))))
 
-(defun remember-window-placement (&optional (window (current-window)))
-  (message "Locked"))
+(defun remember-window-placement (&key (window (current-window)) (lock-p t) title-p) ;; is it function really needed?
+  (make-rule-for-window window lock-p title-p))
 
-(defun remember-group-windows-placement (&optional (group (current-group)))
-  (message "Locked"))
+(defun remember-group-windows-placement (&key (group (current-group)) (lock-p t) title-p)
+  "Guess at a placement rule for all WINDOWS in group and add it to the current set."
+  (if (> (length (group-windows group)) 0)
+      (dolist (i (group-windows group))
+	(make-rule-for-window i lock title)) t)) ; dolist always gives nil
 
-(defun remember-screen-windows-placement (&optional (screen (current-screen)))
-  (message "Locked"))
+(defun remember-screen-windows-placement (&key (screen (current-screen)) (lock-p t) title-p)
+  "Guess at a placement rule for all WINDOWS in all groups in current screen and add it to the current set."
+  (dolist (i (screen-groups screen))
+    (remember-group-windows-placement i lock-p title-p)) t) ; dolist always gives nil
 
-(defun remember-all-window-placement ()
-  (message "Locked"))
+(defun remember-all-window-placement (&key (lock-p t) title-p)
+  (dolist (i *screen-list*)
+    (remember-screen-windows-placement i lock-p title-p)))
 
 (defun remember-all ()
   "Make rules of all existing windows, bind it to groups and frames,
@@ -221,22 +231,49 @@ data dir"
 ;; forget
 ;;;;
 
-(defun forget-group (&optional (group (current-group)))
-  (message "Locked"))
+(defun forget-group (&key (group (current-group)) permantnt-p)
+  (progn
+    (remove-gdump-member-of-list (gdump group) *desktop-rules*)
+    (if-not-null permantnt-p
+		 (dump-to-file *desktop-rules* *desktop-dump-file*))))
 
-(defun forget-screen (&optional (screen (current-screen)))
-  (message "Locked"))
+(defun forget-screen (&key (screen (current-screen)) permantnt-p)
+  (progn
+    (remove-gdump-member-of-list (gdump group) *desktop-rules*)
+    (if-not-null permantnt-p
+		 (dump-to-file *desktop-rules* *desktop-dump-file*))))
 
 (defun forget-window-placement (&optional (window (current-window)))
+;; (defun remove-rule-for-window (window)
+;;   "Forget window of given group and screen"
+;;   (let ((match (rule-matching-window window)))
+;;     (when match
+;;       (setf
+;;        *window-placement-rules*
+;;        (delete match *window-placement-rules*)))))
+
   (message "Locked"))
 
 (defun forget-group-windows-placement (&optional (group (current-group)))
+;; (defun remove-rules-for-group (group)
+;;   "Forget all windows of given group"
+;;   (dolist (i (group-windows group))
+;;     (remove-rule-for-window i)))
+
   (message "Locked"))
 
 (defun forget-screen-windows-placement (&optional (screen (current-screen)))
+;; (defun remove-rules-for-screen (screen &optional lock title)
+;;   "Forget all windows of given screen"
+;;   (dolist (i (screen-groups screen))
+;;     (remove-rules-for-group i)))
+
+
   (message "Locked"))
 
 (defun forget-all-window-placement ()
+
+
   (message "Locked"))
 
 (defun forget-all ()
@@ -298,21 +335,6 @@ data dir"
 ;; ;;;;
 ;; ;;;;
 
-;; (defun make-rules-for-group (group &optional lock title)
-;;   "Guess at a placement rule for all WINDOWS in group and add it to the current set."
-;;   (if (> (length (group-windows (current-group))) 0)
-;;     (dolist (i (group-windows group))
-;;       (make-rule-for-window i lock title)) t))
-
-;; (defun make-rules-for-screen (screen &optional lock title)
-;;   "Guess at a placement rule for all WINDOWS in all groups in current screen and add it to the current set."
-;;   (dolist (i (screen-groups screen))
-;;     (make-rules-for-group i lock title)) t) ; dolist always gives nil
-
-;; (defun make-rules-for-desktop (&optional lock title)
-;;   (dolist (i *screen-list*)
-;;     (make-rules-for-screen i lock title)))
-
 ;; (defun remove-rule-for-window (window)
 ;;   "Forget window of given group and screen"
 ;;   (let ((match (rule-matching-window window)))
@@ -330,12 +352,6 @@ data dir"
 ;;   "Forget all windows of given screen"
 ;;   (dolist (i (screen-groups screen))
 ;;     (remove-rules-for-group i)))
-
-(defmacro with-dump-to-file (body file)
-  `(if (ensure-directories-exist file)
-       (dump-to-file ,body ,file)
-     (error "Cannot dump file ~a. Cannot create directory" ,file)))
-
 
 ;; (defmacro forget-remember-rules (body message message-false)
 ;;   "Local macro. Forget or remember windows placement rules"

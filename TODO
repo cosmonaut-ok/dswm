@@ -46,3 +46,5 @@ DSWM
 
 Make test for setting and unsetting font
 
+
+make programs autostart:
