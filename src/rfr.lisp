@@ -195,7 +195,7 @@
   ;; 			     ((gdump-member-of-list-p (dump-group group) gdumps)
   ;; 			      (setf (sdump-groups i)
   ;; 				    (update-gdump-member-of-list (dump-group group) gdumps))
-  ;; 			      (cons 
+  ;; 			      (cons
   ;; 			     (t
   ;; 			      (setf (sdump-groups i)
   ;; 				    (cons (dump-group group) gdumps))))
@@ -206,7 +206,7 @@
   ;; 			 (list (make-sdump :number (screen-id (group-screen group))
   ;; 					   :current (group-number group)
   ;; 					   :groups (list (dump-group group))))))
-	  
+
   ;; 	  (let ((screens (ddump-screens *desktop-rules*)))
   ;; 	    (message "~a" (upd-list group screens))
   ;; 	    (setf (ddump-screens *desktop-rules*)
@@ -338,22 +338,42 @@ data dir"
 ;; recall
 ;;;;
 
+;; (defun recall-group (&key (group (current-group)) permanent-p)
+;;   (progn
+;;     (if-not-null permanent-p
+;; 		 (setf *desktop-rules*
+;; 		       (read-dump-from-file *desktop-dump-file*)))
+;;     (let ((current-ddump (dump-desktop)))
+;;       (dolist (i (ddump-screens current-ddump))
+;; 	(dolist (j (sdump-groups i))
+;; 	  (setf j (update-gdump-member-of-list (dump-group group) j))))
+;;       (setf *desktop-rules* current-ddump)
+;;       (restore-desktop *desktop-rules*))))
+
 (defun recall-group (&key (group (current-group)) permanent-p)
-  (progn 
-    (if-not-null permanent-p
-		 (setf *desktop-rules* 
-		       (read-dump-from-file *desktop-dump-file*)))
-    (let ((current-ddump (dump-desktop)))
-      (dolist (i (ddump-screens current-ddump))
-	(dolist (j (sdump-groups i))
-	  (setf j (update-gdump-member-of-list (dump-group group) j))))
-      (setf *desktop-rules* current-ddump)
-      (restore-desktop *desktop-rules*))))
+  (labels ((get-gdump (group sdump-list)
+	     (if-not-null
+	      sdump-list
+	      (let ((member-p
+		     (gdump-member-of-list-p
+		      (dump-group group)
+		      (sdump-groups (car sdump-list)))))
+		(cond ((and
+			(eq (screen-id (group-screen group))
+			    (sdump-number (car sdump-list)))
+			(not (null member-p)))
+		       member-p)
+		      (t (get-gdump group (cdr sdump-list))))))))
+    (progn
+      (if-not-null permanent-p
+		   (setf *desktop-rules*
+			 (read-dump-from-file *desktop-dump-file*)))
+      (restore-group group (get-gdump group (ddump-screens *desktop-rules*))))))
 
 (defun recall-screen (&key (screen (current-screen)) permanent-p)
-  (progn 
+  (progn
     (if-not-null permanent-p
-		 (setf *desktop-rules* 
+		 (setf *desktop-rules*
 		       (read-dump-from-file *desktop-dump-file*)))
     (let ((current-ddump (dump-desktop)))
       (dolist (i (ddump-screens current-ddump))
@@ -364,7 +384,7 @@ data dir"
 (defun recall-desktop (&key permanent-p)
   (progn
     (if-not-null permanent-p
-		 (setf *desktop-rules* 
+		 (setf *desktop-rules*
 		       (read-dump-from-file *desktop-dump-file*)))
     (restore-desktop *desktop-rules*) t))
 
@@ -426,7 +446,7 @@ data dir"
 	 (remember-all :permanent-p *rfr-permanent-p*))))
 
 (defcommand forget (what) ((:rfr "What element do you want to forget? "))
-  "Forget remembered rules for some desktop element, like frames 
+  "Forget remembered rules for some desktop element, like frames
 placement on group, group placement on screen, or window-placement"
   (cond ((equal what "group")
 	 (forget-group :permanent-p *rfr-permanent-p*))
@@ -446,7 +466,7 @@ placement on group, group placement on screen, or window-placement"
 	 (forget-all :permanent-p *rfr-permanent-p*))))
 
 (defcommand recall (what) ((:rfr "What element do you want to recall? "))
-  "Recall remembered rules for some desktop element, like frames 
+  "Recall remembered rules for some desktop element, like frames
 placement on group, group placement on screen, or window-placement"
   (cond ((equal what "group")
 	 (recall-group :permanent-p *rfr-permanent-p*))
