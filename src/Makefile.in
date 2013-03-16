@@ -1,7 +1,7 @@
 LISP=@LISP_PROGRAM@
 
 sbcl_BUILDOPTS=--load ./make-image.lisp
-cmucl_BUILDOPTS=-noinit -batch -load ~/.cmuclrc -load ./make-image.lisp -eval "(quit)"
+cmucl_BUILDOPTS=-noinit -batch -load ./make-image.lisp -eval "(quit)"
 clisp_BUILDOPTS=-K full -C -on-error exit < ./make-image.lisp
 ccl_BUILDOPTS=--load ./make-image.lisp
 ecl_BUILDOPTS=-shell ./make-image.lisp

@@ -54,17 +54,12 @@
                           :executable t)
 
 #+cmucl
-(progn
-(require 'clx)
-(require 'cl-ppcre)
 (save-lisp "dswm" :init-function (lambda ()
 				   ;; asdf requires sbcl_home to be set, so set it to the value when the image was built
 				   ;;(sb-posix:putenv (format nil "SBCL_HOME=~A" #.(sb-ext:posix-getenv "SBCL_HOME")))
 				   (dswm:dswm)
 				   0)
 	   :executable t)
-(quit))
-
 
 #+clisp
 (ext:saveinitmem "dswm" :init-function (lambda ()
