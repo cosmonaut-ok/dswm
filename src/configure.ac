@@ -11,8 +11,9 @@ AC_SUBST(LISP_PROGRAM)
 AC_SUBST(DSWM_BIN_DIR)
 
 # Checks for programs.
-AC_ARG_WITH(lisp, [ --with-lisp=IMPL use the specified lisp (sbcl, clisp, ccl or ecl)], LISP=$withval, LISP="any")
+AC_ARG_WITH(lisp, [ --with-lisp=IMPL use the specified lisp (sbcl, cmucl, clisp, ccl, ecl or lw)], LISP=$withval, LISP="any")
 AC_ARG_WITH(sbcl, [ --with-sbcl=PATH specify location of sbcl], SBCL_PATH=$withval, SBCL_PATH="")
+AC_ARG_WITH(cmucl, [ --with-cmucl=PATH specify location of cmucl], CMUCL_PATH=$withval, CMUCL_PATH="")
 AC_ARG_WITH(clisp, [ --with-clisp=PATH specify location of clisp], CLISP_PATH=$withval, CLISP_PATH="")
 AC_ARG_WITH(ccl, [ --with-ccl=PATH specify location of ccl], CCL_PATH=$withval, CCL_PATH="")
 AC_ARG_WITH(ecl, [ --with-ecl=PATH specify location of ecl], ECL_PATH=$withval, ECL_PATH="")
@@ -25,6 +26,14 @@ if test -x "$SBCL_PATH"; then
    AC_MSG_RESULT($SBCL)
 else
    AC_PATH_PROG([SBCL], sbcl,"")
+fi
+
+if test -x "$CMUCL_PATH"; then
+   CMUCL=$CMUCL_PATH
+   AC_MSG_CHECKING([for cmucl])
+   AC_MSG_RESULT($CMUCL)
+else
+   AC_PATH_PROG([CMUCL], cmucl,"")
 fi
 
 if test -x "$CLISP_PATH"; then
@@ -62,6 +71,8 @@ fi
 if test "x$LISP" = "xany"; then
    if test "$SBCL"; then
       LISP=sbcl
+   elif test "$CMUCL"; then
+      LISP=cmucl
    elif test "$CLISP"; then
       LISP=clisp
    elif test "$CCL"; then
@@ -75,6 +86,8 @@ fi
 
 if test "x$LISP" = "xsbcl"; then
    LISP_PROGRAM=$SBCL
+elif test "x$LISP" = "xcmucl"; then
+   LISP_PROGRAM=$CMUCL
 elif test "x$LISP" = "xclisp"; then
    LISP_PROGRAM=$CLISP
 elif test "x$LISP" = "xccl"; then

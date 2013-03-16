@@ -20,7 +20,7 @@
 ;; Commentary:
 ;;
 ;; Code:
-#-(or sbcl clisp openmcl ecl (and lispworks6 (not lispworks-personal-edition)))
+#-(or sbcl cmucl clisp openmcl ecl (and lispworks6 (not lispworks-personal-edition)))
 (error "This lisp implementation is not supported.")
 
 #+lispworks
@@ -53,6 +53,19 @@
                                                 0)
                           :executable t)
 
+#+cmucl
+(progn
+(require 'clx)
+(require 'cl-ppcre)
+(save-lisp "dswm" :init-function (lambda ()
+				   ;; asdf requires sbcl_home to be set, so set it to the value when the image was built
+				   ;;(sb-posix:putenv (format nil "SBCL_HOME=~A" #.(sb-ext:posix-getenv "SBCL_HOME")))
+				   (dswm:dswm)
+				   0)
+	   :executable t)
+(quit))
+
+
 #+clisp
 (ext:saveinitmem "dswm" :init-function (lambda ()
                                             (dswm:dswm)
@@ -69,7 +82,7 @@
                  :epilogue-code '(dswm:dswm))
 
 ;;; if you want to save an image
-#+(and lispworks)
+#+lispworks
 (hcl:save-image "dswm"
                 :multiprocessing t
                 :environment nil
@@ -80,7 +93,7 @@
                                                (lw:quit :status 0))))
 
 ;;; if you want to save a standalone executable
-#+(and lispworks nil)
+#+lispworks
 (lw:deliver #'dswm:dswm "dswm" 0
             :interface nil
             :multiprocessing t

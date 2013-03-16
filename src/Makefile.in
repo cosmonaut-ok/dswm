@@ -1,6 +1,7 @@
 LISP=@LISP_PROGRAM@
 
 sbcl_BUILDOPTS=--load ./make-image.lisp
+cmucl_BUILDOPTS=-noinit -batch -load ~/.cmuclrc -load ./make-image.lisp -eval "(quit)"
 clisp_BUILDOPTS=-K full -C -on-error exit < ./make-image.lisp
 ccl_BUILDOPTS=--load ./make-image.lisp
 ecl_BUILDOPTS=-shell ./make-image.lisp
@@ -8,6 +9,7 @@ lw_BUILDOPTS=-build ./make-image.lisp
 
 clisp_INFOOPTS=-K full -on-error exit -x "(require 'asdf) (load \"dswm.asd\") (load \"@PPCRE_PATH@/cl-ppcre.asd\") (asdf:operate 'asdf:load-op :dswm) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)"
 sbcl_INFOOPTS=--eval "(progn (require 'asdf) (require 'dswm) (load \"manual.lisp\"))" --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+cmucl_INFOOPTS=-eval "(progn (require 'asdf) (require 'dswm) (load \"manual.lisp\"))" -eval "(progn (dswm::generate-manual) (quit))"
 ccl_INFOOPTS=--eval "(progn (require 'asdf) (require 'stumpwm))" --load manual.lisp --eval "(progn (stumpwm::generate-manual) (quit))"
 ecl_INFOOPTS=-eval "(progn (require 'asdf) (require 'stumpwm) (load \"manual.lisp\"))" -eval "(progn (stumpwm::generate-manual) (ext:quit))"
 lw_INFOOPTS=-eval "(progn (require 'asdf) (load \"manual.lisp\"))" -eval "(progn (stumpwm::generate-manual) (lw:quit))"
@@ -85,7 +87,7 @@ testbuild:
 	./configure --prefix=/usr/local
 	printf '\n\nNow, run \"cd /tmp/$(dest_dir).build && sudo rm -rf $(etcdir)/dswm && sudo make install && cd $(root_dir)\" to install DSWM\n\n'
 clean:
-	rm -f *.fasl *.fas *.lib *.*fsl
+	rm -f *.fasl *.fas *.lib *.*fsl *.o
 	rm -f *.log *.fns *.fn *.aux *.cp *.ky *.log *.toc *.pg *.tp *.vr *.vrs
 	rm -rf dswm ../doc/dswm.texi dswm.info autom4te.cache  *.tar.* version.lisp module.lisp help.lisp ../config/dswm.desktop Makefile
 install: dswm.info dswm
