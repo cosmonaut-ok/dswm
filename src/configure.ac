@@ -14,9 +14,9 @@ AC_SUBST(DSWM_BIN_DIR)
 AC_ARG_WITH(lisp, [ --with-lisp=IMPL use the specified lisp (sbcl, clisp, ccl or ecl)], LISP=$withval, LISP="any")
 AC_ARG_WITH(sbcl, [ --with-sbcl=PATH specify location of sbcl], SBCL_PATH=$withval, SBCL_PATH="")
 AC_ARG_WITH(clisp, [ --with-clisp=PATH specify location of clisp], CLISP_PATH=$withval, CLISP_PATH="")
-# AC_ARG_WITH(ccl, [ --with-ccl=PATH specify location of ccl], CCL_PATH=$withval, CCL_PATH="")
-# AC_ARG_WITH(ecl, [ --with-ecl=PATH specify location of ecl], ECL_PATH=$withval, ECL_PATH="")
-# AC_ARG_WITH(lw, [ --with-lw=PATH specify location of lispworks], LW_PATH=$withval, LW_PATH="")
+AC_ARG_WITH(ccl, [ --with-ccl=PATH specify location of ccl], CCL_PATH=$withval, CCL_PATH="")
+AC_ARG_WITH(ecl, [ --with-ecl=PATH specify location of ecl], ECL_PATH=$withval, ECL_PATH="")
+AC_ARG_WITH(lw, [ --with-lw=PATH specify location of lispworks], LW_PATH=$withval, LW_PATH="")
 AC_ARG_WITH(manual,  [  --with-manual		compile with manual for DSWM (need cl-ppcre)], MANUAL="true", MANUAL="")
 
 if test -x "$SBCL_PATH"; then
@@ -92,7 +92,7 @@ fi
 AC_MSG_NOTICE([Using $LISP at $LISP_PROGRAM])
 
 # check for makeinfo
-if test "$MANUAL" = "true"; then
+if test "x$MANUAL" = "true"; then
    MAKE_ALL_DEPS="dswm dswm.info"
 
    # check for makeinfo
