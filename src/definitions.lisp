@@ -237,6 +237,8 @@ of :error."
 (defvar *suppress-abort-messages* nil
   "Suppress abort message when non-nil.")
 
+(defvar *stream-buffer-size* 8192)
+
 (defvar *timeout-wait* 5
   "Specifies, in seconds, how long a message will appear for. This must
 be an integer.")

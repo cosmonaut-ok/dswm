@@ -240,23 +240,57 @@ directory form - see PATHNAME-AS-DIRECTORY."
 exists and returns its truename if this is the case, NIL otherwise.
 The truename is returned in `canonical' form, i.e. the truename of a
 directory is returned as if by PATHNAME-AS-DIRECTORY."
-  #+:sbcl (probe-file pathspec)
+  #+(or :sbcl :lispworks :openmcl :ecl) (probe-file pathspec)
+  #+(or :cmu) (or (probe-file (pathname-as-directory pathspec))
+		  (probe-file pathspec))
+  ;; #+:cormanlisp (or (and (ccl:directory-p pathspec)
+  ;;                        (pathname-as-directory pathspec))
+  ;;                   (probe-file pathspec))
   #+:clisp (or (ignore-errors
                  (let ((directory-form (pathname-as-directory pathspec)))
                    (when (ext:probe-directory directory-form)
                      directory-form)))
                (ignore-errors
-                 (probe-file (pathname-as-file pathspec)))))
+                 (probe-file (pathname-as-file pathspec))))
+  #-(or :sbcl :cmu :lispworks :openmcl :clisp :ecl) # :cormanlisp
+  (error "FILE-EXISTS-P not implemented"))
+
+;; (defun file-exists-p (pathspec)
+;;   "Checks whether the file named by the pathname designator PATHSPEC
+;; exists and returns its truename if this is the case, NIL otherwise.
+;; The truename is returned in `canonical' form, i.e. the truename of a
+;; directory is returned as if by PATHNAME-AS-DIRECTORY."
+;;   #+:sbcl (probe-file pathspec)
+;;   #+:clisp (or (ignore-errors
+;;                  (let ((directory-form (pathname-as-directory pathspec)))
+;;                    (when (ext:probe-directory directory-form)
+;;                      directory-form)))
+;;                (ignore-errors
+;;                  (probe-file (pathname-as-file pathspec)))))
 
 (defun directory-exists-p (pathspec)
   "Checks whether the file named by the pathname designator PATHSPEC
 exists and if it is a directory.  Returns its truename if this is the
 case, NIL otherwise.  The truename is returned in directory form as if
 by PATHNAME-AS-DIRECTORY."
+  #+:lispworks
+  (and (lw:file-directory-p pathspec)
+       (pathname-as-directory (truename pathspec)))
+  #-:lispworks
   (let ((result (file-exists-p pathspec)))
     (and result
          (directory-pathname-p result)
          result)))
+
+;; (defun directory-exists-p (pathspec)
+;;   "Checks whether the file named by the pathname designator PATHSPEC
+;; exists and if it is a directory.  Returns its truename if this is the
+;; case, NIL otherwise.  The truename is returned in directory form as if
+;; by PATHNAME-AS-DIRECTORY."
+;;   (let ((result (file-exists-p pathspec)))
+;;     (and result
+;;          (directory-pathname-p result)
+;;          result)))
 
 (defun walk-directory (dirname fn &key directories
                                        (if-does-not-exist :error)
@@ -305,8 +339,6 @@ signaled if the directory DIRNAME does not exist."
          (error "IF-DOES-NOT-EXIST must be one of :ERROR or :IGNORE."))))
     (values)))
 
-(defvar *stream-buffer-size* 8192)
-
 (defun copy-stream (from to &optional (checkp t))
   "Copies into TO \(a stream) from FROM \(also a stream) until the end
 of FROM is reached, in blocks of *stream-buffer-size*.  The streams
@@ -319,7 +351,8 @@ checked for compatibility of their types."
                          :element-type (stream-element-type from))))
     (loop
        (let ((pos #-:clisp (read-sequence buf from)
-                  #+:clisp (ext:read-byte-sequence buf from :no-hang nil)))
+                  #+:clisp (ext:read-byte-sequence buf from :no-hang nil)
+		  #+:cmu (sys:read-n-bytes from buf 0 *stream-buffer-size* nil)))
          (when (zerop pos) (return))
          (write-sequence buf to :end pos))))
   (values))
@@ -334,7 +367,13 @@ OVERWRITE is true overwrites the file designtated by TO if it exists."
                               :direction :output
                               :if-exists (if overwrite
 					     :supersede
-					     :error))
+					     #-:cormanlisp :error
+					     #+:cormanlisp nil))
+        #+:cormanlisp
+        (unless out
+          (error (make-condition 'file-error
+                                 :pathname to
+                                 :format-control "File already exists.")))
         (copy-stream in out))))
   (values))
 
@@ -343,30 +382,57 @@ OVERWRITE is true overwrites the file designtated by TO if it exists."
 designated by the non-wild pathname designator DIRNAME including
 DIRNAME itself.  IF-DOES-NOT-EXIST must be one of :ERROR or :IGNORE
 where :ERROR means that an error will be signaled if the directory
-DIRNAME does not exist."
-  (walk-directory dirname
-		  (lambda (file)
-		    (cond ((directory-pathname-p file)
-			   #+:sbcl (sb-posix:rmdir file)
-			   #+:clisp (ext:delete-directory file))
-			  (t (delete-file file))))
-		  :directories t
-		  :if-does-not-exist if-does-not-exist)
-  (values))
+DIRNAME does not exist.
 
+NOTE: this function is dangerous if the directory that you are
+removing contains symlinks to files outside of it - the target files
+might be removed instead!  This is currently fixed for SBCL and CCL."
+  #+:sbcl
+  (if (directory-exists-p dirname)
+      (sb-ext:delete-directory dirname :recursive t)
+      (ecase if-does-not-exist
+        (:error  (error "~S is not a directory" dirname))
+        (:ignore nil)))
+
+  #+:ccl-has-delete-directory
+  (if (directory-exists-p dirname)
+      (ccl:delete-directory dirname)
+      (ecase if-does-not-exist
+        (:error  (error "~S is not a directory" dirname))
+        (:ignore nil)))
+
+  #-(or :sbcl :ccl-has-delete-directory)
+  (walk-directory dirname
+                  (lambda (file)
+                    (cond ((directory-pathname-p file)
+                           #+:lispworks (lw:delete-directory file)
+                           #+:cmu (multiple-value-bind (ok err-number)
+                                      (unix:unix-rmdir (namestring (truename file)))
+                                    (unless ok
+                                      (error "Error number ~A when trying to delete ~A"
+                                             err-number file)))
+                           #+:clisp (ext:delete-dir file)
+                           #+:openmcl (cl-fad-ccl:delete-directory file)
+                           #+:cormanlisp (win32:delete-directory file)
+                           #+:ecl (si:rmdir file))
+                          (t (delete-file file))))
+                  :follow-symlinks nil
+                  :directories t
+                  :if-does-not-exist if-does-not-exist)
+  (values))
 ;;;; /Code from cl-fad
 
-(defun get-uid ()
+(defun get-uid () ;; TODO port to cmucl, ecl, lw
   "get uid"
   #+sbcl (sb-unix:unix-getuid)
   #+clisp (posix:uid)
   #-(or sbcl clisp) (error "Not implemented"))
 
 (defmacro move-to-head (list elt)
-   "Move the specified element in in LIST to the head of the list."
- `(progn
-    (setf ,list (remove ,elt ,list))
-    (push ,elt ,list)))
+  "Move the specified element in in LIST to the head of the list."
+  `(progn
+     (setf ,list (remove ,elt ,list))
+     (push ,elt ,list)))
 
 (define-condition dswm-error (error)
   () (:documentation "Any dswm specific error should inherit this."))
@@ -672,7 +738,7 @@ display a message whenever you switch frames:
 \(defun my-rad-fn (to-frame from-frame)
   (dswm:message \"Mustard!\"))
 
-\(dsmwm:add-hook dswm:*focus-frame-hook* 'my-rad-fn)
+\(dswm:add-hook dswm:*focus-frame-hook* 'my-rad-fn)
 @end example"
   `(setf ,hook (adjoin ,fn ,hook)))
 
