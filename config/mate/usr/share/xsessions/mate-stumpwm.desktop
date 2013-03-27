@@ -1,9 +1,0 @@
-[Desktop Entry]
-Name=GNOME StumpWM
-Comment=This session logs you into GNOME with StumpWM
-Exec=gnome-session --session=gnome-stumpwm --debug
-TryExec=gnome-session
-Icon=
-Type=Application
-X-Ubuntu-Gettext-Domain=gnome-session-3.0
-

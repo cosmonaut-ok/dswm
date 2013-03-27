@@ -1,0 +1,962 @@
+<a href="toc.html">Table of Contents</a>
+
+<h1>Details of the Config Files</h1>
+
+<h2><a name="keybindings"></a>Key Bindings</h2>
+
+<h3>Introduction</h3>
+
+<p>
+Key bindings are used to bind <a href="#actions">actions</a> to key
+combinations. Whenever the combination is pressed, the actions bound to it will
+be executed.
+</p>
+
+<p>
+Key bindings are found in the <b>keyboard</b> section of the <b>rc.xml</b>
+file. Any key bindings outside of the keyboard section will be ignored.
+</p>
+
+<h3>Syntax</h3>
+
+<p>
+Key bindings are specified using the following:
+</p>
+
+<blockquote>
+&lt;keybind key="KEY COMBO"&gt;<br />
+&nbsp;&nbsp;ACTIONS<br />
+&lt;/keybind&gt;
+</blockquote>
+
+<p>
+Any number of <a href="#actions">actions</a> may appear in a keybind.
+</p>
+
+<p>
+<b>KEY COMBO</b> is the key combination to be bound. The key combo has the
+following syntax: <b>Modifier-Modifier-Key</b>. Any number of modifiers can
+be specified, following each one with a '-'. The available modifiers are:
+</p>
+
+<ul>
+<li><b>S</b> - the Shift key</li>
+<li><b>C</b> - the Control key</li>
+<li><b>A</b> - the Alt key</li>
+<li><b>W</b> - the Windows keys</li>
+<li><b>M</b> - Mod3, not set by default i think</li>
+</ul>
+
+<p>
+Mod1 though Mod5 may also be used as modifiers. The xmodmap tool is used to
+set these up. The A and W modifiers are merely aliases for Mod1 and Mod4.
+</p>
+
+<p>
+The Key is the name of the key, such as 'a' or 'F1' or '4'. You can find the
+name of a key by running <b>xev</b> in a terminal, pressing the key, and
+watching the output from xev in the terminal.
+</p>
+
+<p>
+<b>ACTIONS</b> is any number of <a href="#actions">actions</a> which will be
+executed when the key combination is pressed.
+</p>
+
+<h3>Chaining</h3>
+
+<p>
+Key-chains, as first seen in Emacs, are possible by simply nesting the key bindings. For example:
+</p>
+
+<blockquote>
+&lt;keybind key="C-f"&gt;<br />
+&nbsp;&nbsp;&lt;keybind key="x"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/keybind&gt;<br />
+&lt;/keybind&gt;
+</blockquote>
+
+<p>
+The actions bound in this example would be fired by first pressing "C-f" (Hold Control - Press f), and then releasing everything and pressing "x".
+</p>
+
+<p>
+If you begin a key-chain, you will be unable to type in your applications until you complete the chain. After a short wait the chain will time out, and be cancelled. You may also cancel out of a chain by using the "C-g" (Hold Control - Press g) key sequence (the same as is used in Emacs). The cancelling key sequence is configurable if desired.
+</p>
+
+<h2><a name="mousebindings"></a>Mouse Bindings</h2>
+
+<h3>Introduction</h3>
+
+<p>
+Mouse bindings are used to bind <a href="#actions">actions</a> to mouse interactions. These control most of Openbox's behavior, from what happens when you click the Close button in a window's titlebar to how you drag windows to move them around the screen.
+</p>
+
+<p>
+Mouse bindings are found in the <b>mouse</b> section of the <b>rc.xml</b> file. Any mouse bindings outside of the mouse section will be ignored.
+</p>
+
+<h3>Syntax</h3>
+
+<p>
+Mouse bindings are specified using the following:
+</p>
+
+<blockquote>
+&lt;context name="CONTEXT"&gt;<br />
+&nbsp;&nbsp;&lt;mousebind button="BUTTON" action="INTERACTION"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/mousebind&gt;<br />
+&lt;/context&gt;
+</blockquote>
+
+<p>
+Any number of mousebinds may appear in a context, and any number of <a href="#actions">actions</a> may appear in a mousebind.
+</p>
+
+<p>
+First, some definitions:
+</p>
+<ul>
+  <li>
+    <b>Decorations</b> - The decorations drawn by Openbox around your applications. This includes the
+    <b>Titlebar</b> displayed on the top of each window, with the title, and some buttons in it. It also includes
+    the <b>Handle</b> displayed on the bottom of each window.
+  </li>
+  <li>
+    <b>Client area</b> - The applications themselves. This is the section of the window inside the
+    <b>Decorations</b>.
+  </li>
+</ul>
+
+<p>
+<b>CONTEXT</b> is the context in which the mouse interaction is taking place. The possible contexts are:
+</p>
+<ul>
+  <li>
+    <b>Frame</b> - Includes the entirety of all windows. This includes on their decorations <i>and</i> in their
+    <b>Client area</b>. <b>Note:</b> When a button is bound in this context, the clicks <b>will not</b> be
+    passed through to the application. Use with care.
+  </li>
+  <li>
+    <b>Client</b> - The <b>Client area</b> of all windows. <b>Notes:</b> When a button is bound in this
+    context, the clicks <b>will</b> be passed through to the application. Because of how these are handled,
+	<b>Press</b> interactions are the only useful interactions for this context.
+  </li>
+  <li>
+    <b>Desktop</b> - The desktop or background. This works even when you are running a file manager such
+    as Nautilus.
+  </li>
+  <li>
+    <b>Titlebar</b> - The <b>Decorations</b> on the top of each window, containing the window's title.
+  </li>
+  <li>
+    <b>Handle</b> - The <b>Decorations</b> on the bottom of each window.
+  </li>
+  <li>
+    <b>TLCorner</b> - The top-left corner of the window's titlebar (the mouse cursor changes while over
+    this). Generally this is only used for resizing windows.
+  </li>
+  <li>
+    <b>TRCorner</b> - The top-right corner of the window's titlebar (the mouse cursor changes while over
+    this). Generally this is only used for resizing windows.
+  </li>
+  <li>
+    <b>BLCorner</b> - The bottom-left corner of the window's handle (the mouse cursor changes while over
+    this). Generally this is only used for resizing windows.
+  </li>
+  <li>
+    <b>BRCorner</b> - The bottom-right corner of the window's handle (the mouse cursor changes while over
+    this). Generally this is only used for resizing windows.
+  </li>
+  <li>
+    <b>Icon</b> - The window's icon in all window's titlebars.
+  </li>
+  <li>
+    <b>AllDesktops</b> - The All-Desktops (Omnipresent) button in all window's titlebars. This button is not
+    visible in the default settings. It is called the All-Desktop button because its default bindings toggle
+    omnipresence on the window.
+  </li>
+  <li>
+    <b>Shade</b> - The Shade button in all window's titlebars. This button is not visible in the default settings. It
+    is called the Shade button because its default bindings toggle shading on the window.
+  </li>
+  <li>
+    <b>Iconify</b> - The Iconify button in all window's titlebars. It is called the Iconify button because its default
+    bindings iconify the window.
+  </li>
+  <li>
+    <b>Maximize</b> - The Maximize button in all window's titlebars. It is called the Maximize button because its
+    default bindings maximize the window.
+  </li>
+  <li>
+    <b>Close</b> - The Close button in all window's titlebars. It is called the Close button because its
+    default bindings close the window.
+  </li>
+  <li>
+    <b>MoveResize</b> - Bindings under this context are available while moving or resizing a window.
+  </li>
+</ul>
+
+<p>
+<b>BUTTON</b> is the mouse button and keyboard modifiers being bound. The button has the following syntax: <b>Modifier-Modifier-Button</b>. Any number of modifiers can be specified, following each one with a '-'. The available modifiers are listed <a href=docs.php?page=details.html#keybindings>here</a><!--:
+</p>
+
+<ul>
+<li><b>S</b> - the Shift key</li>
+<li><b>C</b> - the Control key</li>
+<li><b>A</b> - the Alt key</li>
+<li><b>W</b> - the Windows keys</li>
+</ul>
+
+<p>
+Mod1 though Mod5 may also be used as modifiers. The xmodmap tool is used to
+set these up. The A and W modifiers are merely aliases for Mod1 and Mod4.
+-->
+</p>
+
+<p>
+The Button can be the button's number, such as <b>1</b> or <b>3</b>, or it can be a name. The available names are <b>Left</b>, <b>Middle</b>, <b>Right</b>, <b>Up</b>, and <b>Down</b>.
+</p>
+
+<p>
+<b>INTERACTION</b> specifies what you are doing with your mouse for the binding. It can be one of the following:
+</p>
+<ul>
+  <li><b>Press</b> - A mouse button is pressed.</li>
+  <li><b>Release</b> - A mouse button is released.</li>
+  <li><b>Click</b> - A mouse button is pressed and released.</li>
+  <li>
+    <b>DoubleClick</b> - A mouse button is pressed and released twice, quickly. The time delay in which
+    both clicks must occur is configurable.
+  </li>
+  <li><b>Drag</b> - A mouse button is pressed, and the mouse is moved while holding the button down.</li>
+</ul>
+
+<p>
+<b>ACTIONS</b> is any number of <a href="#actions">actions</a> which will be executed when the mouse interaction occurs in the given context.
+</p>
+
+<h3>Examples</h3>
+
+<blockquote>
+&lt;context name="Close"&gt;<br />
+&nbsp;&nbsp;&lt;mousebind button="Left" action="Press"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/mousebind&gt;<br />
+&lt;/context&gt;<br />
+&lt;context name="Titlebar"&gt;<br />
+&nbsp;&nbsp;&lt;mousebind button="Left" action="Press"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/mousebind&gt;<br />
+&nbsp;&nbsp;&lt;mousebind button="Left" action="Click"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/mousebind&gt;<br />
+&nbsp;&nbsp;&lt;mousebind button="Left" action="Drag"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/mousebind&gt;<br />
+&nbsp;&nbsp;&lt;mousebind button="Right" action="Press"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/mousebind&gt;<br />
+&lt;/context&gt;
+</blockquote>
+
+<h2><a name="menus"></a>Menus</h2>
+
+<h3>Introduction</h3>
+
+<p>
+Menus are not read out of the <b>rc.xml</b> file, but rather out of files specified in the <b>rc.xml</b>. By default, the <b>menu.xml</b> file is read to build the menus.
+</p>
+
+<p>
+Each menu is given an <b>ID</b> which is used in the bindings to specify which menu is being shown.
+</p>
+
+<p>
+Openbox provides a few default menus:
+</p>
+<ul>
+  <li><b>client-menu</b> - A menu for controlling a window.</li>
+  <li><b>client-send-to-menu</b> - A menu for sending windows to desktops.</li>
+  <li><b>client-layer-menu</b> - A menu for selecting stacking layers for windows (Always on top, etc).</li>
+  <li><b>client-list-menu</b> - A menu for selecting a window or desktop to use.</li>
+</ul>
+
+<h3>Syntax</h3>
+
+<p>
+A menu file must be entirely enclosed within:
+</p>
+
+<blockquote>
+&lt;openbox_menu&gt;<br />
+...<br />
+&lt;/openbox_menu&gt;<br />
+</blockquote>
+
+<p>
+Inside these, menus are specified as follows:
+</p>
+
+<blockquote>
+&lt;menu id="ID" label="TITLE"&gt;<br />
+<br />
+&nbsp;&nbsp;&lt;item label="LABEL"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/item&gt;<br />
+<br />
+&nbsp;&nbsp;&lt;separator /&gt;<br />
+<br />
+&nbsp;&nbsp;&lt;menu id="ID" /&gt;<br />
+<br />
+&nbsp;&nbsp;&lt;separator /&gt;<br />
+<br />
+&nbsp;&nbsp;&lt;menu id="ID" label="TITLE" /&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;item label="LABEL"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/item&gt;<br />
+&nbsp;&nbsp;&lt;/menu&gt;<br />
+<br />
+&nbsp;&nbsp;&lt;separator /&gt;<br />
+<br />
+&nbsp;&nbsp;&lt;item label="LABEL"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/item&gt;<br />
+<br />
+&lt;/menu&gt;<br />
+</blockquote>
+
+<p>
+The syntax example above shows how to put entries into a menu (items) and two methods to add submenus to a menu. It also shows how to put separators into the menu to group items visibly.
+</p>
+
+<p>
+Submenus can be simply referenced, and defined outside the parent menu (as the first submenu in the example would be). Submenus can also be nested directly into the containing menu, and still be referenced elsewhere.
+</p>
+
+<p>
+<b>ID</b> is a unique identifier used to reference the menu. The value of the ID can be used in a <b>ShowMenu</b> <a href="#actions">action</a> to use the menu.
+</p>
+
+<p>
+<b>TITLE</b> is the title displayed on the menu.
+</p>
+
+<p>
+<b>LABEL</b> is the text displayed in the menu item
+</p>
+
+<p>
+<b>ACTIONS</b> is any number of <a href="#actions">actions</a> which will be executed when the menu item is selected.
+</p>
+
+<h3>Pipe menus</h3>
+
+<p>
+Openbox allows for dynamic menus, built on-the-fly from scripts. These are referred to as "Pipe menus" since the script's output is piped back to Openbox and used for the menu.
+</p>
+
+<p>
+A Pipe menu can be created by placing the following into a menu file:
+</p>
+
+<blockquote>
+&lt;menu id="ID" label="TITLE" execute="COMMAND" /&gt;<br />
+</blockquote>
+
+<p>
+The generated Pipe menu can be referenced just like any other menu.
+</p>
+
+<p>
+<b>COMMAND</b> is a command which is executed. The output from this command is parsed and turned into the menu. The output from the script should be a menu, something like:
+</p>
+
+<blockquote>
+&lt;openbox_pipe_menu&gt;<br />
+&nbsp;&nbsp;&lt;item label="LABEL"&gt;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;ACTIONS<br />
+&nbsp;&nbsp;&lt;/item&gt;<br />
+&lt;/openbox_pipe_menu&gt;<br />
+</blockquote>
+
+<h2><a name="actions"></a>Actions</h2>
+
+<h3>Introduction</h3>
+
+<p>
+Actions are used to specify the behavior of Openbox. Any place where
+you can use actions, you can place more than one in a row to cause them all
+to execute one after the other.
+</p>
+
+<h3>Syntax</h3>
+
+<h4>Basic Syntax</h4>
+
+<p>
+Actions are specified using the following:
+</p>
+
+<blockquote>
+&lt;action name="NAME"&gt;PARAMETERS&lt;/action&gt;
+</blockquote
+
+<p>
+<b>NAME</b> is the name of the action, specifying which action to execute.
+</p>
+
+<p>
+<b>PARAMETERS</b> is any possible inner tags to change how the action
+will behave. For example, the <b>Execute</b> action has an inner execute
+parameter specifying what will be run:
+</p>
+
+<blockquote>
+&lt;action name="Execute"&gt;&lt;execute&gt;xterm&lt;/execute&gt;&lt;/action&gt;
+</blockquote>
+
+<p>
+As another example, the <b>DesktopRight</b> action has an inner wrap parameter
+which specifies if the action should wrap around to the beginning when trying
+to go past the end:
+</p>
+
+<blockquote>
+&lt;action name="DesktopRight"&gt;&lt;wrap&gt;no&lt;/wrap&gt;&lt;/action&gt;
+</blockquote>
+
+<h4>Syntax of Parameters</h4>
+
+<p>
+There are 3 types of parameters:
+</p>
+
+<ul>
+  <li>Strings</li>
+  <li>Numbers</li>
+  <li>Booleans (True/False)</li>
+</ul>
+
+<p>
+The format of Strings and Numbers is pretty obvious. <b>foo</b> would be a valid
+String, and <b>23</b> would be a valid Number.
+</p>
+
+<p>
+Booleans can be specied with one of: <b>true</b>, <b>false</b>, <b>yes</b>,
+<b>no</b>, <b>on</b>, or <b>off</b>.
+</p>
+
+<h4>Actions on Windows</h4>
+
+<p>
+Some actions will be performed globally, but some must be associated with a
+window, and cause the action to be applied to that window. When binding
+actions to mouse clicks, the window clicked on will have all the bound actions
+performed on it as applicable. When binding actions to keys, the actions will
+be associated with the currently focused window.
+</p>
+
+<h3>Available actions</h3>
+
+<h4>Global Actions</h4>
+
+<table class="docs">
+<tr>
+  <th>Name</th>
+  <th>Parameters (default value in brackets)</th>
+</tr>
+
+<tr>
+  <td><b>Execute</b> - run an executable</td>
+  <td><b>command</b> () - specifies the executable to be run along with any
+      arguments to pass it. The tilde ('~') character will be expanded in this
+	  string to your home directory, but no other shell expansions or
+	  scripting syntax can be used in the command.
+  </td>
+</tr>
+
+<tr>
+  <td><b>DirectionalFocusNorth</b> - cycles focus to the window north of the
+	  currently focused window.</td>
+  <td><b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>DirectionalFocusEast</b> - cycles focus to the window east of the
+	  currently focused window.</td>
+  <td><b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>DirectionalFocusSouth</b> - cycles focus to the window south of the
+	  currently focused window.</td>
+  <td><b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>DirectionalFocusWest</b> - cycles focus to the window west of the
+	  currently focused window.</td>
+  <td><b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>DirectionalFocusNorthEast</b> - cycles focus to the window northeast
+	  of the currently focused window.</td>
+  <td><b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>DirectionalFocusSouthEast</b> - cycles focus to the window southeast
+	  of the currently focused window.</td>
+  <td><b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>DirectionalFocusSouthWest</b> - cycles focus to the window southwest
+	  of the currently focused window.</td>
+  <td><b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>DirectionalFocusNorthWest</b> - cycles focus to the window northwest
+  	  of the currently focused window.</td>
+  <td><b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>NextWindow</b> - cycles focus to the next window.</td>
+  <td><b>linear</b> (no) - when true, windows are always cycled in the order
+      in which they appeared; otherwise, they are cycled in order of
+	  recent use.
+        <b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>PreviousWindow</b> - cycles focus to the previous window.</td>
+  <td><b>linear</b> (no) - when true, windows are always cycled in the order
+      in which they appeared; otherwise, they are cycled in order of
+	  recent use.
+        <b>dialog</b> (yes) - display the focus cycling dialog while switching focus.</td>
+</tr>
+
+<tr>
+  <td><b>Desktop</b> - changes the currently visible desktop.</td>
+  <td><b>desktop</b> (1) - the number of the desktop (starting at 1) to make
+          visible.
+        <b>dialog</b> (no) - display the desktop dialog (with pager) while switching desktops. This will only
+        work in keyboard bindings; otherwise, it is disabled.</td>
+</tr>
+<tr>
+  <td><b>AddDesktopLast</b> - Adds a new desktop at the end of the list of current desktops.</td>
+</tr>
+<tr>
+  <td><b>RemoveDesktopLast</b> - Removes the last of the current desktops.</td> 
+</tr>
+<tr>
+  <td><b>AddDesktopCurrent</b> - Adds a new desktop at the current location in the list of desktops.</td>
+</tr>
+<tr>
+  <td><b>RemoveDesktopCurrent</b> - Removes the current desktop.</td> 
+</tr>
+
+<tr>
+  <td><b>DesktopNext</b> - makes the next desktop visible.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the first desktop when
+	  going past the last.<br />
+        <b>dialog</b> (yes) - display the desktop dialog (with pager) while switching desktops. This will only
+        work in keyboard bindings; otherwise, it is disabled.</td>
+</tr>
+
+<tr>
+  <td><b>DesktopPrevious</b> - makes the previous desktop visible.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the last desktop when
+	  going past the first.<br />
+        <b>dialog</b> (yes) - display the desktop dialog (with pager) while switching desktops. This will only
+        work in keyboard bindings; otherwise, it is disabled.</td>
+</tr>
+
+<tr>
+  <td><b>DesktopRight</b> - makes visible the desktop to the right of the
+	  currrently visible desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the first desktop when
+	  going past the last.<br />
+        <b>dialog</b> (yes) - display the desktop dialog (with pager) while switching desktops. This will only
+        work in keyboard bindings; otherwise, it is disabled.</td>
+</tr>
+
+<tr>
+  <td><b>DesktopLeft</b> - makes visible the desktop to the left of the
+	  currently visible desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the last desktop when
+	  going past the first.<br />
+        <b>dialog</b> (yes) - display the desktop dialog (with pager) while switching desktops. This will only
+        work in keyboard bindings; otherwise, it is disabled.</td>
+</tr>
+
+<tr>
+  <td><b>DesktopDown</b> - makes visible the desktop beneath the currently
+      visible desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the first desktop when
+	  going past the last.<br />
+        <b>dialog</b> (yes) - display the desktop dialog (with pager) while switching desktops. This will only
+        work in keyboard bindings; otherwise, it is disabled.</td>
+</tr>
+
+<tr>
+  <td><b>DesktopUp</b> - makes visible the desktop above the currently
+      visible desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the last desktop when
+	  going past the first.<br />
+        <b>dialog</b> (yes) - display the desktop dialog (with pager) while switching desktops. This will only
+        work in keyboard bindings; otherwise, it is disabled.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleShowDesktop</b> - toggles between <a>ShowDesktop</a> and
+      <a>UnshowDesktop</a>.</td>
+</tr>
+
+<tr>
+  <td><b>DesktopLast</b> - makes the most recently visible desktop visible
+      again. Only one desktop is remembered, so using this twice will simply
+	  flip between two desktops.</td>
+</tr>
+
+<tr>
+  <td><b>ShowMenu</b> - shows a menu by name</td>
+  <td><b>menu</b> () - the name of the menu to show. The names of menus are
+      specified in the <b>id</b> attribute of their <b>menu</b> tag.</td>
+</tr>
+
+<tr>
+  <td><b>Reconfigure</b> - reloads the config file, menu, and theme.</td>
+</tr>
+
+<tr>
+  <td><b>Restart</b> - restarts Openbox. This starts a new copy of Openbox,
+      and can be used to upgrade to a newly installed version.</td>
+  <td><b>command</b> () - when this is used, the executable specified within
+      will be run instead of Openbox. This can be used to switch to another
+	  window manager if desired.</td>
+</tr>
+
+<tr>
+  <td><b>Exit</b> - exits Openbox.</td>
+</tr>
+
+</table>
+
+<h4>Actions for Windows</h4>
+
+<table class="docs">
+<tr>
+  <th>Name</th>
+  <th>Parameters (default value in brackets)</th>
+</tr>
+
+<tr>
+  <td><b>Activate</b> - activates the window. This is the same process that
+      occurs when focus cycling to a window, or selecting it in the
+	  client-list-menu.</td>
+</tr>
+
+<tr>
+  <td><b>Focus</b> - give focus to the window.</td>
+</tr>
+
+<tr>
+  <td><b>Unfocus</b> - remove focus from the window.</td>
+</tr>
+
+<tr>
+  <td><b>Iconify</b> - iconify the window. This causes the window to
+      not be shown on screen. The window can be found again with focus cycling
+	  or with the client-list-menu.</td>
+</tr>
+
+<tr>
+  <td><b>RaiseLower</b> - raise the window to the forefront if it is obscured
+      behind anything; lower it to the back if it is already at the front.</td>
+</tr>
+
+<tr>
+  <td><b>Raise</b> - raise the window to the forefront.</td>
+</tr>
+
+<tr>
+  <td><b>Lower</b> - lower the window to the back.</td>
+</tr>
+
+<tr>
+  <td><b>Close</b> - request the window to close.</td>
+</tr>
+
+<tr>
+  <td><b>Kill</b> - forcibly disconnect the window's application from the
+      X server.</td>
+</tr>
+
+<tr>
+  <td><b>ShadeLower</b> - <a>Shade</a> the window; if the window is already
+      shaded, then <a>Lower</a> it.</td>
+</tr>
+
+<tr>
+  <td><b>UnshadeRaise</b> - <a>Unshade</a> the window; if the window is
+      already unshaded, then <a>Raise</a> it.</td>
+</tr>
+
+<tr>
+  <td><b>Shade</b> - shade the window. This hides everything of the window
+      except the titlebar. This concept has also been known as "rolling up" the
+	  window into the titlebar.</td>
+</tr>
+
+<tr>
+  <td><b>Unshade</b> - unshade the window. This shows the entire window if it
+      was previously shaded.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleShade</b> - toggles the shaded state of the window, firing the
+      <a>Shade</a> and <a>Unshade</a> actions appropriately.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleOmnipresent</b> - toggles between moving the client to all
+      desktops (omnipresent) and to the currently visible desktop.</td>
+</tr>
+
+<tr>
+  <td><b>MoveRelative</b> - moves the window</td>
+  <td><b>x</b> (0) - the number of pixels to move the window horizontally. A positive
+      value moves to the right, a negative value moves to the left.<br/>
+  <b>y</b> (0) - the number of pixels to move the window vertically. A positive
+      value moves down, a negative value moves up.</td>
+</tr>
+
+<tr>
+  <td><b>ResizeRelative</b> - resizes the window</td>
+  <td><b>top</b> or <b>up</b> (0) - the amount to move the top edge of the window. A positive
+	  value makes the window taller, a negative value makes it shorter.<br/>
+  <b>bottom</b> or <b>down</b> (0) - the amount to move the bottom edge of the window. A positive
+	  value makes the window taller, a negative value makes it shorter.<br/>
+  <b>left</b> (0) - the amount to move the left edge of the window. A positive
+	  value makes the window wider, a negative value makes it narrower.<br/>
+  <b>right</b> (0) - the amount to move the right edge of the window. A positive
+	  value makes the window wider, a negative value makes it narrower.</td>
+</tr>
+
+<tr>
+  <td><b>MaximizeFull</b> - maximizes a window to fill the entire screen.</td>
+</tr>
+
+<tr>
+  <td><b>UnmaximizeFull</b> - restores a window to its original size.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleMaximizeFull</b> - toggles between <a>MaximizeFull</a> and
+	  <a>UnmaximizeFull</a>.</td>
+</tr>
+
+<tr>
+  <td><b>MaximizeHorz</b> - maximizes a window to fill the entire screen
+	  horizontally, but not vertically.</td>
+</tr>
+
+<tr>
+  <td><b>UnmaximizeHorz</b> - restores a window to its original size.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleMaximizeHorz</b> - toggles between <a>MaximizeHorz</a> and
+	  <a>UnmaximizeHorz</a>.</td>
+</tr>
+
+<tr>
+  <td><b>MaximizeVert</b> - maximizes a window to fill the entire screen
+      vertically, but not horizontally.</td>
+</tr>
+
+<tr>
+  <td><b>UnmaximizeVert</b> - restores a window to its original size.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleMaximizeVert</b> - toggles between <a>MaximizeHorz</a> and
+      <a>UnmaximizeVert</a>.</td>
+</tr>
+
+<tr>
+  <td><b>SendToDesktop</b> - sends the window to the specified desktop</td>
+  <td><b>desktop</b> (1) - the number of the desktop (starting at 1) to
+      send the window to.<br />
+	  <b>follow</b> (yes) - whether to change to the desktop while moving
+	  the window.</td>
+</tr>
+
+<tr>
+  <td><b>SendToDesktopNext</b> - sends the window to the next desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the first desktop when
+	  going past the last.<br />
+	  <b>follow</b> (yes) - whether to change to the desktop while moving
+	  the window.</td>
+</tr>
+
+<tr>
+  <td><b>SendToDesktopPrevious</b> - sends the window to the previous
+	  desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the last desktop when
+	  going past the first.<br />
+	  <b>follow</b> (yes) - whether to change to the desktop while moving
+	  the window.</td>
+</tr>
+
+<tr>
+  <td><b>SendToDesktopRight</b> - sends the window to the desktop to the
+	  right of the currently visible desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the first desktop when
+	  going past the last.<br />
+	  <b>follow</b> (yes) - whether to change to the desktop while moving
+	  the window.</td>
+</tr>
+
+<tr>
+  <td><b>SendToDesktopLeft</b> - sends the window to the desktop to the
+	  left of the currently visible desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the last desktop when
+	  going past the first.<br />
+	  <b>follow</b> (yes) - whether to change to the desktop while moving
+	  the window.</td>
+</tr>
+
+<tr>
+  <td><b>SendToDesktopDown</b> - sends the window to the desktop beneath the
+      currently visible desktop.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the first desktop when
+      going past the last.<br />
+	  <b>follow</b> (yes) - whether to change to the desktop while moving
+	  the window.</td>
+</tr>
+
+<tr>
+  <td><b>SendToDesktopUp</b> - sends the window to the desktop above the
+      currently visible desktops.</td>
+  <td><b>wrap</b> (yes) - whether to wrap around to the last desktop when
+	  going past the first.<br />
+	  <b>follow</b> (yes) - whether to change to the desktop while moving
+	  the window.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleDecorations</b> - toggles if the window is given decorations.
+      Decorations are the the titlebar and handle that are shown around most
+	  windows.</td>
+</tr>
+
+<tr>
+  <td><b>Move</b> - begins an interactive move. The move will complete when the
+      mouse button is released, if it is bound to one. The Enter key will also
+	  complete the move, and the Escape key will cancel it.</td>
+</tr>
+
+<tr>
+  <td><b>Resize</b> - begins an interactive resize. The resize will complete
+      when the mouse button is released, if it is bound to one. The Enter
+	  key will also complete the resize, and the Escape key will cancel
+	  it.</td>
+</tr>
+
+<tr>
+  <td><b>SendToTopLayer</b> - makes the window always-on-top.</td>
+</tr>
+
+<tr>
+  <td><b>SendToNormalLayer</b> - make the window not always-on-top or
+      always-on-bottom.</td>
+</tr>
+
+<tr>
+  <td><b>SendToBottomLayer</b> - makes the window always-on-bottom.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleAlwaysOnTop</b> - toggles between <a>SendToTopLayer</a> and
+      <a>SendToNormalLayer</a>.</td>
+</tr>
+
+<tr>
+  <td><b>ToggleAlwaysOnBottom</b> - toggles between <a>SendToBottomLayer</a>
+      and <a>SendToNormalLayer</a>.</td>
+</tr>
+
+<tr>
+  <td><b>MoveToEdgeNorth</b> - moves the window to the nearest edge to
+	  the north of it.</td>
+</tr>
+
+<tr>
+  <td><b>MoveToEdgeSouth</b> - moves the window to the nearest edge to
+	  the south of it.</td>
+</tr>
+
+<tr>
+  <td><b>MoveToEdgeEast</b> - moves the window to the nearest edge to
+	  the east of it.</td>
+</tr>
+
+<tr>
+  <td><b>MoveToEdgeWest</b> - moves the window to the nearest edge to
+      the west of it.</td>
+</tr>
+
+<tr>
+  <td><b>GrowToEdgeNorth</b> - resizes the window up to the nearest edge to
+	  the north of it.</td>
+</tr>
+
+<tr>
+  <td><b>GrowToEdgeSouth</b> - resizes the window up to the nearest edge to
+	  the south of it.</td>
+</tr>
+
+<tr>
+  <td><b>GrowToEdgeEast</b> - resizes the window up to the nearest edge to
+	  the east of it.</td>
+</tr>
+
+<tr>
+  <td><b>GrowToEdgeWest</b> - resizes the window up to the nearest edge to
+      the west of it.</td>
+</tr>
+
+</table>
+
+<h3>Examples</h3>
+
+<blockquote>
+&lt;action name="Raise"/&gt;<br />
+&lt;action name="Focus"/&gt;
+</blockquote>
+
+<blockquote>
+&lt;action name="ShowMenu"&gt;&lt;menu&gt;root-menu&lt;/menu&gt;&lt;/action&gt;
+</blockquote>
+
+<blockquote>
+&lt;action name="MoveRelativeVert"&gt;&lt;delta&gt;5&lt;/delta&gt;&lt;/action&gt;
+</blockquote>
+
+<blockquote>
+&lt;action name="SendToDesktopNext"&gt<br />
+&nbsp;&nbsp;&lt;wrap&gt;no&lt;/wrap&gt;<br />
+&nbsp;&nbsp;&lt;follow&gt;no&lt;/follow&gt;<br />
+&lt;/action&gt;
+</blockquote>
+
+<a href="toc.html">Table of Contents</a>

@@ -1,0 +1,152 @@
+<a href="toc.html">Table of Contents</a>
+
+<h1>Building Openbox</h1>
+
+<h2><a name="compile"></a>Compiling</h2>
+
+<p>
+The following is what you will need to compile Openbox:
+</p>
+
+<p>
+  <ul>
+    <li>C compiler (such as <a href="http://gcc.gnu.org">GCC</a>).</li>
+    <li>Xlib headers and libraries (development package), distributed with
+        <a href="http://xfree86.org">XFree86</a>.</li>
+    <li><a href="http://fontconfig.org">Fontconfig</a> headers and libraries
+        (development package).</li>
+    <li><a href="http://www.gtk.org">Glib 2</a> headers and libraries
+        (development package)</li>
+    <li><em>Optional:</em> The FreeDesktop.org
+        <a href="http://www.freedesktop.org/software/startup-notification/">
+        Startup-Notification</a> library.</li>
+  </ul>
+</p>
+
+<p>
+Once you have the above dependancies installed, you are ready to build
+Openbox. Untar the Openbox archive and from inside the source tree, run:
+</p>
+
+<p>
+<blockquote>
+  % <b>./configure</b><br>
+  &nbsp;&nbsp;...configure detects the build evironment...<br>
+  % <b>make</b><br>
+  &nbsp;&nbsp;...openbox builds...<br>
+  % <b>make install</b><br>
+  &nbsp;&nbsp;...openbox installs...<br>
+</blockquote>
+</p>
+
+<p>
+If the configure command fails and the reason is not obvious, you should
+look in the <b>config.log</b> file to discover the cause of the problem.
+</p>
+
+<h2><a name="install"></a>Installing</h2>
+
+<p>
+You can install Openbox by <a href="#compile">compiling from source</a> or via
+binary packages. It is recommended that you get a package from your
+distribution if possible.
+</p>
+
+<p>
+Once you have Openbox on your system, you will need to set things up to use it.
+What to set up depends on how you run X.
+</p>
+
+<h3><a name="install-gnome"></a>
+    If you run the GNOME desktop environment:</h3>
+
+<p>
+The default window manager for the GNOME environment is <b>metacity</b>. To
+switch from metacity to Openbox, do the following:
+</p>
+
+<blockquote>
+% <b>openbox --replace</b>
+</blockquote>
+
+<p>
+Choose to save your session the next time you log out so that Openbox will be
+started for you when you log in again.
+</p>
+
+<p>
+<b>Note:</b> As of GNOME 2.4, gnome-panel no longer manages its own key bindings, and requires that the window manager provide its own key bindings for showing the Main Menu and Run dialog. Openbox does this through the bundled <b>gnome-panel-control</b> tool, which can be used in keybindings to access the gnome-panel. Use the <b>--main-menu</b> option to display gnome-panel's menu, and the <b>--run-dialog</b> to display its Run dialog.
+</p>
+
+<h3><a name="install-kde"></a>
+    If you run the K desktop environment:</h3>
+
+<p>
+The default window manager for the KDE environment is <b>kwin</b>. To switch
+from kwin to Openbox, set the following environment variable in your startup
+scripts:
+</p>
+
+<blockquote>
+% <b>export KDEWM=openbox</b>
+</blockquote>
+
+<p>
+When the <b>KDEWM</b> environment variable is set, Openbox will be used in
+place of kwin.
+</p>
+
+<p>
+<b>Note:</b> The current release of KDE is still using a non-standard,
+deprecated protocol for its system tray. This protocol requires interaction
+from the window manager. In place of that, Openbox includes the
+<b>kdetrayproxy</b> application. Once you run it, KDE system tray apps will
+work with window managers that don't support the legacy protocol, like Openbox.
+</p>
+
+<p>
+To run <b>kdetrayproxy</b> before running KDE, and if you are using the KDE
+login manager, it may be easiest to use the
+<a href="#install-xdm">display manager</a> method, and make a startup script
+something like:
+</p>
+
+<blockquote>
+  # Startup stuff for X<br />
+  <br />
+  # Make openbox the KDE window manager<br />
+  export KDEWM=openbox<br />
+  <br />
+  # Make KDE system tray apps work<br />
+  kdetrayproxy &<br />
+  <br />
+  # Start the KDE environment<br />
+  startkde
+</blockquote>
+
+<h3><a name="install-startx"></a>
+    If you run X via the <b>startx</b> command:</h3>
+
+<p>
+You need to edit your <b>$HOME/.xinitrc</b> file. This file is simply
+a shell script, so to lauch Openbox just make a file something like this:
+</p>
+
+<blockquote>
+  # Startup stuff for X<br />
+  <br />
+  exec openbox<br />
+</blockquote>
+
+<h3><a name="install-xdm"></a>
+    If you run X via a <b>display manager</b> (xdm, gdm, kdm, ...):</h3>
+
+<p>
+You may consult the documentation for your specific display manager regarding
+adding entries to it. Alternately, you can edit a <b>$HOME/.xsession</b> file.
+The file is a shell script and can be made identical to the <b>.xinitrc</b>
+example above. With this method, you would choose <b>default</b> as the login
+target in your display manager.
+</p>
+
+<a href="toc.html">Table of Contents</a>

@@ -390,7 +390,7 @@ current frame instead of switching to the window."
 
 (defcommand terminal (&optional command) ()
   "Run default terminal"
-  (let ((term (or (which *terminal*)) (which (getenv "TERM")) (which "xterm")))
+  (let ((term (or (which *terminal*) (which (getenv "TERM")) (which "xterm"))))
     (if-null term
 	     (error "No terminal emulator found, and it was not defined in variable *terminal*")
 	     (if (null command)
