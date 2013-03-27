@@ -48,3 +48,6 @@ Make test for setting and unsetting font
 
 
 make programs autostart:
+
+test: make test for startup-message
+

@@ -375,11 +375,11 @@ current frame instead of switching to the window."
 (defcommand browser (&optional url) ()
   "Start default browser, defined in *browser* variable unless it is already running, in which case focus it."
   (let* ((br (or
-	      *browser*
-	      (getenv "BROWSER")
+	      (which *browser*)
+	      (which (getenv "BROWSER"))
 	      (which "conkeror")
 	      (which "firefox")))
-	 (br-coerce (coerce br 'list))
+	 (br-coerce (coerce (princ-to-string (basename br)) 'list))
 	 (br-class 
 	  (coerce (cons (char-upcase (car br-coerce)) (cdr br-coerce)) 'string)))
     (if-null br
@@ -390,12 +390,12 @@ current frame instead of switching to the window."
 
 (defcommand terminal (&optional command) ()
   "Run default terminal"
-  (let ((term (or *terminal* (getenv "TERM") (princ-to-string (which "xterm")))))
+  (let ((term (or (which *terminal*)) (which (getenv "TERM")) (which "xterm")))
     (if-null term
 	     (error "No terminal emulator found, and it was not defined in variable *terminal*")
 	     (if (null command)
-		 (run-shell-commands term)
-	       (run-shell-command (concat term " -e " command))))))
+		 (run-shell-commands (princ-to-string term))
+	       (run-shell-command (concat (princ-to-string term) " -e " command))))))
 
 (defcommand lastcmd () ()
   "Repeat last inserted command"
@@ -405,7 +405,7 @@ current frame instead of switching to the window."
 			    (cond
 			     ((null list) nil)
 			     ((or (equal command "lastcmd")
-				  (equal command "colon"))
+				  (equal command "colon")) ;; TODO: incorrect. We can call 'colon' then call 'PREF l' or 'eval' and '(lastcmd)' here
 			      (find-last-command (cdr list)))
 			     ((member command (all-commands) :test 'equal)
 			      command)

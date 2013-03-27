@@ -74,8 +74,8 @@ from most specific groups to most general groups.")
 (fill-keymap *root-map*
   (kbd "c")   "terminal"
   (kbd "C-c") "terminal"
-  (kbd "e")   "emacs"
-  (kbd "C-e") "emacs"
+  (kbd "e")   "editor"
+  (kbd "C-e") "editor"
   (kbd "b")   "browser"
   (kbd "C-b") "browser"
   (kbd "C-B") "banish"

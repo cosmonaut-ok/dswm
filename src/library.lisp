@@ -252,7 +252,7 @@ directory is returned as if by PATHNAME-AS-DIRECTORY."
                      directory-form)))
                (ignore-errors
                  (probe-file (pathname-as-file pathspec))))
-  #-(or :sbcl :cmu :lispworks :openmcl :clisp :ecl) # :cormanlisp
+  #-(or :sbcl :cmu :lispworks :openmcl :clisp :ecl) ;; :cormanlisp
   (error "FILE-EXISTS-P not implemented"))
 
 ;; (defun file-exists-p (pathspec)
@@ -377,49 +377,50 @@ OVERWRITE is true overwrites the file designtated by TO if it exists."
         (copy-stream in out))))
   (values))
 
-(defun delete-directory-and-files (dirname &key (if-does-not-exist :error))
-  "Recursively deletes all files and directories within the directory
-designated by the non-wild pathname designator DIRNAME including
-DIRNAME itself.  IF-DOES-NOT-EXIST must be one of :ERROR or :IGNORE
-where :ERROR means that an error will be signaled if the directory
-DIRNAME does not exist.
+;; (defun delete-directory-and-files (dirname &key (if-does-not-exist :error))
+;;   "Recursively deletes all files and directories within the directory
+;; designated by the non-wild pathname designator DIRNAME including
+;; DIRNAME itself.  IF-DOES-NOT-EXIST must be one of :ERROR or :IGNORE
+;; where :ERROR means that an error will be signaled if the directory
+;; DIRNAME does not exist.
 
-NOTE: this function is dangerous if the directory that you are
-removing contains symlinks to files outside of it - the target files
-might be removed instead!  This is currently fixed for SBCL and CCL."
-  #+:sbcl
-  (if (directory-exists-p dirname)
-      (sb-ext:delete-directory dirname :recursive t)
-      (ecase if-does-not-exist
-        (:error  (error "~S is not a directory" dirname))
-        (:ignore nil)))
+;; NOTE: this function is dangerous if the directory that you are
+;; removing contains symlinks to files outside of it - the target files
+;; might be removed instead!  This is currently fixed for SBCL and CCL."
+;;   ;; #+:sbcl
+;;   ;; (if (directory-exists-p dirname)
+;;   ;;     (sb-ext:delete-directory dirname :recursive t)
+;;   ;;   (ecase if-does-not-exist
+;;   ;;       (:error  (error "~S is not a directory" dirname))
+;;   ;;       (:ignore nil)))
 
-  #+:ccl-has-delete-directory
-  (if (directory-exists-p dirname)
-      (ccl:delete-directory dirname)
-      (ecase if-does-not-exist
-        (:error  (error "~S is not a directory" dirname))
-        (:ignore nil)))
+;;   #+:ccl-has-delete-directory
+;;   (if (directory-exists-p dirname)
+;;       (ccl:delete-directory dirname)
+;;       (ecase if-does-not-exist
+;;         (:error  (error "~S is not a directory" dirname))
+;;         (:ignore nil)))
 
-  #-(or :sbcl :ccl-has-delete-directory)
-  (walk-directory dirname
-                  (lambda (file)
-                    (cond ((directory-pathname-p file)
-                           #+:lispworks (lw:delete-directory file)
-                           #+:cmu (multiple-value-bind (ok err-number)
-                                      (unix:unix-rmdir (namestring (truename file)))
-                                    (unless ok
-                                      (error "Error number ~A when trying to delete ~A"
-                                             err-number file)))
-                           #+:clisp (ext:delete-dir file)
-                           #+:openmcl (cl-fad-ccl:delete-directory file)
-                           #+:cormanlisp (win32:delete-directory file)
-                           #+:ecl (si:rmdir file))
-                          (t (delete-file file))))
-                  :follow-symlinks nil
-                  :directories t
-                  :if-does-not-exist if-does-not-exist)
-  (values))
+;;   #-(or :ccl-has-delete-directory) ;; TODO: add -:sbcl here, when all going to sbcl v.1.0.54
+;;   (walk-directory dirname
+;;                   (lambda (file)
+;;                     (cond ((directory-pathname-p file)
+;; 			   #+:sbcl (sb-posix:rmdir file) ;; TODO: comment it in future
+;;                            #+:lispworks (lw:delete-directory file)
+;;                            #+:cmu (multiple-value-bind (ok err-number)
+;;                                       (unix:unix-rmdir (namestring (truename file)))
+;;                                     (unless ok
+;;                                       (error "Error number ~A when trying to delete ~A"
+;;                                              err-number file)))
+;;                            #+:clisp (ext:delete-dir file)
+;;                            #+:openmcl (cl-fad-ccl:delete-directory file)
+;;                            #+:cormanlisp (win32:delete-directory file)
+;;                            #+:ecl (si:rmdir file))
+;;                           (t (delete-file file))))
+;;                   #-sbcl :follow-symlinks nil
+;;                   :directories t
+;;                   :if-does-not-exist if-does-not-exist)
+;;   (values))
 ;;;; /Code from cl-fad
 
 (defun get-uid () ;; TODO port to cmucl, ecl, lw

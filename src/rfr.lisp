@@ -30,6 +30,33 @@
 	  remove-screen-from-rules
 	  update-group-in-rules
 	  update-screen-in-rules
+	  remember
+	  remember-group
+	  remember-screen
+	  remember-desktop
+	  remember-all
+	  remember-window-placement
+	  remember-group-windows-placement
+	  remember-screen-windows-placement
+	  remember-all-window-placement
+	  forget
+	  forget-group
+	  forget-screen
+	  forget-desktop
+	  forget-all
+	  forget-window-placement
+	  forget-group-windows-placement
+	  forget-screen-windows-placement
+	  forget-all-window-placement
+	  recall
+	  recall-group
+	  recall-screen
+	  recall-desktop
+	  recall-all
+	  recall-window-placement
+	  recall-group-windows-placement
+	  recall-screen-windows-placement
+	  recall-all-window-placement
 	  ))
 
 (define-dswm-type :rfr (input prompt)
