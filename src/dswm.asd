@@ -9,8 +9,10 @@
 ;; cmucl-clx. *very* annoying. I don't actually know if debian still
 ;; does this.
 #+cmu (progn
-          (ignore-errors (require :cmucl-clx))
-          (ignore-errors (require :clx)))
+	(ignore-errors (require :cmucl-clx))
+	(ignore-errors (require :clx)))
+
+;; #+clisp (require "clx")
 
 (defsystem :dswm
   :name "DSWM"

@@ -65,7 +65,7 @@
 (ext:saveinitmem "dswm" :init-function (lambda ()
                                             (dswm:dswm)
                                             (ext:quit))
-                 :executable t :keep-global-handlers t :norc t :documentation "The DsWM Executable")
+                 :executable t :keep-global-handlers t :norc nil :documentation "The DSWM Executable")
 
 #+ccl
 (ccl:save-application "dswm" :prepend-kernel t :toplevel-function #'dswm:dswm)
