@@ -1036,5 +1036,8 @@ sync-all-frame-windows to see the change.")
 (defvar *keys* nil
   "Defines list of keynames and related keysyms to it")
 
+(defvar *modules-load-paths-list* nil
+  "List of modules load paths")
+
 (defvar *loaded-modules-list* nil
   "Defines list of already loaded modules")

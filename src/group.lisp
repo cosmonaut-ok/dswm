@@ -340,11 +340,8 @@ Groups are known as \"virtual desktops\" in the NETWM standard."
   (check-type screen screen)
   (check-type name string)
   (if (or (string= name "")
-          (string= name ".")
-	  ;; FIXME. Groups must have numbers in its names
-	  ;; (cl-ppcre:scan-to-strings "[0-9]" name)
-	  )
-      (message "^B^1*Error:^n Groups must have a name and not contain numbers.")
+          (string= name "."))
+      (message "^B^1*Error:^n Groups must have a name.")
     (let ((ng (or (find-group screen name)
 		  (let ((ng (make-instance type
 					   :screen screen
@@ -571,11 +568,14 @@ The windows will be moved to group \"^B^2*~a^n\"
 				  (:group "In what group? "))
   "Run shell command in specified group"
   ;; FIXME: need to run, ignoring window placement rules
-    (gselect group)
-    (run-shell-command command))
+  (gselect group)
+  (run-shell-command command))
 
 (defcommand grun-new (command) ((:shell "Enter command to run program: "))
   "Run shell command in new tile group with same name with command"
   ;; FIXME: need to run, ignoring window placement rules
-    (gnew command)
-    (run-shell-command command))
+  (if (find-group (current-screen) command)
+      (message "Group ~a already exists" command)
+    (progn
+      (add-group (current-screen) command)
+      (run-shell-command command))))
