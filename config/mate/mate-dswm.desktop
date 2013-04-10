@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=MATE DSWM
+Comment=This session logs you into MATE with DSWM
+Exec=mate-session --session=mate-dswm --debug
+TryExec=mate-session
+Icon=
+Type=Application
+X-Ubuntu-Gettext-Domain=mate-session
+
+### usr/share/xsessions/mate-dswm.desktop

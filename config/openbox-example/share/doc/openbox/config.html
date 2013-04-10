@@ -1,0 +1,161 @@
+<a href="toc.html">Table of Contents</a>
+
+<h1>Configuring Openbox</h1>
+
+<h2><a name="locations"></a>File locations</h2>
+
+<p>
+When looking for its configuration files (<b>rc.xml</b>, <b>menu.xml</b>), Openbox follows the <a href="http://www.freedesktop.org/standards/basedir-spec/">freedesktop.org base-dir specification</a>. You can read the short specification for all the details. However, the end default result will be as follows.
+</p>
+
+<p>
+First Openbox will try for your config files in <b>$HOME/.config/openbox/</b>. If it is unable to find them there, then it will try the system configuration dir (use <b>./configure --sysconfdir</b> to modify this when configuring the Openbox build. If you installed Openbox from a distribution package, then it will most likely be looking in <b>/etc/xdg/openbox/</b>. If you built Openbox yourself and do not specify --sysconfdir, then it will be looking in <b>/usr/local/etc/xdg/openbox</b>.
+</p>
+
+<h2><a name="options"></a>Options</h2>
+
+<p>
+Most users will want to use the ObConf tool to configure Openbox. You can
+launch the tool by running:
+</p>
+
+<blockquote>
+  % <b>obconf</b>
+</blockquote>
+
+<p>
+See <a href="http://openbox.org/obconf">the ObConf webpage</a> to get this handy tool.
+</p>
+
+<p>
+If you don't want/have ObConf, you can edit the configuration by hand. The
+recommended procedure for this is to copy the system config to
+<b>$HOME/.config/openbox/</b> and edit that to your liking.
+</p>
+
+<h2><a name="menus"></a>Menus</h2>
+
+<p>
+Menus are searched for in the directories given in the <a href="#locations">File locations</a> section.
+</p>
+
+<p>
+You can specify the names of the menu files to load in the <b>rc.xml</b>'s <b>menu</b> section. Absolute paths can also be used to look outside of the default search paths. For example:
+</p>
+
+<blockquote>
+  &lt;menu&gt;<br />
+  &nbsp;&nbsp;&lt;file&gt;mymenu.xml&lt;/file&gt;<br />
+  &nbsp;&nbsp;&lt;file&gt;myothermenu.xml&lt;/file&gt;<br />
+  &nbsp;&nbsp;&lt;file&gt;/etc/system/openboxmenu.xml&lt;/file&gt;<br />
+  &lt;/menu&gt;
+</blockquote>
+
+<p>
+If no menus are specified in the <b>rc.xml</b>, Openbox will look for <b>menu.xml</b>.
+</p>
+
+<h2><a name="themes"></a>Themes</h2>
+
+<p>
+First off, the theme format is not backwards compatible with Openbox2/Blackbox/Fluxbox themes. The <b>themeupdate.py</b> script included in the Openbox distribution can be used to aid in porting Openbox2/Blackbox/Fluxbox themes over.
+</p>
+
+<h3>Paths</h3>
+
+<p>
+Themes are searched for in the data directories specified in the <b>base-dir spec</b> mentioned in the <a href="#locations">File locations</a> section. In addition to these paths, Openbox also looks in <b>$HOME/.themes/</b> for backwards compatibility with existing applications. This means, by default, the following directories will be searched in order: <b>$HOME/.themes/</b>, <b>$HOME/.local/share/themes/</b>, <b>$PREFIX/share/themes/</b>. This means that Openbox themes can now be bundled with other themes (such as GTK+ themes).
+</p>
+
+<h3>Structure</h3>
+
+<p>
+Each theme is self-contained within its own directory. The theme file itself is a file named <b>themerc</b> inside the theme's <b>openbox-3</b> directory. So for a theme named "Foo", its directory layout might look like this:
+</p>
+<blockquote>
+        <b>Foo/openbox-3/themerc</b><br />
+        Foo/openbox-3/max.xbm<br />
+        Foo/openbox-3/close.xbm
+</blockquote>
+<p>
+  We'll get to the xbms later.
+</p>
+
+<h3>Fonts</h3>
+
+<p>
+Fonts are each specified through a single .font property. Different fonts can be specified for focused and unfocused windows. The available font properties are:
+</p>
+<ul>
+        <li>window.label.focus.font</li>
+        <li>window.label.unfocus.font</li>
+        <li>menu.title.font</li>
+        <li>menu.items.font</li>
+</ul>
+<p>
+This property is an Xft/Fontconfig font string. It is highly recommended that when specifying this, you specify the size of the font by pixelsize, not by pointsize. Some details on building the required font string can be found in this <a href="http://keithp.com/~keithp/render/Xft.tutorial">Xft tutorial</a>.
+</p>
+
+<p>
+There are a couple extensions to the font string's options for openbox:
+</p>
+<ul>
+  <li>shadow [boolean] (defaults to off)</li>
+  <li>shadowoffset [integer] (defaults to 1)</li>
+  <li>shadowtint [integer] (defaults to 25%)</li>
+</ul>
+
+<p>
+  Example:
+</p>
+<blockquote>
+        window.focus.font: arial,sans:bold:pixelsize=12:shadow=y
+</blockquote>
+
+<h3>Titlebar Button Bitmaps</h3>
+
+<p>
+A number of X Bitmap (xbm) files are used to specify the look of the titlebar buttons. These buttons are all found
+under the <b>Theme/openbox-3/</b> directory. The following names are looked for:
+</p>
+
+<ul>
+  <li>max.xbm - maximized button</li>
+  <li>max_toggled.xbm - maximized button toggled</li>
+  <li>max_disabled.xbm - maximized button disabled</li>
+  <li>max_hover.xbm - maximized button while being hovered over</li>
+  <li>max_pressed.xbm - maximized button while being pressed</li>
+  <li>iconify.xbm - iconify button</li>
+  <li>iconify_disabled.xbm - iconify button disabled</li>
+  <li>iconify_hover.xbm - iconify button while being hovered over</li>
+  <li>iconify_pressed.xbm - iconify button while being pressed</li>
+  <li>desk.xbm - all-desktops button</li>
+  <li>desk_toggled.xbm - all-desktops button toggled</li>
+  <li>desk_disabled.xbm - all-desktops button disabled</li>
+  <li>desk_hover.xbm - all-desktops button while being hovered over</li>
+  <li>desk_pressed.xbm - all-desktops button while being pressed</li>
+  <li>shade.xbm - shade button</li>
+  <li>shade_toggled.xbm - shade button toggled</li>
+  <li>shade_disabled.xbm - shade button disabled</li>
+  <li>shade_hover.xbm - shade button while being hovered over</li>
+  <li>shade_pressed.xbm - shade button while being pressed</li>
+  <li>close.xbm - close button</li>
+  <li>close_disabled.xbm - close button disabled</li>
+  <li>close_hover.xbm - close button while being hovered over</li>
+  <li>close_pressed.xbm - close button while being pressed</li>
+  <li>bullet.xbm - submenu bullet in menus</li>
+</ul>
+
+<h3>Background</h3>
+
+<p>
+Themes do not provide a means for setting the background. There are many tools around for setting the root image (xsetroot, Esetroot, Rox, Gnome, Kde, etc!) so there is no point in rewriting those for Openbox.
+</p>
+
+<h3>Etc</h3>
+
+<p>
+A more detailed description and list of all the theme elements will be forthcoming. In the meantime, examples found in the distribution can be used for documentation.
+</p>
+
+<a href="toc.html">Table of Contents</a>

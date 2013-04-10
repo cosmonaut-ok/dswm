@@ -1,0 +1,10 @@
+[MATE Session]
+Name=MATE DSWM
+RequiredComponents=mate-panel;mate-settings-daemon;
+RequiredProviders=windowmanager;
+DefaultProvider-windowmanager=dswm
+DefaultProvider-notifications=notify-osd
+DesktopName=MATE
+
+
+### usr/share/mate-session/sessions/mate-dswm.session

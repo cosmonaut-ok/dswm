@@ -1,0 +1,167 @@
+LISP=@LISP_PROGRAM@
+
+sbcl_BUILDOPTS=--load ./make-image.lisp
+cmucl_BUILDOPTS=-batch -load ./make-image.lisp -eval "(quit)"
+clisp_BUILDOPTS=-K full -on-error exit < ./make-image.lisp
+ccl_BUILDOPTS=--load ./make-image.lisp
+ecl_BUILDOPTS=-shell ./make-image.lisp
+lw_BUILDOPTS=-build ./make-image.lisp
+
+clisp_INFOOPTS=-K full -on-error exit -x "(require 'asdf) (load \"dswm.asd\") (load \"@PPCRE_PATH@/cl-ppcre.asd\") (asdf:operate 'asdf:load-op :dswm) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)"
+sbcl_INFOOPTS=--eval "(progn (require 'asdf) (require 'dswm) (load \"manual.lisp\"))" --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+cmucl_INFOOPTS=-eval "(progn (require 'asdf) (require 'dswm) (load \"manual.lisp\"))" -eval "(progn (dswm::generate-manual) (quit))"
+ccl_INFOOPTS=--eval "(progn (require 'asdf) (require 'stumpwm))" --load manual.lisp --eval "(progn (stumpwm::generate-manual) (quit))"
+ecl_INFOOPTS=-eval "(progn (require 'asdf) (require 'stumpwm) (load \"manual.lisp\"))" -eval "(progn (stumpwm::generate-manual) (ext:quit))"
+lw_INFOOPTS=-eval "(progn (require 'asdf) (load \"manual.lisp\"))" -eval "(progn (stumpwm::generate-manual) (lw:quit))"
+
+datarootdir = @datarootdir@
+prefix=@prefix@
+exec_prefix= @exec_prefix@
+bindir=@bindir@
+infodir=@infodir@
+etcdir = $(shell if [ ! -z ${XDG_CONFIG_DIRS} ]; then echo ${XDG_CONFIG_DIRS} | cut -d':' -f1; else echo /etc/xdg; fi)
+data_dir=$(destdir)$(datarootdir)
+
+root_dir=${PWD}
+dest_dir=dswm-@PACKAGE_VERSION@
+##
+linux_style_data_dir=/usr/share/
+
+FILES=$(shell cat dswm.asd | grep '\:file' | grep -vE '\;.*file' | \
+	grep -oE '\(\:.*\)' | grep -oE '\"[a-z,A-Z,0-9,.,-,_]*\"' | \
+	sed 's/^\"*//g;s/\"/\.lisp/g')
+
+all: @MAKE_ALL_DEPS@
+
+dswm.info: ../doc/dswm.texi
+	makeinfo ../doc/dswm.texi
+
+dswm.texi: ../doc/dswm.texi.in
+	$(LISP) $(@LISP@_INFOOPTS)
+
+dswm: $(FILES)
+	$(LISP) $(@LISP@_BUILDOPTS)
+	######################################################
+	###################### WARNING! ######################
+	######################################################
+	###  Now DSWM uses freedesktop recomendations for  ###
+	###  configfiles placement. _NOTE_, that from now  ###
+	###    you must place your config directory from   ###
+	###  ~/.dswm.d to ~/.config/dswm (or according to  ###
+	###           variable XDG_CONFIG_HOME )           ###
+	###   File ~/.dswm will be working for some time,  ###
+	###    but it will be removed in future. Thanks!   ###
+	###  Also, you can find common configuration file  ###
+	###           at /etc/xdg/dswm/dswm.lisp           ###
+	###       (or, according to XDG_CONFIG_DIRS)       ###
+	######################################################
+	######################################################
+
+dswm.gnome:
+
+dswm.mate:
+
+dswm.unity:
+
+dswm.kde:
+
+dswm.xfce:
+
+release:
+	# TODO: We need to rewrite it!
+	# git tag -a -m "version @PACKAGE_VERSION@" @PACKAGE_VERSION@
+	git archive --format=tar --prefix=dswm-@PACKAGE_VERSION@/ HEAD > dswm-@PACKAGE_VERSION@.tar
+	tar -xf dswm-@PACKAGE_VERSION@.tar
+	rm -rf dswm-@PACKAGE_VERSION@/.git* dswm-@PACKAGE_VERSION@/autom4te.cache dswm-@PACKAGE_VERSION@/configure dswm-@PACKAGE_VERSION@/Makefile dswm-@PACKAGE_VERSION@/module.lisp dswm-@PACKAGE_VERSION@/config/dswm.desktop
+	git log > dswm-@PACKAGE_VERSION@/ChangeLog
+	cp configure dswm-@PACKAGE_VERSION@/
+	tar -zcf dswm-@PACKAGE_VERSION@.tar.gz dswm-@PACKAGE_VERSION@
+	tar -jcf dswm-@PACKAGE_VERSION@.tar.bz2 dswm-@PACKAGE_VERSION@
+	rm -fr dswm-@PACKAGE_VERSION@/ dswm-@PACKAGE_VERSION@.tar
+release-upload:
+#	gpg -b dswm-@PACKAGE_VERSION@.tgz
+	ssh cosmonaut-ok,dswm@shell.sourceforge.net create
+	ssh cosmonaut-ok,dswm@shell.sourceforge.net test -d /home/frs/project/d/ds/dswm/@PACKAGE_VERSION@ || mkdir /home/frs/project/d/ds/dswm/@PACKAGE_VERSION@/
+	scp dswm-@PACKAGE_VERSION@.tar.gz cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/@PACKAGE_VERSION@/dswm-@PACKAGE_VERSION@.tar.gz
+	scp dswm-@PACKAGE_VERSION@.tar.bz2 cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/@PACKAGE_VERSION@/dswm-@PACKAGE_VERSION@.tar.bz2
+testbuild:
+	cd $(dirname $0)
+	rm -rf ~/.cache/common-lisp/
+	test -z "/tmp/$(dest_dir).build" || rm -rf /tmp/$(dest_dir).build
+	cp -r $(root_dir) /tmp/$(dest_dir).build
+	cd /tmp/$(dest_dir).build
+	autoconf
+	./configure --prefix=/usr/local
+	printf '\n\nNow, run \"cd /tmp/$(dest_dir).build && sudo rm -rf $(etcdir)/dswm && sudo make install && cd $(root_dir)\" to install DSWM\n\n'
+clean:
+	rm -f *.fasl *.fas *.lib *.*fsl *.o
+	rm -f *.log *.fns *.fn *.aux *.cp *.ky *.log *.toc *.pg *.tp *.vr *.vrs
+	rm -rf dswm ../doc/dswm.texi dswm.info autom4te.cache config.status *.tar.* version.lisp module.lisp help.lisp ../config/dswm.desktop Makefile install
+
+install: @MAKE_INSTALL_DEPS@
+
+dswm.install:
+	test -z "$(destdir)$(bindir)" || mkdir -p "$(destdir)$(bindir)"
+	install -m 755 dswm "$(destdir)$(bindir)"
+	test -z "$(destdir)$(infodir)" || mkdir -p "$(destdir)$(infodir)"
+	install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)/dswm.info"
+	test -d "$(etcdir)/dswm/" || mkdir -p "$(etcdir)/dswm"
+	test -f "$(destdir)$(etcdir)/dswm/dswm.lisp" || install -m 644 ../config/dswm.lisp "$(destdir)$(etcdir)/dswm/dswm.lisp"
+	mkdir -p "$(destdir)$(datarootdir)/dswm/modules"
+	install -d -m 755 modules "$(destdir)$(datarootdir)/dswm/modules"
+	find modules -type f -exec install -D {} $(destdir)$(datarootdir)/dswm/{} \;
+	install -m 644 ../copyright/COPYING "$(destdir)$(datarootdir)/dswm/"
+	install -m 644 ../copyright/AUTHORS "$(destdir)$(datarootdir)/dswm/"
+
+	## Install dswm.desktop for desktop managers
+	if test -d "$(data_dir)/xsessions/"; \
+	then install -m 644 ../config/dswm.desktop "$(data_dir)/xsessions"; \
+	if test -d "$(data_dir)/apps/kdm/sessions/"; \
+	then ln -sf "$(data_dir)/xsessions/dswm.desktop" "$(data_dir)/apps/kdm/sessions/"; \
+	else if test -d "$(linux_style_data_dir)/apps/kdm/sessions/"; \
+	then ln -sf "$(data_dir)/xsessions/dswm.desktop" "$(linux_style_data_dir)/apps/kdm/sessions/"; \
+	fi; fi; \
+	else if test -d "$(linux_style_data_dir)/xsessions/"; \
+	then install -m 644 ../config/dswm.desktop "$(linux_style_data_dir)/xsessions/"; \
+	if test -d "$(destdir)$(datarootdir)/apps/kdm/sessions/"; \
+	then ln -s "$(linux_style_data_dir)/xsessions/dswm.desktop" "$(destdir)$(datarootdir)/apps/kdm/sessions/"; \
+	else if test -d "$(linux_style_data_dir)/apps/kdm/sessions/"; \
+	then ln -sf "$(linux_style_data_dir)/xsessions/dswm.desktop" "$(linux_style_data_dir)/apps/kdm/sessions/"; \
+	fi; fi; fi; fi
+
+dswm.info.install:
+	test -f dswm.info && install -m 644 dswm.info "$(destdir)$(infodir)"
+
+dswm.gnome.install:
+
+dswm.mate.install:
+
+dswm.unity.install:
+
+dswm.kde.install:
+
+dswm.xfce.install:
+
+uninstall: @MAKE_UNINSTALL_DEPS@
+
+dswm.gnome.uninstall:
+
+dswm.mate.uninstall:
+
+dswm.unity.uninstall:
+
+dswm.kde.uninstall:
+
+dswm.xfce.uninstall:
+
+dswm.uninstall:
+	rm "$(destdir)$(bindir)/dswm"
+	rm -r "$(destdir)$(datarootdir)/dswm"
+	rm "$(destdir)$(etcdir)/dswm/dswm.lisp"
+	rm -r "$(destdir)$(etcdir)/dswm/" || true
+	install-info --info-dir="$(destdir)$(infodir)" --remove "$(destdir)$(infodir)/dswm.info"
+	rm "$(destdir)$(infodir)/dswm.info"
+	test -f "$(data_dir)/xsessions/dswm.desktop" && "$(data_dir)/xsessions/dswm.desktop" || test -f "$(linux_style_data_dir)/xsessions/dswm.desktop" && rm "$(linux_style_data_dir)/xsessions/dswm.desktop"
+	test -L "$(data_dir)/apps/kdm/sessions/dswm.desktop" && rm "$(data_dir)/apps/kdm/sessions/dswm.desktop" || test -f "$(linux_style_data_dir)/apps/kdm/sessions/dswm.desktop" && rm "$(linux_style_data_dir)/apps/kdm/sessions/dswm.desktop" || true
+
+# End of file

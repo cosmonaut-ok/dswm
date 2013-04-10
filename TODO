@@ -1,0 +1,53 @@
+=Make window-placement rules for floating groups too
+=BUG: don't save window-placement rules, when _current_ group is empty
+BUG: Troubles with etc folder (don't understand 'etcdir')
+=Make different history for different input boxes
+Make good modules autocompleting
++Add 'place-existing-windows' to macro 'recall-desktop-snapshot'
+Rewrite 'migrate' in 'restore-group' function with 'convert-group' (not separate buggy code)
+=Add PREF C-n/C-p/C-j/TAB onto floating group
++-Add 'gconvert' command - converts tiling group to float and float to tiling
++-Add window-placement rules to floating groups (added just to 'make-rule-for-window')
+=Make 'abort-iresize' really abort ;)
+=move from "/usr/share/dswm/" to XDG_DATA_DIRS/dss/dswm->/usr/share/dswm/
+=move from "~/.config/dswm/modules.d" to XDG_DATA_HOME/dss/dswm-> ~/.local/share/dss/dswm/modules
+
+=bug on clisp, when set-font
+=bug on clisp, when load-module
+
+=CLISP: (make-pathname :directory (list :ABSOLUTE "home" "zz" "qq" "s-bindings"))
+=SBCL: (make-pathname :directory (list :ABSOLUTE "home/zz" "s-bindings"))
+=CLISP: NO SLASHES!
+=WORKAROUND: if platform not windows: make list with "/" as separators if windows - make list with "\" as separators
+
++make commands gmove-scratchpad,gmove-marked-scratchpad, bind this commands
+
+FIX: sibling command
+
+=BUG: Error In Command 'recall-desktop': error opening #P"/home/cosmonaut/.dswm.d/rules.d/desktop.rules":
+=                                                No such file or directory
+=with user euXXXX !
+
+
+=FEATURE: port to CLISP,CCL,LW,ECL(CMUCL)
+
+add command 'gselect-with-marked'
+
+change: 'gmove', 'gmove-marked' don't changes current group
+change: 'gselect-with-window', 'gselect-with-marked' changes current group
+
+remove commands gmove-with-window, gnew-with-window, gmove-with-marked, gnew-with-marked, gnext-with-window, 
+gprev-with-window and move it to module 'advanced-commands'
+
+
+USE standard modules: s-bindings, advanded-commands, ql4ds. And use script deepshell as standard shell interface to 
+DSWM
+
+
+Make test for setting and unsetting font
+
+
+make programs autostart:
+
+test: make test for startup-message
+

@@ -21,10 +21,13 @@
 ;; (set-prefix-key (kbd "C-z"))
 
 ;;;; Terminal emulator program (default xterm)
-;; (setf *terminal* "urxvt")
+;; (setf *terminal* "xterm")
 
 ;;;; Web Browser (default conkeror)
 ;; (setf *browser* "firefox")
+
+;;;; Default shell program
+;; (setf *shell-program* "/bin/sh")
 
 ;;;; Emacs implementation (default emacs, can be used xemacs, climacs etc)
 ;; (setf *emacs* "xemacs")
@@ -95,6 +98,10 @@
 
 ;;;; Message window font
 ;; May to be present in all popular linux systems
+;;;; Because clisp doesn`t support UTF8 by default
+#+clisp
+(set-font "-*-fixed-medium-r-*-*-14-*-*-*-*-*-*")
+#-clisp
 (set-font "-*-fixed-medium-r-*-*-14-*-*-*-*-*-iso10646-1")
 
 ;;;; Loading some external modules by default

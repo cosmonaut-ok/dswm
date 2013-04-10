@@ -1,0 +1,9 @@
+vsplit:remove
+hsplit:remove
+hsplit:resize_10_10:only
+vsplit:resize_10_10:only
+hsplit
+only:hsplit:fselect_1:fselect_2:fselect_8
+hsplit:fnext:fother
+fselect_1:fclear:only
+gnew_test:vsplit:hsplit:resize_30_30:balance-frames:gkill

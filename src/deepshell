@@ -1,0 +1,274 @@
+#!/bin/bash
+
+# Copyright (C) 2007 Jonathan Moore Liles
+# Copyright (C) 2013 Alexander aka 'CosmonauT' Vynnyk
+#
+# Maintainer: Alexander aka 'CosmonauT' Vynnyk
+#
+# DSWM Test Tool is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# DSWM Test Tool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+
+### DeepShell - DSWM Interactive SHell.
+
+#### INIT ####
+DELAY=0.01
+
+if ! sleep $DELAY 2>/dev/null >&2
+then
+    DELAY=1
+fi
+
+# replace -E with -r option for old versions of GNU sed
+if ! sed -E 1p /dev/null 2>/dev/null; then
+    sed() { shift; command sed -r "$@"; }
+fi
+
+# parse C-style backslash sequences by default
+if [ "$(echo -e foo)" = foo ]; then
+    echo() { builtin echo -e "$@"; }
+fi
+
+function wait_result ()
+{
+    while :; do
+	RESULT=$(xprop -root -f DSWM_COMMAND_RESULT 8s \
+	    DSWM_COMMAND_RESULT 2>/dev/null |
+	    sed -E 's/\\([[:digit:]]+)/\\0\1/g')
+	if echo "$RESULT" | grep -v -q 'not found.$'
+	then
+	    break
+	fi
+	
+	sleep $DELAY
+    done
+    
+    xprop -root -remove DSWM_COMMAND_RESULT
+    
+    if echo "$RESULT" | grep -q '= $'
+    then
+	return 1
+    fi
+    
+    echo "$RESULT" |
+    sed -E 's/[^"\\n]+"//
+            /^"[[:space:]]*$/d
+            s/(^|[^\\])\\n/\1\
+/g
+            s/\\(["\\n])/\1/g
+            s/\^([*[:digit:]]+|[Bbn])//g'
+}
+
+function send_cmd ()
+{
+    local cmd="$1"
+    
+    if [ "$cmd" = "dswm-quit" ]
+    then
+	cmd=quit
+    elif [ "$cmd" = "quit" ]
+    then
+	exit
+    fi
+    
+    xprop -root -f DSWM_COMMAND 8s -set DSWM_COMMAND "$cmd"
+    
+    wait_result
+}
+
+function usage ()
+{
+
+    cat <<EOF
+Usage: $0 [-t/-c/-s/-h] [<section_name>] [<test_name>]
+
+NAME:
+       deepshell - simple testing tool for DSWM.
+
+DESCRIPTION:
+
+       DeepShell is the DSWM shell, based on Jonathan Moore Liles's
+       stumpish (Stump Interactive Shell). It can do DSWM commands 
+       sequences from the files and as arguments with output to stdout.
+       Use it to interact a running DSWM instance. When run from a
+       terminal with no arguments, deepshell accepts commands interactively 
+       and prints each result. If standard input is a pipe, deepshell
+       executes any number of commands and prints the concatenated results.
+       If the '-e' option and one argument are given on the command line,
+       deepshell reads any number of lines from standard input and uses
+       them as the argument to the named command. Otherwise, if one or more
+       arguments are provided on the command line, the first is considered
+       the name of the command to execute and the remainder is concatenated
+       to form the argument.
+
+OPTIONS:
+       <NO OPTIONS>               enter to interactive shell
+       <DSWM COMMAND AS ARGUMENT> execute DSWM command, given as argument
+       -e                         reads any number of lines from standard
+                                  input and uses them as the argument to
+                                  the named command
+       -h                         display this help
+
+EXAMPLES:
+
+       DISPLAY=:1 $0 gnew test                           # use envirnoment variable DISPLAY, different from default value
+       echo '(group-windows (current-group))' | $0 eval  # eval some code on DSWM
+       $0 -e <enter dswm commands with arguments> Ctrl+D # exec all given DSWM commands
+EOF
+    exit 0;
+}
+
+function warn ()
+{
+  {
+    tput md bold
+    tput AF setaf 1
+    echo 'WARN:\c'
+    tput me sgr0
+    echo " $*"
+  } >&2
+}
+
+function tput ()
+{
+    local cap1=$1 cap2=$2
+    shift 2
+
+    command tput $cap1 $@ 2>/dev/null ||
+    command tput $cap2 $@ 2>/dev/null
+}
+
+
+function do_commands ()
+{
+    for i in $(echo "$@" | sed 's/\ /\_/g' | sed 's/\:/\ /g'); do
+	if [ ! -z "$(echo $i | grep -E '^\#')" ]; then
+	    break
+	else
+	    echo -n ">> Doing $i... "
+	    
+	    send_cmd $(echo $i | sed 's/\_/\ /g')
+	    
+	    if [ "$DEBUG" == "1" ]; then
+		echo ""
+		send_cmd copy-unhandled-error
+	    fi
+	    
+	    if [ $? == 0 ]; then
+		echo "[ done ]"
+	    else
+		echo "Failed!"
+	    fi
+	    
+	fi
+    done
+}
+
+function dswm_shell ()
+{
+
+    if ! type rlwrap 2>/dev/null >&2; then
+	warn rlwrap not found, command completion won\'t work
+    else
+	    # Note: $TEMP is not conventional; it is left here purely
+	    # for backwards compatibility.
+ 	COMMANDS="${TEMP:-${TMPDIR:-/tmp:-/var/tmp}}/deepshell.commands.$$"
+	echo `do_commands "commands"` | ## sort > "$COMMANDS"
+ 	sed -E 's/[[:space:]]+/\
+/g' |
+ 	sort > "$COMMANDS"
+ 	trap 'rm -f "$COMMANDS"' exit int term
+ 	rlwrap -b '' -f "$COMMANDS" "$0" -r
+ 	exit
+    fi
+
+    tput AF setaf 5
+    echo Welcome to the DeepShell - DSWM Interactive SHell.
+    tput me sgr0
+    echo 'Type \c'
+    tput AF setaf 2
+    echo 'commands\c'
+    tput me sgr0
+    echo \ for a list of commands.
+    
+    IFS='
+'
+    while read -p '> ' REPLY; do
+	tput md bold
+	tput AF setaf 2
+	do_commands "$REPLY"
+	tput me sgr0
+    done
+
+# 	if ! type rlwrap 2>/dev/null >&2
+# 	then
+# 	    warn rlwrap not found, command completion won\'t work
+# 	elif [ $READLINE = yes ]
+# 	then
+# 	    COMMANDS="${TMPDIR:-/tmp}/dsish.commands.$$"
+# 	    echo $(send_cmd "commands") |
+# 	    sed -E 's/[[:space:]]+/\
+# /g' |
+# 	    sort > "$COMMANDS"
+# 	    trap 'rm -f "$COMMANDS"' exit int term
+# 	    rlwrap -b '' -f "$COMMANDS" "$0" -r
+# 	    exit
+# 	fi
+
+# 	tput AF setaf 5
+#         echo Welcome to the DSWM Interactive SHell.
+#         tput me sgr0
+#         echo 'Type \c'
+#         tput AF setaf 2
+#         echo 'commands\c'
+#         tput me sgr0
+#         echo \ for a list of commands.
+
+# 	while read -p '> ' REPLY
+# 	do
+# 	    tput md bold
+# 	    tput AF setaf 2
+# 	    send_cmd "$REPLY"
+# 	    tput me sgr0
+# 	done
+#     else
+# 	while read REPLY
+# 	do
+# 	    send_cmd "$REPLY"
+# 	done
+#     fi
+# fi
+
+
+}
+
+############### /deepshell part ##############
+
+if [ "$1" == "-h" ]; then
+    usage
+elif [ "$1" == "-e" ]; then
+    if [ $# -ne 1 ]; then
+	echo "'-e' used without argument!"
+	exit
+    fi
+    shift 1
+    IFS=''
+    ARGS=`cat /dev/stdin`
+    if  do_commands "$ARGS"; then
+	exit 0
+    fi
+elif [ ! -z "$1" ]; then
+    do_commands $@
+else
+    dswm_shell
+fi

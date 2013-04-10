@@ -14,81 +14,15 @@ or may work incorrect. In future releases we will fix it.
 These design decisions reflect the growing popularity of productive,
 customizable lisp based systems.
 
-Build & Start DSWM
----------------------
+To build, install, start and basic DSWM usage see the doc/README file
+To read the license, see the copyright/COPYING file
+To read DSWM authors list, see the copyright/AUTHORS file
+To read about last DSWM changes, see the NEWS file
+To get help see the next information:
 
-Prerequisites
-=============
-
-* a common lisp distribution. Now, officially supports only SBCL.
-* clx
-* cl-ppcre
-
-You can use asdf-install to install lisp libraries:
-  $ sbcl
-    * (require 'asdf)
-    * (require 'asdf-install)
-    * (asdf-install:install 'clx)
-    * (asdf-install:install 'cl-ppcre)
-
-Or, using quicklisp:
-  $ sbcl
-    * (ql:quickload "clx")
-    * (ql:quickload "cl-ppcre")
-
-NOTE: ensure, that it is already installed and loads automatically into SBCL
-You can get quicklisp from official site: http://www.quicklisp.org/beta/
-
-Your operating system distribution may also have these libraries
-available.
-
-Building
-========
-
-Building dswm from GIT requires that you build the configure script:
-
-$ autoconf
-
-If there's already a configure script then just run it.
-
-$ ./configure
-
-If your SBCL is in strange places you may need to tell the script where to find them:
-
-$ configure --with-sbcl=/home/sabetts/opt/bin/sbcl
-
-Now build it:
-
-$ make
-
-If all goes well, you should have a dswm binary now. If autoconf 
-worked properly, you can install the binary, along with the .info
-documentation with:
-
-$ make install
-
-Now that you have a binary, call it from your ~/.xinitrc file:
-
-$ echo exec /path/to/dswm >> ~/.xinitrc
-$ startx
-
-Also, if you use display manager (like GDM or some other), can login
-using it (DSWM puts dswm.desktop to xsessions path)
-
-Hopefully that will put you in X running dswm!
-
-SBCL And Threads
-----------------
-
-SBCL compiled with threads causes problems with dswm. The most
-common is sluggishness. It may also cause dswm to become
-unresponsive. If you use SBCL, consider using a version built without
-threads.
-
-Help
 ----
 
-There's a texinfo manual, dswm.texi. the build scripts generate an
+There's a texinfo manual, doc/dswm.texi. the build scripts generate an
 info file you can read in emacs or with the `info' program.
 
 For other stuff visit the dswm wiki:
