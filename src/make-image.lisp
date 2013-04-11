@@ -43,6 +43,7 @@
            (lisp-implementation-type))))
 
 (require 'asdf)
+(require "clx") ;; because clisp uses it's own CLX module
 (asdf:oos 'asdf:load-op 'dswm)
 
 #+sbcl
@@ -63,8 +64,8 @@
 
 #+clisp
 (ext:saveinitmem "dswm" :init-function (lambda ()
-                                            (dswm:dswm)
-                                            (ext:quit))
+					 (dswm:dswm)
+					 (ext:quit))
                  :executable t :keep-global-handlers t :norc nil :documentation "The DSWM Executable")
 
 #+ccl

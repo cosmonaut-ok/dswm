@@ -12,8 +12,6 @@
 	(ignore-errors (require :cmucl-clx))
 	(ignore-errors (require :clx)))
 
-;; #+clisp (require "clx")
-
 (defsystem :dswm
   :name "DSWM"
   :author "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
