@@ -134,12 +134,13 @@ out, an element can just be the argument type."
      (defun ,name ,args
        ,docstring
        (let ((%interactivep% *interactivep*)
-	     (*interactivep* nil))
+	     (*interactivep* nil)
+	     (command-input-history (gethash 'command *input-history-hash*)))
 	 (declare (ignorable %interactivep%))
 	 (when (and %interactivep%
 		    (not (equal (string-downcase (princ-to-string ',name)) "colon"))
-		    (not (equal (string-downcase (princ-to-string ',name)) (car *commands-history*))))
-	   (push (string-downcase (princ-to-string ',name)) *commands-history*))
+		    (not (equal (string-downcase (princ-to-string ',name)) (car command-input-history))))
+	   (push (string-downcase (princ-to-string ',name)) command-input-history))
 	 ,@body))
      (setf (gethash ',name *command-hash*)
            (make-command :name ',name
@@ -282,11 +283,12 @@ be used when prompting the user for the argument.
 This code creates a new type called @code{:symbol} which finds the
 symbol in the dswm package. The command @code{symbol} uses it and
 then describes the symbol."
-  `(progn
-     (setf (gethash ,type *command-type-hash*)
-	   (lambda (,input ,prompt)
-	     ,@body))
-     (setf (gethash ,type *dswm-type->completion-function*) ,completion-builder)))
+  `(let ((*input-history* (gethash ,type *input-history-hash*)))
+     (progn
+       (setf (gethash ,type *command-type-hash*)
+	     (lambda (,input ,prompt)
+	       ,@body))
+       (setf (gethash ,type *dswm-type->completion-function*) ,completion-builder))))
 
 (define-dswm-type :y-or-n (input prompt :completion-builder 'lookup-symbol)
   (let ((s (or (argument-pop input)
@@ -325,14 +327,13 @@ then describes the symbol."
       (completing-read (current-screen) prompt (modules-list) :require-match t)))
 
 (define-dswm-type :command (input prompt)
-  (let* ((*input-history* *input-commands-history*)
-	 (cmd (or (argument-pop input)
-		  (completing-read (current-screen)
-				   prompt
-				   (all-commands)))))
+  (let ((cmd (or (argument-pop input)
+		 (completing-read (current-screen)
+				  prompt
+				  (all-commands)))))
     (when (and (not (equal cmd "colon"))
-	       (not (equal cmd (car *input-commands-history*))))
-      (push cmd *input-commands-history*))
+	       (not (equal cmd (car *input-history*))))
+      (push cmd *input-history*))
     cmd))
 
 (define-dswm-type :key-seq (input prompt)
@@ -461,12 +462,11 @@ then describes the symbol."
             (throw 'error :abort)))))
 
 (define-dswm-type :shell (input prompt)
-  (let* ((*input-history* *programs-history*)
-	 (program (or (argument-pop-rest input)
-		      (completing-read (current-screen) prompt 'complete-program))))
+  (let ((program (or (argument-pop-rest input)
+		     (completing-read (current-screen) prompt 'complete-program))))
     (when (and (not (null program))
-	       (not (equal program (car *programs-history*))))
-    (push program *programs-history*))
+	       (not (equal program (car *input-history*))))
+      (push program *input-history*))
     program))
 
 ;;; FIXME: Not implemented with autocomplete FIXING
@@ -574,14 +574,13 @@ know lisp very well. One might put the following in one's rc file:
 (defcommand colon (&optional initial-input) (:command)
   "Read a command from the user. @var{initial-text} is optional. When
 supplied, the text will appear in the prompt."
-    (let* ((*input-history* *input-commands-history*)
-	   (cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
-      (unless cmd
-	(throw 'error :abort))
-      (when (plusp (length cmd))
-	(progn
-	  (eval-command cmd t)
-	  (push cmd *input-commands-history*)))))
+  (let* ((cmd (completing-read (current-screen) "Input internal DSWM command: " (all-commands) :initial-input (or initial-input "") :require-match t)))
+    (unless cmd
+      (throw 'error :abort))
+    (when (plusp (length cmd))
+      (progn
+	(eval-command cmd t)
+	(push cmd *input-history*)))))
 
 (defcommand edit-variable (var) ((:variable "Input variable name to edit it: "))
   "Edit any variable values"

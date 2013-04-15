@@ -825,16 +825,22 @@ when killing text in the input bar.")
 (defvar *last-command* nil
   "Set to the last interactive command run.")
 
-(defvar *commands-history* nil
-  "History of executed commands")
+(defvar *input-history* nil
+  "Input history")
 
-(defvar *input-commands-history* nil
-  "History of any input through input line
-or keybindings commands")
+(defvar *input-history-hash* (make-hash-table :test 'equal)
+  "Input histories for different commands")
 
-(defvar *programs-history* nil
-  "History of any input through input line
-or keybindings commands")
+;; (defvar *commands-history* nil
+;;   "History of executed commands")
+
+;; (defvar *input-commands-history* nil
+;;   "History of any input through input line
+;; or keybindings commands")
+
+;; (defvar *programs-history* nil
+;;   "History of any input through input line
+;; or keybindings commands")
 
 (defvar *max-last-message-size* 20
   "how many previous messages to keep.")

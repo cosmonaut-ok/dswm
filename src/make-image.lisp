@@ -43,7 +43,7 @@
            (lisp-implementation-type))))
 
 (require 'asdf)
-(require "clx") ;; because clisp uses it's own CLX module
+#+clisp (require "clx") ;; because clisp uses it's own CLX module
 (asdf:oos 'asdf:load-op 'dswm)
 
 #+sbcl
