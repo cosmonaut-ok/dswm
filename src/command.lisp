@@ -135,12 +135,12 @@ out, an element can just be the argument type."
        ,docstring
        (let ((%interactivep% *interactivep*)
 	     (*interactivep* nil)
-	     (command-input-history (gethash 'command *input-history-hash*)))
+	     (*input-history* (gethash :command *input-history-hash*)))
 	 (declare (ignorable %interactivep%))
 	 (when (and %interactivep%
 		    (not (equal (string-downcase (princ-to-string ',name)) "colon"))
-		    (not (equal (string-downcase (princ-to-string ',name)) (car command-input-history))))
-	   (push (string-downcase (princ-to-string ',name)) command-input-history))
+		    (not (equal (string-downcase (princ-to-string ',name)) (car *input-history*))))
+	   (push (string-downcase (princ-to-string ',name)) *input-history*))
 	 ,@body))
      (setf (gethash ',name *command-hash*)
            (make-command :name ',name
@@ -283,12 +283,12 @@ be used when prompting the user for the argument.
 This code creates a new type called @code{:symbol} which finds the
 symbol in the dswm package. The command @code{symbol} uses it and
 then describes the symbol."
-  `(let ((*input-history* (gethash ,type *input-history-hash*)))
-     (progn
-       (setf (gethash ,type *command-type-hash*)
-	     (lambda (,input ,prompt)
-	       ,@body))
-       (setf (gethash ,type *dswm-type->completion-function*) ,completion-builder))))
+  `(progn
+     (setf (gethash ,type *command-type-hash*)
+	   (lambda (,input ,prompt)
+	     (let ((*input-history* (gethash ,type *input-history-hash*)))
+	       ,@body)))
+     (setf (gethash ,type *dswm-type->completion-function*) ,completion-builder)))
 
 (define-dswm-type :y-or-n (input prompt :completion-builder 'lookup-symbol)
   (let ((s (or (argument-pop input)

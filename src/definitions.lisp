@@ -822,8 +822,33 @@ The group's name.
   "This holds dswm's current selection. It is generally set
 when killing text in the input bar.")
 
+;; Input-related variables
 (defvar *last-command* nil
   "Set to the last interactive command run.")
+
+(defvar *input-last-command* nil
+  "The last input command.")
+
+(defvar *input-completions* nil
+  "The list of completions")
+
+(defvar *input-current-completions* nil
+  "The list of matching completions.")
+
+(defvar *input-current-completions-idx* nil
+  "The current index in the current completions list.")
+
+(defvar *input-history-ignore-duplicates* nil
+  "Do not add a command to the input history if it's already the first in the list.")
+
+(defvar *current-completion-builder* nil
+  "Defines a function, which will dinamical build completions list")
+
+(defvar *completions-list-changed-p* nil
+  "Show, if completions list changed from last build")
+
+(defvar *input-map* nil
+  "This is the keymap containing all input editing key bindings.")
 
 (defvar *input-history* nil
   "Input history")

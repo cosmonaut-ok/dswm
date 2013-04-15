@@ -40,9 +40,6 @@
 (defstruct input-line
   string position history history-bk password)
 
-(defvar *input-map* nil
-  "This is the keymap containing all input editing key bindings.")
-
 (when (null *input-map*)
   (setf *input-map*
 	(let ((map (make-sparse-keymap)))
@@ -75,30 +72,6 @@
           (define-key map (kbd "ISO_Left_Tab") 'input-complete-backward)
 	  (define-key map t 'input-self-insert)
 	  map)))
-
-(defvar *input-history* nil
-  "History for the input line.")
-
-(defvar *input-last-command* nil
-  "The last input command.")
-
-(defvar *input-completions* nil
-  "The list of completions")
-
-(defvar *input-current-completions* nil
-  "The list of matching completions.")
-
-(defvar *input-current-completions-idx* nil
-  "The current index in the current completions list.")
-
-(defvar *input-history-ignore-duplicates* nil
-  "Do not add a command to the input history if it's already the first in the list.")
-
-(defvar *current-completion-builder* nil
-  "Defines a function, which will dinamical build completions list")
-
-(defvar *completions-list-changed-p* nil
-  "Show, if completions list changed from last build")
 
 ;;; keysym functions
 
@@ -523,11 +496,11 @@ functions are passed this structure as their first argument."
     (setf (input-line-history-bk input) (input-line-string input)))
   (incf (input-line-history input))
   (if (>= (input-line-history input)
-          (length *input-history*))
+          (length (gethash :generic *input-history-hash*)))
       (progn
         (decf (input-line-history input))
         :error)
-      (setf (input-line-string input) (make-input-string (elt *input-history* (input-line-history input)))
+      (setf (input-line-string input) (make-input-string (elt (gethash :generic *input-history-hash*) (input-line-history input)))
             (input-line-position input) (length (input-line-string input)))))
 
 (defun input-history-forward (input key)
@@ -540,7 +513,7 @@ functions are passed this structure as their first argument."
          (setf (input-line-string input) (input-line-history-bk input)
                (input-line-position input) (length (input-line-string input))))
         (t
-         (setf (input-line-string input) (make-input-string (elt *input-history* (input-line-history input)))
+         (setf (input-line-string input) (make-input-string (elt (gethash :generic *input-history-hash*) (input-line-history input)))
                (input-line-position input) (length (input-line-string input))))))
 
 (defun input-self-insert (input key)
@@ -579,8 +552,8 @@ input (pressing Return), nil otherwise."
 
        (unless (or (input-line-password input)
                    (and *input-history-ignore-duplicates*
-                        (string= (input-line-string input) (first *input-history*))))
-         (push (input-line-string input) *input-history*))
+                        (string= (input-line-string input) (first (gethash :generic *input-history-hash*)))))
+         (push (input-line-string input) (gethash :generic *input-history-hash*)))
        :done)
       (:abort
        (throw :abort t))
