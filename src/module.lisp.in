@@ -85,7 +85,7 @@
   (let ((dir (dirname (find-system-file name))))
     (if (or (not (member name *loaded-modules-list* :test 'equal)) force-p)
 	(progn
-	  (and (push dir *modules-load-paths-list*) (require name))
+	  (and (push dir asdf:*central-registry*) (require name))
 	  (push name *loaded-modules-list*)
 	  (format nil "Module ~a loaded successfully" name))
       (message "Module already loaded"))))

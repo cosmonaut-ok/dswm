@@ -1,4 +1,4 @@
-LISP=@LISP_PROGRAM@
+LISP="@LISP_PROGRAM@"
 
 sbcl_BUILDOPTS=--load ./make-image.lisp
 cmucl_BUILDOPTS=-batch -load ./make-image.lisp -eval "(quit)"
