@@ -135,12 +135,12 @@ out, an element can just be the argument type."
        ,docstring
        (let ((%interactivep% *interactivep*)
 	     (*interactivep* nil)
-	     (*input-history* (gethash :command *input-history-hash*)))
+	     (*current-input-history-slot* :command))
 	 (declare (ignorable %interactivep%))
 	 (when (and %interactivep%
 		    (not (equal (string-downcase (princ-to-string ',name)) "colon"))
-		    (not (equal (string-downcase (princ-to-string ',name)) (car *input-history*))))
-	   (push (string-downcase (princ-to-string ',name)) *input-history*))
+		    (not (equal (string-downcase (princ-to-string ',name)) (car (gethash *current-input-history-slot* *input-history*)))))
+	   (push (string-downcase (princ-to-string ',name)) (gethash *current-input-history-slot* *input-history*)))
 	 ,@body))
      (setf (gethash ',name *command-hash*)
            (make-command :name ',name
@@ -249,7 +249,7 @@ only return active commands."
           (read-one-line (current-screen) prompt))
       (throw 'error :abort)))
 
-(defmacro define-dswm-type (type (input prompt &key completion-builder input-history-slot) &body body)
+(defmacro define-dswm-type (type (input prompt &key completion-builder) &body body)
   "Create a new type that can be used for command arguments. @var{type} can be any symbol. 
 
 When @var{body} is evaluated @var{input} is bound to the
@@ -285,13 +285,8 @@ symbol in the dswm package. The command @code{symbol} uses it and
 then describes the symbol."
   `(progn
      (setf (gethash ,type *command-type-hash*)
-	     ,(if-not-null 
-	       input-history-slot
-	       `(lambda (,input ,prompt)
-		  (let ((*input-history* (gethash ,input-history-slot *input-history-hash*)))
-		    ,@body))
-	       `(lambda (,input ,prompt)
-		  ,@body)))
+	   (lambda (,input ,prompt)
+	     ,@body))
      (setf (gethash ,type *dswm-type->completion-function*) ,completion-builder)))
 
 (define-dswm-type :y-or-n (input prompt :completion-builder 'lookup-symbol)
@@ -326,18 +321,19 @@ then describes the symbol."
       (throw 'error (format nil "the symbol ~a::~a has no function."
 			    (package-name pkg) var)))))
 
-(define-dswm-type :module (input prompt :input-history-slot :module)
+(define-dswm-type :module (input prompt)
   (or (argument-pop-rest input)
       (completing-read (current-screen) prompt (modules-list) :require-match t)))
 
-(define-dswm-type :command (input prompt :input-history-slot :command)
-  (let ((cmd (or (argument-pop input)
+(define-dswm-type :command (input prompt)
+  (let ((*current-input-history-slot* :command)
+	(cmd (or (argument-pop input)
 		 (completing-read (current-screen)
 				  prompt
 				  (all-commands)))))
     (when (and (not (equal cmd "colon"))
-	       (not (equal cmd (car *input-history*))))
-      (push cmd *input-history*))
+	       (not (equal cmd (car (gethash *current-input-history-slot* *input-history*)))))
+      (push cmd (gethash *current-input-history-slot* *input-history*)))
     cmd))
 
 (define-dswm-type :key-seq (input prompt)
@@ -381,7 +377,7 @@ then describes the symbol."
   (or (argument-pop input)
       (read-one-line (current-screen) prompt)))
 
-(define-dswm-type :title (input prompt :input-history-slot :title)
+(define-dswm-type :title (input prompt)
   (or (argument-pop-rest input)
       (read-one-line (current-screen) prompt :initial-input (window-name (current-window)))))
 
@@ -389,17 +385,17 @@ then describes the symbol."
   (or (argument-pop input)
       (read-one-line (current-screen) prompt :initial-input (group-name (current-group)))))
 
-(define-dswm-type :password (input prompt :input-history-slot :password)
+(define-dswm-type :password (input prompt)
   (or (argument-pop input)
       (read-one-line (current-screen) prompt :password t)))
 
-(define-dswm-type :key (input prompt :input-history-slot :key)
+(define-dswm-type :key (input prompt)
   (let ((s (or (argument-pop input)
                (read-one-line (current-screen) prompt))))
     (when s
       (kbd s))))
 
-(define-dswm-type :window-name (input prompt :input-history-slot :window-name)
+(define-dswm-type :window-name (input prompt)
   (or (argument-pop input)
       (completing-read (current-screen) prompt
                        (mapcar 'window-name
@@ -465,16 +461,16 @@ then describes the symbol."
         (or (choose-frame-by-number (current-group))
             (throw 'error :abort)))))
 
-(define-dswm-type :shell (input prompt :input-history-slot :shell)
+(define-dswm-type :shell (input prompt)
   (let ((program (or (argument-pop-rest input)
 		     (completing-read (current-screen) prompt 'complete-program))))
     (when (and (not (null program))
-	       (not (equal program (car *input-history*))))
-      (push program *input-history*))
+	       (not (equal program (car (gethash *current-input-history-slot* *input-history*)))))
+      (push program (gethash *current-input-history-slot* *input-history*)))
     program))
 
 ;;; FIXME: Not implemented with autocomplete FIXING
-(define-dswm-type :file (input prompt :input-history-slot :file)
+(define-dswm-type :file (input prompt)
   (or (argument-pop input)
       (completing-read (current-screen)
 		       prompt
@@ -584,7 +580,7 @@ supplied, the text will appear in the prompt."
     (when (plusp (length cmd))
       (progn
 	(eval-command cmd t)
-	(push cmd (gethash :command *input-history-hash*))))))
+	(push cmd (gethash :command *input-history*))))))
 
 (defcommand edit-variable (var) ((:variable "Input variable name to edit it: "))
   "Edit any variable values"

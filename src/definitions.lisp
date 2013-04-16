@@ -850,11 +850,11 @@ when killing text in the input bar.")
 (defvar *input-map* nil
   "This is the keymap containing all input editing key bindings.")
 
-(defvar *input-history-hash* (make-hash-table :test 'equal)
+(defvar *input-history* (make-hash-table :test 'equal)
   "Input histories for different commands")
 
-(defvar *input-history* (gethash :generic *input-history-hash*)
-  "Input history")
+(defvar *current-input-history-slot* :generic
+  "Current input history slot")
 
 ;; (defvar *commands-history* nil
 ;;   "History of executed commands")

@@ -411,7 +411,7 @@ current frame instead of switching to the window."
 			      command)
 			     (t
 			      (find-last-command (cdr list)))))))
-    (let ((command (find-last-command (gethash 'command *input-history-hash*))))
+    (let ((command (find-last-command (gethash :command *input-history*))))
       (if command
 	  (run-commands (princ-to-string command))
 	(message "You not input any command yet")))))

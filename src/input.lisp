@@ -496,11 +496,11 @@ functions are passed this structure as their first argument."
     (setf (input-line-history-bk input) (input-line-string input)))
   (incf (input-line-history input))
   (if (>= (input-line-history input)
-          (length *input-history*))
+          (length (gethash *current-input-history-slot* *input-history*)))
       (progn
         (decf (input-line-history input))
         :error)
-      (setf (input-line-string input) (make-input-string (elt *input-history* (input-line-history input)))
+      (setf (input-line-string input) (make-input-string (elt (gethash *current-input-history-slot* *input-history*) (input-line-history input)))
             (input-line-position input) (length (input-line-string input)))))
 
 (defun input-history-forward (input key)
@@ -513,7 +513,7 @@ functions are passed this structure as their first argument."
          (setf (input-line-string input) (input-line-history-bk input)
                (input-line-position input) (length (input-line-string input))))
         (t
-         (setf (input-line-string input) (make-input-string (elt *input-history* (input-line-history input)))
+         (setf (input-line-string input) (make-input-string (elt (gethash *current-input-history-slot* *input-history*) (input-line-history input)))
                (input-line-position input) (length (input-line-string input))))))
 
 (defun input-self-insert (input key)
@@ -552,8 +552,8 @@ input (pressing Return), nil otherwise."
 
        (unless (or (input-line-password input)
                    (and *input-history-ignore-duplicates*
-                        (string= (input-line-string input) (first *input-history*))))
-         (push (input-line-string input) *input-history*))
+                        (string= (input-line-string input) (first (gethash *current-input-history-slot* *input-history*)))))
+         (push (input-line-string input) (gethash *current-input-history-slot* *input-history*)))
        :done)
       (:abort
        (throw :abort t))
