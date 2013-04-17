@@ -103,8 +103,6 @@ install: @MAKE_INSTALL_DEPS@
 dswm.install:
 	test -z "$(destdir)$(bindir)" || mkdir -p "$(destdir)$(bindir)"
 	install -m 755 dswm "$(destdir)$(bindir)"
-	test -z "$(destdir)$(infodir)" || mkdir -p "$(destdir)$(infodir)"
-	install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)/dswm.info"
 	test -d "$(etcdir)/dswm/" || mkdir -p "$(etcdir)/dswm"
 	test -f "$(destdir)$(etcdir)/dswm/dswm.lisp" || install -m 644 ../config/dswm.lisp "$(destdir)$(etcdir)/dswm/dswm.lisp"
 	mkdir -p "$(destdir)$(datarootdir)/dswm/modules"
@@ -130,7 +128,9 @@ dswm.install:
 	fi; fi; fi; fi
 
 dswm.info.install:
-	test -f dswm.info && install -m 644 dswm.info "$(destdir)$(infodir)"
+	## test -f dswm.info && install -m 644 dswm.info "$(destdir)$(infodir)"
+	test -z "$(destdir)$(infodir)" || mkdir -p "$(destdir)$(infodir)"
+	test -f dswm.info && install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)"
 
 dswm.gnome.install:
 

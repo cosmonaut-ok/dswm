@@ -311,29 +311,32 @@ then describes the symbol."
                               (package-name pkg) var)))))
 
 (define-dswm-type :variable (input prompt)
-  (lookup-symbol (argument-pop-or-read input prompt)))
+  (let ((*current-input-history-slot* :variable))
+    (lookup-symbol (argument-pop-or-read input prompt))))
 
 (define-dswm-type :function (input prompt)
+  (let ((*current-input-history-slot* :function))
   (multiple-value-bind (sym pkg var)
       (lookup-symbol (argument-pop-or-read input prompt))
     (if (symbol-function sym)
         (symbol-function sym)
       (throw 'error (format nil "the symbol ~a::~a has no function."
-			    (package-name pkg) var)))))
+			    (package-name pkg) var))))))
 
 (define-dswm-type :module (input prompt)
+  (let ((*current-input-history-slot* :module))
   (or (argument-pop-rest input)
-      (completing-read (current-screen) prompt (modules-list) :require-match t)))
+      (completing-read (current-screen) prompt (modules-list) :require-match t))))
 
 (define-dswm-type :command (input prompt)
-  (let ((*current-input-history-slot* :command)
-	(cmd (or (argument-pop input)
+  (let ((cmd (or (argument-pop input)
 		 (completing-read (current-screen)
 				  prompt
 				  (all-commands)))))
+    (let ((*current-input-history-slot* :command))
     (when (and (not (equal cmd "colon"))
 	       (not (equal cmd (car (gethash *current-input-history-slot* *input-history*)))))
-      (push cmd (gethash *current-input-history-slot* *input-history*)))
+      (push cmd (gethash *current-input-history-slot* *input-history*))))
     cmd))
 
 (define-dswm-type :key-seq (input prompt)
@@ -378,16 +381,19 @@ then describes the symbol."
       (read-one-line (current-screen) prompt)))
 
 (define-dswm-type :title (input prompt)
-  (or (argument-pop-rest input)
-      (read-one-line (current-screen) prompt :initial-input (window-name (current-window)))))
+  (let ((*current-input-history-slot* :title))
+    (or (argument-pop-rest input)
+	(read-one-line (current-screen) prompt :initial-input (window-name (current-window))))))
 
 (define-dswm-type :current-group-name (input prompt)
+  (let ((*current-input-history-slot* :group))
   (or (argument-pop input)
-      (read-one-line (current-screen) prompt :initial-input (group-name (current-group)))))
+      (read-one-line (current-screen) prompt :initial-input (group-name (current-group))))))
 
 (define-dswm-type :password (input prompt)
-  (or (argument-pop input)
-      (read-one-line (current-screen) prompt :password t)))
+  (let ((*current-input-history-slot* :password))
+    (or (argument-pop input)
+	(read-one-line (current-screen) prompt :password t))))
 
 (define-dswm-type :key (input prompt)
   (let ((s (or (argument-pop input)
@@ -396,11 +402,12 @@ then describes the symbol."
       (kbd s))))
 
 (define-dswm-type :window-name (input prompt)
-  (or (argument-pop input)
-      (completing-read (current-screen) prompt
-                       (mapcar 'window-name
-                               (group-windows (current-group))))))
-
+  (let ((*current-input-history-slot* :window-name))
+    (or (argument-pop input)
+	(completing-read (current-screen) prompt
+			 (mapcar 'window-name
+				 (group-windows (current-group)))))))
+  
 (define-dswm-type :direction (input prompt)
   (let* ((values '(("up" :up)
                    ("down" :down)
@@ -441,7 +448,8 @@ then describes the symbol."
           (find-if #'match-partial (screen-groups screen))))))
 
 (define-dswm-type :group (input prompt)
-  (let ((match (select-group (current-screen)
+  (let ((*current-input-history-slot* :group)
+	(match (select-group (current-screen)
                              (or (argument-pop input)
                                  (completing-read (current-screen) prompt
                                                   (mapcar 'group-name
@@ -458,11 +466,12 @@ then describes the symbol."
                          (string (get-frame-number-translation f)))
                   :test 'string=)
             (throw 'error "Frame not found."))
-        (or (choose-frame-by-number (current-group))
-            (throw 'error :abort)))))
+      (or (choose-frame-by-number (current-group))
+	  (throw 'error :abort)))))
 
 (define-dswm-type :shell (input prompt)
-  (let ((program (or (argument-pop-rest input)
+  (let ((*current-input-history-slot* :shell)
+	(program (or (argument-pop-rest input)
 		     (completing-read (current-screen) prompt 'complete-program))))
     (when (and (not (null program))
 	       (not (equal program (car (gethash *current-input-history-slot* *input-history*)))))
@@ -471,10 +480,11 @@ then describes the symbol."
 
 ;;; FIXME: Not implemented with autocomplete FIXING
 (define-dswm-type :file (input prompt)
-  (or (argument-pop input)
-      (completing-read (current-screen)
-		       prompt
-		       (mapcar 'princ-to-string (list-directory (dirname prompt))))))
+  (let ((*current-input-history-slot* :file))
+    (or (argument-pop input)
+	(completing-read (current-screen)
+			 prompt
+			 (mapcar 'princ-to-string (list-directory (dirname prompt)))))))
 
 (define-dswm-type :rest (input prompt)
   (or (argument-pop-rest input)
@@ -578,9 +588,10 @@ supplied, the text will appear in the prompt."
     (unless cmd
       (throw 'error :abort))
     (when (plusp (length cmd))
-      (progn
-	(eval-command cmd t)
-	(push cmd (gethash :command *input-history*))))))
+      ;; (progn
+      (eval-command cmd t)
+      ;; (push cmd (gethash :command *input-history*))))))
+      )))
 
 (defcommand edit-variable (var) ((:variable "Input variable name to edit it: "))
   "Edit any variable values"

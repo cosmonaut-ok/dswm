@@ -282,16 +282,6 @@ by PATHNAME-AS-DIRECTORY."
          (directory-pathname-p result)
          result)))
 
-;; (defun directory-exists-p (pathspec)
-;;   "Checks whether the file named by the pathname designator PATHSPEC
-;; exists and if it is a directory.  Returns its truename if this is the
-;; case, NIL otherwise.  The truename is returned in directory form as if
-;; by PATHNAME-AS-DIRECTORY."
-;;   (let ((result (file-exists-p pathspec)))
-;;     (and result
-;;          (directory-pathname-p result)
-;;          result)))
-
 (defun walk-directory (dirname fn &key directories
                                        (if-does-not-exist :error)
                                        (test (constantly t)))
@@ -350,9 +340,10 @@ checked for compatibility of their types."
   (let ((buf (make-array *stream-buffer-size*
                          :element-type (stream-element-type from))))
     (loop
-       (let ((pos #-:clisp (read-sequence buf from)
+       (let ((pos #-(or :clisp :cmu) (read-sequence buf from)
                   #+:clisp (ext:read-byte-sequence buf from :no-hang nil)
-		  #+:cmu (sys:read-n-bytes from buf 0 *stream-buffer-size* nil)))
+		  #+:cmu (sys:read-n-bytes from buf 0 *stream-buffer-size* nil)
+		  ))
          (when (zerop pos) (return))
          (write-sequence buf to :end pos))))
   (values))

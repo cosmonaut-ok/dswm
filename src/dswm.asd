@@ -24,7 +24,7 @@
   :components ((:file "package")
                (:file "definitions")
 	       (:file "library")
-	       (:file "workarounds")
+	       ;; (:file "workarounds") ;; removed workarounds. Checking for sbcl bugs...
                (:file "wrappers")
                (:file "keysyms")
 	       ;;(:file "keysyms-uni")
