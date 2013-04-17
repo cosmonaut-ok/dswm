@@ -45,7 +45,7 @@
 (require 'asdf)
 #+(or :clisp :ecl) (require "clx") ;; because clisp and ecl uses it's own CLX module
 #-ecl (asdf:oos 'asdf:load-op 'dswm)
-#+ecl (asdf:oos 'asdf:load-fasl-op 'stumpwm)
+#+ecl (asdf:oos 'asdf:load-fasl-op 'dswm)
 
 #+sbcl
 (sb-ext:save-lisp-and-die "dswm" :toplevel (lambda ()
