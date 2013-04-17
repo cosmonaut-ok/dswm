@@ -20,27 +20,27 @@
 ;; Commentary:
 ;;
 ;; Code:
-#-(or sbcl cmucl clisp openmcl ecl (and lispworks6 (not lispworks-personal-edition)))
+#-(or sbcl cmucl clisp openmcl ecl lw lispworks-personal-edition lispworks6 lispworks) ;; (and lispworks6 (not lispworks-personal-edition)))
 (error "This lisp implementation is not supported.")
 
-#+lispworks
-(progn
-  (load-all-patches)
-  (lw:set-default-character-element-type 'lw:simple-char)
+;; #+lispworks
+;; (progn
+;;   (load-all-patches)
+;;   (lw:set-default-character-element-type 'lw:simple-char)
 
-  (unless
-      (dolist (install-path
-               '("quicklisp" ".quicklisp"))
-        (let ((quicklisp-init
-                (merge-pathnames (make-pathname :directory `(:relative ,install-path)
-                                                :name "setup.lisp")
-                                 (user-homedir-pathname))))
-          (when (probe-file quicklisp-init)
-            (load quicklisp-init)
-            (return t))))
+;;   (unless
+;;       (dolist (install-path
+;;                '("quicklisp" ".quicklisp"))
+;;         (let ((quicklisp-init
+;;                 (merge-pathnames (make-pathname :directory `(:relative ,install-path)
+;;                                                 :name "setup.lisp")
+;;                                  (user-homedir-pathname))))
+;;           (when (probe-file quicklisp-init)
+;;             (load quicklisp-init)
+;;             (return t))))
 
-    (error "Quicklisp must be installed in order to build DsWM with ~S."
-           (lisp-implementation-type))))
+;;     (error "Quicklisp must be installed in order to build DsWM with ~S."
+;;            (lisp-implementation-type))))
 
 (require 'asdf)
 #+(or :clisp :ecl) (require "clx") ;; because clisp and ecl uses it's own CLX module
@@ -78,20 +78,20 @@
                  :name-suffix ""
                  :epilogue-code '(dswm:dswm))
 
-;;; if you want to save an image
-#+lispworks
-(hcl:save-image "dswm"
-                :multiprocessing t
-                :environment nil
-                :load-init-files t
-                :restart-function (compile nil
-                                           #'(lambda ()
-                                               (dswm:dswm)
-                                               (lw:quit :status 0))))
+;; ;;; if you want to save an image
+;; #+lispworks
+;; (hcl:save-image "dswm"
+;;                 :multiprocessing t
+;;                 :environment nil
+;;                 :load-init-files t
+;;                 :restart-function (compile nil
+;;                                            #'(lambda ()
+;;                                                (dswm:dswm)
+;;                                                (lw:quit :status 0))))
 
-;;; if you want to save a standalone executable
-#+lispworks
-(lw:deliver #'dswm:dswm "dswm" 0
-            :interface nil
-            :multiprocessing t
-            :keep-pretty-printer t)
+;; ;;; if you want to save a standalone executable
+;; #+lispworks
+;; (lw:deliver #'dswm:dswm "dswm" 0
+;;             :interface nil
+;;             :multiprocessing t
+;;             :keep-pretty-printer t)
