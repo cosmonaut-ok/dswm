@@ -7,11 +7,21 @@ gselect_Main:exec_xterm:sleep_2:gnew-with-window_test:delete:gkill
 gselect_Main:exec_xterm:sleep_2:gnew-float-with-window_test:delete:gkill
 gselect_Main:exec_xterm:sleep_2:mark:gnew-with-marked_test:delete:gkill
 gselect_Main:exec_xterm:sleep_2:mark:gnew-float-with-marked_test:delete:gkill
+gselect_Main:grun-new_xterm:gselect_xterm:delete:gkill
+gselect_Main:grun-new-float_xterm:gselect_xterm:delete:gkill
+gselect_Main:gnew_test:grun_test_xterm:gselect_test:delete:gkill
+gselect_Main:exec_xterm:gmove-scratchpad:gselect_scratchpad:gmove-scratchpad:gselect_Main:delete
+gselect_Main:exec_xterm:mark:gmove-marked-scratchpad:gselect_scratchpad:gmove-marked-scratchpad:gselect_Main:delete
+gnew_test1:gconvert:gkill
 gnew_test:exec_xterm:sleep_2:gkill
 gnew_test1:gnew_test2:gselect_test1:exec_xterm:sleep_2:gselect_test2:exec_xterm:sleep_2:gmerge_test1:delete:delete:gkill:gselect_test1:gkill
 gnew_test1:gnew_test2:gprev:gnext:gselect_Main:gother
 gnew_test1:gnew_test2:exec_xterm:sleep_2:gprev-with-window:gnext-with-window:delete:gkill:gselect_test2:gkill
 gnew_test1:gnew_test2:exec_xterm:sleep_2:gmove_test1:gselect_test1:gselect-with-window_test2:delete:gkill:gselect_test1:gkill
+gnew_test1:exec_xterm:sleep_2:mark:gmove-marked_test1:gselect_test1:delete:gkill
 gnew_test1:gnew_test2:exec_xterm:sleep_2:mark:gprev-with-marked:gnext-with-marked:delete:gkill:gselect_test2:gkill
 # kill unneded xterms
 delete:delete
+gnew_test:grename_test2
+vgroups
+grouplist

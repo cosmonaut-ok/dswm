@@ -20,30 +20,11 @@
 ;; Commentary:
 ;;
 ;; Code:
-#-(or sbcl cmucl clisp openmcl ecl lw lispworks-personal-edition lispworks6 lispworks) ;; (and lispworks6 (not lispworks-personal-edition)))
+#-(or sbcl cmucl clisp openmcl ecl ccl)
 (error "This lisp implementation is not supported.")
 
-;; #+lispworks
-;; (progn
-;;   (load-all-patches)
-;;   (lw:set-default-character-element-type 'lw:simple-char)
-
-;;   (unless
-;;       (dolist (install-path
-;;                '("quicklisp" ".quicklisp"))
-;;         (let ((quicklisp-init
-;;                 (merge-pathnames (make-pathname :directory `(:relative ,install-path)
-;;                                                 :name "setup.lisp")
-;;                                  (user-homedir-pathname))))
-;;           (when (probe-file quicklisp-init)
-;;             (load quicklisp-init)
-;;             (return t))))
-
-;;     (error "Quicklisp must be installed in order to build DsWM with ~S."
-;;            (lisp-implementation-type))))
-
 (require 'asdf)
-#+(or :clisp :ecl) (require "clx") ;; because clisp and ecl uses it's own CLX module
+#+(or :clisp :ecl :cmucl) (require "clx") ;; because clisp and ecl uses it's own CLX module
 #-ecl (asdf:oos 'asdf:load-op 'dswm)
 #+ecl (asdf:oos 'asdf:load-fasl-op 'dswm)
 
@@ -57,8 +38,6 @@
 
 #+cmucl
 (save-lisp "dswm" :init-function (lambda ()
-				   ;; asdf requires sbcl_home to be set, so set it to the value when the image was built
-				   ;;(sb-posix:putenv (format nil "SBCL_HOME=~A" #.(sb-ext:posix-getenv "SBCL_HOME")))
 				   (dswm:dswm)
 				   0)
 	   :executable t)
@@ -77,21 +56,3 @@
                  :move-here "."
                  :name-suffix ""
                  :epilogue-code '(dswm:dswm))
-
-;; ;;; if you want to save an image
-;; #+lispworks
-;; (hcl:save-image "dswm"
-;;                 :multiprocessing t
-;;                 :environment nil
-;;                 :load-init-files t
-;;                 :restart-function (compile nil
-;;                                            #'(lambda ()
-;;                                                (dswm:dswm)
-;;                                                (lw:quit :status 0))))
-
-;; ;;; if you want to save a standalone executable
-;; #+lispworks
-;; (lw:deliver #'dswm:dswm "dswm" 0
-;;             :interface nil
-;;             :multiprocessing t
-;;             :keep-pretty-printer t)

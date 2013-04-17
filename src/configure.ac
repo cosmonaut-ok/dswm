@@ -19,7 +19,7 @@ AC_ARG_WITH(cmucl, [ --with-cmucl=PATH specify location of cmucl], CMUCL_PATH=$w
 AC_ARG_WITH(clisp, [ --with-clisp=PATH specify location of clisp], CLISP_PATH=$withval, CLISP_PATH="")
 AC_ARG_WITH(ccl, [ --with-ccl=PATH specify location of ccl], CCL_PATH=$withval, CCL_PATH="")
 AC_ARG_WITH(ecl, [ --with-ecl=PATH specify location of ecl], ECL_PATH=$withval, ECL_PATH="")
-# AC_ARG_WITH(lw, [ --with-lw=PATH specify location of lispworks], LW_PATH=$withval, LW_PATH="")
+AC_ARG_WITH(quicklisp, [ --with-quicklisp=PATH specify location of quicklisp executable], QUICKLISP_PATH=$withval, QUICKLISP_PATH="modules/ql4ds/quicklisp.lisp")
 AC_ARG_WITH(manual, [  --with-manual compile with manual for DSWM (need cl-ppcre)], MANUALP="true", MANUALP="")
 AC_ARG_WITH(gnome, [  --with-gnome-session add DSWM session with gnome desktop environment], GNOMEP="true", GNOMEP="")
 AC_ARG_WITH(mate, [  --with-mate-session add DSWM session with mate desktop environment], MATEP="true", MATEP="")
@@ -67,14 +67,6 @@ else
    AC_PATH_PROG([ECL], ecl,"")
 fi
 
-dnl if test -x "$LW_PATH"; then
-dnl    LW=$LW_PATH
-dnl    AC_MSG_CHECKING([for lispworks])
-dnl    AC_MSG_RESULT($LW)
-dnl else
-dnl    AC_PATH_PROG([LW], lw,"")
-dnl fi
-
 if test "x$LISP" = "xany"; then
    if test "$SBCL"; then
       LISP=sbcl
@@ -86,8 +78,6 @@ if test "x$LISP" = "xany"; then
       LISP=ccl
    elif test "$ECL"; then
       LISP=ecl
-   dnl elif test "$LW"; then
-   dnl    LISP=lw
    fi
 fi
 
