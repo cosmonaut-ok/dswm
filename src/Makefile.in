@@ -4,7 +4,7 @@ sbcl_BUILDOPTS=--load ./make-image.lisp
 cmucl_BUILDOPTS=-batch -load ./make-image.lisp -eval "(quit)"
 clisp_BUILDOPTS=-K base -i ../contrib/asdf.lisp -on-error exit < ./make-image.lisp
 ccl_BUILDOPTS=--load ./make-image.lisp
-ecl_BUILDOPTS=-shell ./make-image.lisp
+ecl_BUILDOPTS=-load ../contrib/asdf.lisp -load ../contrib/asdf-ecl.lisp -shell ./make-image.lisp
 lw_BUILDOPTS=-build ./make-image.lisp
 
 clisp_INFOOPTS=-K full -on-error exit -x "(require 'asdf) (load \"dswm.asd\") (load \"@PPCRE_PATH@/cl-ppcre.asd\") (asdf:operate 'asdf:load-op :dswm) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)"
