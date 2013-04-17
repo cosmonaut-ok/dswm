@@ -352,12 +352,15 @@ current frame instead of switching to the window."
         (run-shell-command cmd))))
 
 (defcommand reload () ()
-"Reload DSWM using @code{asdf}."
-  (message "Reloading DSWM...")
-  #+asdf (with-restarts-menu
-             (asdf:operate 'asdf:load-op :dswm))
+  "Reload DSWM using @code{asdf}."
+  #+(and asdf (not ecl))
+  (progn
+    (message "Reloading DSWM...")
+    (with-restarts-menu
+     (asdf:operate 'asdf:load-op :dswm))
+    (message "Reloading DSWM...^B^2*Done^n."))
   #-asdf (message "^B^1*Sorry, DSWM can only be reloaded with asdf (for now.)")
-  #+asdf (message "Reloading DSWM...^B^2*Done^n."))
+  #+ecl (message "^B^1*Sorry, StumpWM cannot be reloaded when built as standalone program."))
 
 (defcommand editor () ()
   "Start default DSWM editor unless it is already running, in which case focus it."
