@@ -414,7 +414,7 @@ groups and vgroups commands."
 
 (defcommand gnext () ()
   "Cycle to the next group in the group list."
-  (if (eq (current-group) *scratchpad-group*)
+  (if (eq (current-group) (find-scratchpad-group))
       (group-forward (nth 1 (screen-groups (current-screen)))
 		     (sort-groups (current-screen)))
       (group-forward (current-group)
@@ -422,7 +422,7 @@ groups and vgroups commands."
 
 (defcommand gprev () ()
   "Cycle to the previous group in the group list."
-  (if (eq (current-group) *scratchpad-group*)
+  (if (eq (current-group) (find-scratchpad-group))
       (group-forward (nth 1 (screen-groups (current-screen)))
 		     (reverse (sort-groups (current-screen))))
       (group-forward (current-group)
@@ -442,11 +442,12 @@ window along."
 
 (defcommand gother () ()
   "Go back to the last group."
-  (let ((groups (screen-groups (current-screen))))
+  (let ((groups (screen-groups (current-screen)))
+	(scratchpad-group (find-scratchpad-group)))
     (when (> (length groups) 2)
       (if (or
-	   (eq (current-group) *scratchpad-group*)
-	   (eq (nth 1 groups) *scratchpad-group*))
+	   (eq (current-group) scratchpad-group)
+	   (eq (nth 1 groups) scratchpad-group))
 	  (switch-to-group (nth 2 groups))
 	  (switch-to-group (nth 1 groups))))))
 

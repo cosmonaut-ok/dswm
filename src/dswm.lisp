@@ -236,7 +236,7 @@ of those expired."
                (let ((*package* (find-package *default-package*)))
                  (multiple-value-bind
 		     (success err rc)
-		     (scratchpad-init)
+		     ;; (scratchpad-init)
 		   (load-rc-file)
 		   (run-with-timer
 		    *mode-line-timeout* *mode-line-timeout* 'toggle-mode-line-blink)

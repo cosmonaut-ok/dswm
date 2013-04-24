@@ -26,25 +26,33 @@
 
 (export '(scratchpad))
 
+(defun find-scratchpad-group (&optional (screen (current-screen)) grouplist)
+  (let ((groups (if-not-null grouplist grouplist (screen-groups screen))))
+    (cond ((car groups) nil)
+	  ((eq (group-number (car groups)) 0)
+	   (car groups))
+	  (t (find-scratchpad-group screen (cdr groups))))))
+
 (defun scratchpad-init ()
   "Initializing scratchpad support"
-  (let ((cg (current-group)))
-	 (unless *scratchpad-group*
-	   ;; Add the (hidden) scratchpad group and give it the special number 0
-	   (setf *scratchpad-group* (add-group (current-screen) *scratchpad-group-name*)
-		 (group-number *scratchpad-group*) 0))
-	 (switch-to-group cg))
-  t)
+  (let ((scratchpad-group (find-scratchpad-group)))
+    (if (null scratchpad-group)
+	(setf scratchpad-group (add-group (current-screen) *scratchpad-group-name* :background t)
+	      (group-number scratchpad-group) 0))
+    scratchpad-group))
 
 (defcommand scratchpad () ()
   "Show and hide scratchpad group"
-  (let ((groups (screen-groups (current-screen))))
-    (when (and
-	   (> (length groups) 1)
-	   (member *scratchpad-group* groups))
-      (if (eq (current-group) *scratchpad-group*)
-	  (switch-to-group (nth 1 groups))
-	(switch-to-group *scratchpad-group*)))))
+  (let* ((scratchpad-group (or (find-scratchpad-group)
+			      (scratchpad-init)))
+	 (groups (screen-groups (current-screen))))
+    (if (and
+	 (> (length groups) 1)
+	 (not (null scratchpad-group)))
+	(if (eq (current-group) scratchpad-group)
+	    (switch-to-group (nth 1 groups))
+	    (switch-to-group scratchpad-group))
+	(message "Cannot initialise scratchpad group: ~a" scratchpad-group))))
 
 (defcommand gmove-scratchpad () ()
   "Move the current window to the specified group."

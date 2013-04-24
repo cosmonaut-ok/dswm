@@ -451,7 +451,7 @@ current group.")
 (defvar *browser* nil
   "Default web browser")
 
-(defvar *editor* "emacs"
+(defvar *editor* nil
   "Default editor")
 
 (defvar *maxsize-border-width* 1
@@ -614,14 +614,8 @@ Use the window's resource class.
 Use the window's resource name.
 @end table")
 
-(defvar *show-tip-of-the-day-p* t
-  "Set, if needed to show tip of the day")
-
 (defvar *scratchpad-group-name* "scratchpad"
   "Name of scratchpad group")
-
-(defvar *scratchpad-group* nil
-  "Working variable for scratchpad group")
 
 (defvar *mode* '()
   "EXPERIMENTAL: Set enabled modes list
