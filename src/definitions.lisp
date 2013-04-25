@@ -644,7 +644,7 @@ interactive:         set behavior, which will propose alternative, actions
   default-bg)
 
 
-(defvar *window-number-map* "0123456789"
+(defvar *window-number-map* "123456789"
   "Set this to a string to remap the window numbers to something more convenient.")
 
 (defvar *group-number-map* "123456789"

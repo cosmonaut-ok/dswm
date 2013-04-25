@@ -638,7 +638,7 @@ and bottom_end_x."
 
 (defun find-free-window-number (group)
   "Return a free window number for GROUP. Begining from '1'"
-  (find-free-number (mapcar 'window-number (group-windows group)) 1))
+  (find-free-number (mapcar 'window-number (group-windows group)) 0))
 
 (defun reparent-window (screen window)
   ;; apparently we need to grab the server so the client doesn't get
