@@ -51,3 +51,4 @@ make programs autostart:
 
 test: make test for startup-message
 
+sync with stumpwm from 16d5974c0bae5083ee7727a9064285e8564bc380 to 278775543167b6009330a492f24eb8e902410ede
