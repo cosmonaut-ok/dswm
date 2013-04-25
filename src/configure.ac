@@ -11,6 +11,7 @@ AC_SUBST(MODULES_DIR)
 AC_SUBST(LISP)
 AC_SUBST(LISP_PROGRAM)
 AC_SUBST(DSWM_BIN_DIR)
+AC_SUBST(QUICKP)
 
 # Checks for programs.
 AC_ARG_WITH(lisp, [ --with-lisp=IMPL use the specified lisp (sbcl, cmucl, clisp, ccl, ecl or lw)], LISP=$withval, LISP="any")
@@ -19,13 +20,14 @@ AC_ARG_WITH(cmucl, [ --with-cmucl=PATH specify location of cmucl], CMUCL_PATH=$w
 AC_ARG_WITH(clisp, [ --with-clisp=PATH specify location of clisp], CLISP_PATH=$withval, CLISP_PATH="")
 AC_ARG_WITH(ccl, [ --with-ccl=PATH specify location of ccl], CCL_PATH=$withval, CCL_PATH="")
 AC_ARG_WITH(ecl, [ --with-ecl=PATH specify location of ecl], ECL_PATH=$withval, ECL_PATH="")
-AC_ARG_WITH(quicklisp, [ --with-quicklisp=PATH specify location of quicklisp executable], QUICKLISP_PATH=$withval, QUICKLISP_PATH="modules/ql4ds/quicklisp.lisp")
+## AC_ARG_WITH(quicklisp, [ --with-quicklisp=PATH specify location of quicklisp executable], QUICKLISP_PATH=$withval, QUICKLISP_PATH="modules/ql4ds/quicklisp.lisp")
 AC_ARG_WITH(manual, [  --with-manual compile with manual for DSWM (need cl-ppcre)], MANUALP="true", MANUALP="")
 AC_ARG_WITH(gnome, [  --with-gnome-session add DSWM session with gnome desktop environment], GNOMEP="true", GNOMEP="")
 AC_ARG_WITH(mate, [  --with-mate-session add DSWM session with mate desktop environment], MATEP="true", MATEP="")
 AC_ARG_WITH(unity, [  --with-unity-session add DSWM session with unity desktop environment], UNITYP="true", UNITYP="")
 AC_ARG_WITH(kde, [  --with-kde-session add DSWM session with KDE desktop environment], KDEP="true", KDEP="")
 AC_ARG_WITH(xfce, [  --with-xfce-session add DSWM session with XFCE desktop environment], XFCEP="true", XFCEP="")
+AC_ARG_WITH(quicklisp, [ --with-quicklisp build DSWM with quicklisp], QUICKP="true", QUICKP="")
 
 if test -x "$SBCL_PATH"; then
    SBCL=$SBCL_PATH

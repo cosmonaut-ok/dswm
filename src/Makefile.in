@@ -3,8 +3,17 @@ LISP="@LISP_PROGRAM@"
 sbcl_BUILDOPTS=--load ./make-image.lisp
 cmucl_BUILDOPTS=-batch -load ./make-image.lisp -eval "(quit)"
 clisp_BUILDOPTS=-K base -i ../contrib/asdf.lisp -on-error exit < ./make-image.lisp
-ccl_BUILDOPTS=--load ./make-image.lisp
+ccl_BUILDOPTS=--load ~/.sbclrc --load dswm.asd --load ./make-image.lisp
 ecl_BUILDOPTS=-shell ./make-image.lisp
+
+sbcl_QUICKLISP=--no-userinit --load ../contrib/quicklisp.lisp --eval '(quicklisp-quickstart:install)' --eval '(ql:quickload "cl-ppcre")' --eval '(ql:quickload "clx")'
+cmucl_QUICKLISP=-eval '(princ "QUICKLISP BUILD IS NOT SUPPORTED BY CMUCL COMPILER NOW!)'
+# -noinit -load ../contrib/quicklisp.lisp -eval '(quicklisp-quickstart:install)' -eval '(ql:quickload "cl-ppcre")'
+clisp_QUICKLISP=-x '(princ "QUICKLISP BUILD IS NOT SUPPORTED BY CLISP COMPILER NOW!)'
+# -norc -i ../contrib/quicklisp.lisp -x '(quicklisp-quickstart:install)' -x '(ql:quickload "cl-ppcre")' -repl
+ccl_QUICKLISP=-n -l ../contrib/quicklisp.lisp -e '(quicklisp-quickstart:install)' -e '(ql:quickload "cl-ppcre")' -e '(ql:quickload "clx")'
+ecl_QUICKLISP=-eval '(princ "QUICKLISP BUILD IS NOT SUPPORTED BY ECL COMPILER NOW!)'
+#-eval '(require :clx)' -load ../contrib/quicklisp.lisp -eval '(quicklisp-quickstart:install)' -norc
 
 clisp_INFOOPTS=-K full -on-error exit -x "(require 'asdf) (load \"dswm.asd\") (load \"@PPCRE_PATH@/cl-ppcre.asd\") (asdf:operate 'asdf:load-op :dswm) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)"
 sbcl_INFOOPTS=--eval "(progn (require 'asdf) (require 'dswm) (load \"manual.lisp\"))" --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
@@ -38,7 +47,11 @@ dswm.texi: ../doc/dswm.texi.in
 	$(LISP) $(@LISP@_INFOOPTS)
 
 dswm: $(FILES)
-	$(LISP) $(@LISP@_BUILDOPTS)
+	if test -z "@QUICKP@"; \
+	then $(LISP) $(@LISP@_BUILDOPTS); \
+	else $(LISP) $(@LISP@_QUICKLISP) $(@LISP@_BUILDOPTS); \
+	fi
+	rm -rf /tmp/quicklisp/
 	######################################################
 	###################### WARNING! ######################
 	######################################################

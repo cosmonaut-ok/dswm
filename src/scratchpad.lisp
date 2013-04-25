@@ -28,10 +28,12 @@
 
 (defun find-scratchpad-group (&optional (screen (current-screen)) grouplist)
   (let ((groups (if-not-null grouplist grouplist (screen-groups screen))))
-    (cond ((car groups) nil)
-	  ((eq (group-number (car groups)) 0)
-	   (car groups))
-	  (t (find-scratchpad-group screen (cdr groups))))))
+    (labels ((find-zero-group (list)
+	       (cond ((null list) nil)
+		     ((eq (group-number (car list)) 0)
+		      (car list))
+		     (t (find-zero-group (cdr list))))))
+      (find-zero-group groups))))
 
 (defun scratchpad-init ()
   "Initializing scratchpad support"
@@ -56,16 +58,16 @@
 
 (defcommand gmove-scratchpad () ()
   "Move the current window to the specified group."
-  (if (eq (current-group) *scratchpad-group*)
+  (if (eq (current-group) (find-scratchpad-group))
       (move-window-to-group (current-window) (cadr (screen-groups (current-screen))))
-    (move-window-to-group (current-window) *scratchpad-group*)))
+    (move-window-to-group (current-window) (find-scratchpad-group))))
 
 (defcommand gmove-marked-scratchpad () ()
   "move the marked windows to the specified group."
-  (if (eq (current-group) *scratchpad-group*)
+  (if (eq (current-group) (find-scratchpad-group))
       (dolist (i (marked-windows (current-group)))
 	(setf (window-marked i) nil)
 	(move-window-to-group i (cadr (screen-groups (current-screen)))))
     (dolist (i (marked-windows (current-group)))
       (setf (window-marked i) nil)
-      (move-window-to-group i *scratchpad-group*))))
+      (move-window-to-group i (find-scratchpad-group)))))

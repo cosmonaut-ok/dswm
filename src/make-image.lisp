@@ -49,7 +49,10 @@
                  :executable t :keep-global-handlers t :norc nil :documentation "The DSWM Executable")
 
 #+ccl
-(ccl:save-application "dswm" :prepend-kernel t :toplevel-function #'dswm:dswm)
+(progn
+(asdf:oos 'asdf:load-op 'dswm)
+;; (ccl:save-application "dswm" :prepend-kernel t :toplevel-function #'dswm:dswm)
+)
 
 #+ecl
 (asdf:make-build 'dswm :type :program :monolithic t
