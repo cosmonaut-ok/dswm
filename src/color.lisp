@@ -76,7 +76,7 @@ then call (update-color-map).")
     (flet
 	((map-colors (amt)
 		     (loop for c in *colors*
-			   as color = (xlib:lookup-color screen c)
+			   as color = (lookup-color screen c)
 			   do (adjust-color color amt)
 			   collect (xlib:alloc-color scm color)))
 	 (map-hex-colors (amt)
