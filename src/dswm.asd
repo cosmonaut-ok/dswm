@@ -38,6 +38,7 @@
                (:file "group")
                (:file "window")
                (:file "floating-group")
+	       (:file "floating-window")
                (:file "tile-group")
                (:file "tile-window")
                (:file "scratchpad")

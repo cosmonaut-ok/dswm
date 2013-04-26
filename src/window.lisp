@@ -915,6 +915,43 @@ needed."
       (move-window-to-head group window)
       (run-hook-with-args *focus-window-hook* window cw))))
 
+;; In the future, this window will raise the window into the current
+;; frame.
+(defun focus-forward (group window-list &optional pull-p (predicate (constantly t)))
+  "Set the focus to the next item in window-list from the focused
+window. If PULL-P is T then pull the window into the current
+frame."
+  ;; The window with focus is the "current" window, so find it in the
+  ;; list and give that window focus
+  (let* ((w (group-current-window group))
+         (wins (remove-if-not predicate (cdr (member w window-list))))
+         (nw (if-null wins
+                 ;; If the last window in the list is focused, then
+                 ;; focus the first one.
+                 (car (remove-if-not predicate window-list))
+                 ;; Otherwise, focus the next one in the list.
+                 (first wins))))
+    ;; there's still the case when the window is the only one in the
+    ;; list, so make sure its not the same as the current window.
+    (if (and nw
+             (not (eq w nw)))
+	(cond ((eq (type-of group) 'tile-group)
+	       (if pull-p
+		   (pull-window nw)
+		   (frame-raise-window group (window-frame nw) nw)))
+	      ((eq (type-of group) 'float-group)
+	       (focus-window nw))
+	      (t (err "Incorrect group type! ~a" (type-of group))))
+        (message "No other window."))))
+
+(defun focus-next-window (group)
+  (focus-forward group (sort-windows-by-number group)))
+
+(defun focus-prev-window (group)
+  (focus-forward group
+                 (reverse
+                  (sort-windows-by-number group))))
+
 (defun xwin-kill (window)
   "Kill the client associated with window."
   (dformat 3 "Kill client~%")

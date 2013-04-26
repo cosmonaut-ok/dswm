@@ -103,6 +103,8 @@ from most specific groups to most general groups.")
   (kbd "F8")  "gselect 8"
   (kbd "F9")  "gselect 9"
   (kbd "F10") "gselect 10"
+  (kbd "l")   "lastcmd"
+  (kbd "C-l") "lastcmd"
   (kbd "C-h") "help-short"
   (kbd "h")   '*help-map*)
 
@@ -178,12 +180,32 @@ from most specific groups to most general groups.")
   (kbd "M-Down")  "move-window down"
   (kbd "M-Left")  "move-window left"
   (kbd "M-Right") "move-window right"
-  (kbd "+")       "balance-frames"
-  (kbd "l")       "lastcmd"
-  (kbd "C-l")     "lastcmd")
+  (kbd "+")       "balance-frames")
 
-(fill-keymap *float-group-top-map*)
-(fill-keymap *float-group-root-map*)
+(fill-keymap *float-group-top-map*
+  *escape-key* '*float-group-root-map*)
+
+(fill-keymap *float-group-root-map*
+  (kbd "n")       "float-focus-next"
+  (kbd "C-n")     "float-focus-next"
+  (kbd "SPC")     "float-focus-next"
+  (kbd "C-SPC")   "float-focus-next"
+  (kbd "p")       "float-focus-previous"
+  (kbd "C-p")     "float-focus-previous"
+  (kbd "W")       "place-existing-windows"
+  *escape-key*     "float-focus-other"
+  ;; (kbd "C-0")     "float-focus 0"
+  ;; (kbd "C-1")     "float-focus 1"
+  ;; (kbd "C-2")     "float-focus 2"
+  ;; (kbd "C-3")     "float-focus 3"
+  ;; (kbd "C-4")     "float-focus 4"
+  ;; (kbd "C-5")     "float-focus 5"
+  ;; (kbd "C-6")     "float-focus 6"
+  ;; (kbd "C-7")     "float-focus 7"
+  ;; (kbd "C-8")     "float-focus 8"
+  ;; (kbd "C-9")     "float-focus 9"
+  ;; (kbd "r")       "fwresize" ;; Resize window
+)
 
 (fill-keymap *groups-map*
   (kbd "g")     "vgroups"
