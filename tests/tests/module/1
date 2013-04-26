@@ -1,6 +1,0 @@
-echo_addmoduledir
-load-module_s-bindings
-modules
-loaded-modules
-module-info_s-bindings
-load-file_/dev/null

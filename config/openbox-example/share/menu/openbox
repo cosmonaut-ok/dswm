@@ -1,3 +1,0 @@
-?package(openbox):needs="wm" section="Window Managers" \
-  title="Openbox" command="/usr/bin/openbox" \
-  icon="/usr/share/pixmaps/openbox.xpm"

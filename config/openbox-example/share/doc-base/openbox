@@ -1,7 +1,0 @@
-Document: openbox
-Title: Openbox
-Section: Window Managers
-
-Format: HTML
-Index: /usr/share/doc/openbox/toc.html
-Files: /usr/share/doc/openbox/*.html      

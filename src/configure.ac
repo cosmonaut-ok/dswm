@@ -11,7 +11,6 @@ AC_SUBST(MODULES_DIR)
 AC_SUBST(LISP)
 AC_SUBST(LISP_PROGRAM)
 AC_SUBST(DSWM_BIN_DIR)
-AC_SUBST(QUICKP)
 
 # Checks for programs.
 AC_ARG_WITH(lisp, [ --with-lisp=IMPL use the specified lisp (sbcl, cmucl, clisp, ccl, ecl or lw)], LISP=$withval, LISP="any")
@@ -20,14 +19,6 @@ AC_ARG_WITH(cmucl, [ --with-cmucl=PATH specify location of cmucl], CMUCL_PATH=$w
 AC_ARG_WITH(clisp, [ --with-clisp=PATH specify location of clisp], CLISP_PATH=$withval, CLISP_PATH="")
 AC_ARG_WITH(ccl, [ --with-ccl=PATH specify location of ccl], CCL_PATH=$withval, CCL_PATH="")
 AC_ARG_WITH(ecl, [ --with-ecl=PATH specify location of ecl], ECL_PATH=$withval, ECL_PATH="")
-## AC_ARG_WITH(quicklisp, [ --with-quicklisp=PATH specify location of quicklisp executable], QUICKLISP_PATH=$withval, QUICKLISP_PATH="modules/ql4ds/quicklisp.lisp")
-AC_ARG_WITH(manual, [  --with-manual compile with manual for DSWM (need cl-ppcre)], MANUALP="true", MANUALP="")
-AC_ARG_WITH(gnome, [  --with-gnome-session add DSWM session with gnome desktop environment], GNOMEP="true", GNOMEP="")
-AC_ARG_WITH(mate, [  --with-mate-session add DSWM session with mate desktop environment], MATEP="true", MATEP="")
-AC_ARG_WITH(unity, [  --with-unity-session add DSWM session with unity desktop environment], UNITYP="true", UNITYP="")
-AC_ARG_WITH(kde, [  --with-kde-session add DSWM session with KDE desktop environment], KDEP="true", KDEP="")
-AC_ARG_WITH(xfce, [  --with-xfce-session add DSWM session with XFCE desktop environment], XFCEP="true", XFCEP="")
-AC_ARG_WITH(quicklisp, [ --with-quicklisp build DSWM with quicklisp], QUICKP="true", QUICKP="")
 
 if test -x "$SBCL_PATH"; then
    SBCL=$SBCL_PATH
@@ -93,8 +84,6 @@ elif test "x$LISP" = "xccl"; then
    LISP_PROGRAM=$CCL
 elif test "x$LISP" = "xecl"; then
    LISP_PROGRAM=$ECL
-dnl elif test "x$LISP" = "xlw"; then
-dnl    LISP_PROGRAM=$LW
 fi
 
 if test "x$LISP_PROGRAM" = "x"; then
@@ -117,36 +106,6 @@ else
    MAKE_ALL_DEPS="dswm"
    MAKE_INSTALL_DEPS="dswm.install"
    MAKE_UNINSTALL_DEPS="dswm.uninstall"
-fi
-
-if test "x$GNOMEP" = "true"; then
-   MAKE_ALL_DEPS="$MAKE_ALL_DEPS dswm.gnome"
-   MAKE_INSTALL_DEPS="$MAKE_INSTALL_DEPS dswm.gnome.install"
-   MAKE_INSTALL_DEPS="$MAKE_UNINSTALL_DEPS dswm.gnome.uninstall"
-fi
-
-if test "x$MATEP" = "true"; then
-   MAKE_ALL_DEPS="$MAKE_ALL_DEPS dswm.mate"
-   MAKE_INSTALL_DEPS="$MAKE_INSTALL_DEPS dswm.mate.install"
-   MAKE_UNINSTALL_DEPS="$MAKE_UNINSTALL_DEPS dswm.mate.uninstall"
-fi
-
-if test "x$UNITYP" = "true"; then
-   MAKE_ALL_DEPS="$MAKE_ALL_DEPS dswm.unity"
-   MAKE_INSTALL_DEPS="$MAKE_INSTALL_DEPS dswm.unity.install"
-   MAKE_UNINSTALL_DEPS="$MAKE_UNINSTALL_DEPS dswm.unity.uninstall"
-fi
-
-if test "x$KDEP" = "true"; then
-   MAKE_ALL_DEPS="$MAKE_ALL_DEPS dswm.kde"
-   MAKE_INSTALL_DEPS="$MAKE_INSTALL_DEPS dswm.kde.install"
-   MAKE_UNINSTALL_DEPS="$MAKE_UNINSTALL_DEPS dswm.kde.uninstall"
-fi
-
-if test "x$XFCEP" = "true"; then
-   MAKE_ALL_DEPS="$MAKE_ALL_DEPS dswm.xfce"
-   MAKE_INSTALL_DEPS="$MAKE_INSTALL_DEPS dswm.xfce.install"
-   MAKE_UNINSTALL_DEPS="$MAKE_UNINSTALL_DEPS dswm.xfce.uninstall"
 fi
 
 AC_CHECK_PROG(XDPYINFO,xdpyinfo,yes,no)

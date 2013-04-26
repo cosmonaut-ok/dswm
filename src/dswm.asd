@@ -50,7 +50,7 @@
                (:file "user")
                (:file "events")
                (:file "fdump")
-	       (:file "rfr")
+	       ;; (:file "rfr")
                (:file "time")
                (:file "mode-line")
                (:file "color")
