@@ -18,12 +18,12 @@ exec_prefix= @exec_prefix@
 bindir=@bindir@
 infodir=@infodir@
 etcdir = $(shell if [ ! -z ${XDG_CONFIG_DIRS} ]; then echo ${XDG_CONFIG_DIRS} | cut -d':' -f1; else echo /etc/xdg; fi)
-data_dir=$(destdir)$(datarootdir)
+data_dir=$(DESTDIR)$(datarootdir)
 
 root_dir=${PWD}
 dest_dir=dswm-@PACKAGE_VERSION@
 ##
-linux_style_data_dir=/usr/share/
+linux_style_data_dir=$(DESTDIR)/usr/share/
 
 FILES=$(shell cat dswm.asd | grep '\:file' | grep -vE '\;.*file' | \
 	grep -oE '\(\:.*\)' | grep -oE '\"[a-z,A-Z,0-9,.,-,_]*\"' | \
@@ -99,15 +99,15 @@ clean:
 install: @MAKE_INSTALL_DEPS@
 
 dswm.install:
-	test -z "$(destdir)$(bindir)" || mkdir -p "$(destdir)$(bindir)"
-	install -m 755 dswm "$(destdir)$(bindir)"
-	test -d "$(etcdir)/dswm/" || mkdir -p "$(etcdir)/dswm"
-	test -f "$(destdir)$(etcdir)/dswm/dswm.lisp" || install -m 644 ../config/dswm.lisp "$(destdir)$(etcdir)/dswm/dswm.lisp"
-	mkdir -p "$(destdir)$(datarootdir)/dswm/modules"
-	install -d -m 755 modules "$(destdir)$(datarootdir)/dswm/modules"
-	find modules -type f -exec install -D {} $(destdir)$(datarootdir)/dswm/{} \;
-	install -m 644 ../copyright/COPYING "$(destdir)$(datarootdir)/dswm/"
-	install -m 644 ../copyright/AUTHORS "$(destdir)$(datarootdir)/dswm/"
+	test -z "$(DESTDIR)$(bindir)" || mkdir -p "$(DESTDIR)$(bindir)"
+	install -m 755 dswm "$(DESTDIR)$(bindir)"
+	test -d "$(DESTDIR)$(etcdir)/dswm/" || mkdir -p "$(DESTDIR)$(etcdir)/dswm"
+	test -f "$(DESTDIR)$(etcdir)/dswm/dswm.lisp" || install -m 644 ../config/dswm.lisp "$(DESTDIR)$(etcdir)/dswm/dswm.lisp"
+	mkdir -p "$(data_dir)/dswm/modules"
+	install -d -m 755 modules "$(data_dir)/dswm/modules"
+	find modules -type f -exec install -D {} $(data_dir)/dswm/{} \;
+	install -m 644 ../copyright/COPYING "$(data_dir)/dswm/"
+	install -m 644 ../copyright/AUTHORS "$(data_dir)/dswm/"
 
 	## Install dswm.desktop for desktop managers
 	if test -d "$(data_dir)/xsessions/"; \
@@ -119,16 +119,16 @@ dswm.install:
 	fi; fi; \
 	else if test -d "$(linux_style_data_dir)/xsessions/"; \
 	then install -m 644 ../config/dswm.desktop "$(linux_style_data_dir)/xsessions/"; \
-	if test -d "$(destdir)$(datarootdir)/apps/kdm/sessions/"; \
-	then ln -s "$(linux_style_data_dir)/xsessions/dswm.desktop" "$(destdir)$(datarootdir)/apps/kdm/sessions/"; \
+	if test -d "$(data_dir)/apps/kdm/sessions/"; \
+	then ln -s "$(linux_style_data_dir)/xsessions/dswm.desktop" "$(data_dir)/apps/kdm/sessions/"; \
 	else if test -d "$(linux_style_data_dir)/apps/kdm/sessions/"; \
 	then ln -sf "$(linux_style_data_dir)/xsessions/dswm.desktop" "$(linux_style_data_dir)/apps/kdm/sessions/"; \
 	fi; fi; fi; fi
 
 dswm.info.install:
-	## test -f dswm.info && install -m 644 dswm.info "$(destdir)$(infodir)"
-	test -z "$(destdir)$(infodir)" || mkdir -p "$(destdir)$(infodir)"
-	test -f dswm.info && install-info --info-dir="$(destdir)$(infodir)" "$(destdir)$(infodir)"
+	## test -f dswm.info && install -m 644 dswm.info "$(DESTDIR)$(infodir)"
+	test -z "$(DESTDIR)$(infodir)" || mkdir -p "$(DESTDIR)$(infodir)"
+	test -f dswm.info && install-info --info-dir="$(DESTDIR)$(infodir)" "$(DESTDIR)$(infodir)"
 
 dswm.gnome.install:
 
@@ -153,12 +153,12 @@ dswm.kde.uninstall:
 dswm.xfce.uninstall:
 
 dswm.uninstall:
-	rm "$(destdir)$(bindir)/dswm"
-	rm -r "$(destdir)$(datarootdir)/dswm"
-	rm "$(destdir)$(etcdir)/dswm/dswm.lisp"
-	rm -r "$(destdir)$(etcdir)/dswm/" || true
-	install-info --info-dir="$(destdir)$(infodir)" --remove "$(destdir)$(infodir)/dswm.info"
-	rm "$(destdir)$(infodir)/dswm.info"
+	rm "$(DESTDIR)$(bindir)/dswm"
+	rm -r "$(DESTDIR)$(datarootdir)/dswm"
+	rm "$(DESTDIR)$(etcdir)/dswm/dswm.lisp"
+	rm -r "$(DESTDIR)$(etcdir)/dswm/" || true
+	install-info --info-dir="$(DESTDIR)$(infodir)" --remove "$(DESTDIR)$(infodir)/dswm.info"
+	rm "$(DESTDIR)$(infodir)/dswm.info"
 	test -f "$(data_dir)/xsessions/dswm.desktop" && "$(data_dir)/xsessions/dswm.desktop" || test -f "$(linux_style_data_dir)/xsessions/dswm.desktop" && rm "$(linux_style_data_dir)/xsessions/dswm.desktop"
 	test -L "$(data_dir)/apps/kdm/sessions/dswm.desktop" && rm "$(data_dir)/apps/kdm/sessions/dswm.desktop" || test -f "$(linux_style_data_dir)/apps/kdm/sessions/dswm.desktop" && rm "$(linux_style_data_dir)/apps/kdm/sessions/dswm.desktop" || true
 
