@@ -1,6 +1,6 @@
 LISP="@LISP_PROGRAM@"
 
-sbcl_BUILDOPTS=--load dswm.asd --load ./make-image.lisp
+sbcl_BUILDOPTS=--eval '(require :asdf)' --load dswm.asd --load ./make-image.lisp
 cmucl_BUILDOPTS=-batch -load ./make-image.lisp -eval "(quit)"
 clisp_BUILDOPTS=-K base -i ../contrib/asdf.lisp -on-error exit < ./make-image.lisp
 ccl_BUILDOPTS=--load ~/.sbclrc --load dswm.asd --load ./make-image.lisp
