@@ -200,8 +200,8 @@ A short for (concatenate 'string foo bar)."
   "Return a pathname inside dswm's module data dir with the specified name and type"
   (let ((dir (string-to-path-list (princ-to-string (data-dir)) "modules.d" module subdir)))
     (if (not (null type))
-	(make-pathname :directory (list :absolute dir) :name name :type type)
-      (make-pathname :directory (list :absolute dir) :name name))))
+	(make-pathname :directory (cons :absolute dir) :name name :type type)
+      (make-pathname :directory (cons :absolute dir) :name name))))
 
 (defun etc-dirs (&optional subdir)
   (let ((xdg-etc-dirs (ppcre:split "\\:+" (getenv "XDG_CONFIG_DIRS"))))

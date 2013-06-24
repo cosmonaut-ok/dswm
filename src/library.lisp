@@ -831,4 +831,4 @@ display a message whenever you switch frames:
 						(string-to-path-list (car list)))
 					  :name file))
 			  (t (car-exists-p (cdr list))))))
-     (car-exists-p pathlist))))
+     (when (not (null file)) (car-exists-p pathlist)))))
