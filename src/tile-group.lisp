@@ -32,6 +32,7 @@
 	  only
 	  curframe
 	  fnext
+	  fprev
 	  sibling
 	  fother
 	  fselect
@@ -1038,6 +1039,10 @@ the current frame."
 (defcommand (fnext tile-group) () ()
 "Cycle through the frame tree to the next frame."
   (focus-next-frame (current-group)))
+
+(defcommand (fprev tile-group) () ()
+"Cycle through the frame tree to the previous frame."
+  (focus-prev-frame (current-group)))
 
 (defcommand (sibling tile-group) () ()
 "Jump to the frame's sibling. If a frame is split into two frames,

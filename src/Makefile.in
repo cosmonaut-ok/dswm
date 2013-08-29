@@ -6,9 +6,7 @@ infodir=@infodir@
 etcdir = $(shell if [ ! -z ${XDG_CONFIG_DIRS} ]; then echo ${XDG_CONFIG_DIRS} | cut -d':' -f1; else echo /etc/xdg; fi)
 data_dir=$(DESTDIR)$(datarootdir)
 TMPDIR="/tmp/.dswm"
-
 DSWMSHAREDIR=@DSWM_SHARE_DIR@
-
 root_dir=${PWD}
 dest_dir=dswm-@PACKAGE_VERSION@
 ##
@@ -21,6 +19,21 @@ FILES=$(shell cat dswm.asd | grep '\:file' | grep -vE '\;.*file' | \
 all: @MAKE_ALL_DEPS@
 
 dswm:
+	######################################################
+	###################### CAUTION! ######################
+	######################################################
+	###  Now DSWM uses freedesktop recomendations for  ###
+	###  configfiles placement. _NOTE_, that from now  ###
+	###    you must place your config directory from   ###
+	###  ~/.dswm.d to ~/.config/dswm (or according to  ###
+	###           variable XDG_CONFIG_HOME )           ###
+	###   File ~/.dswm will be working for some time,  ###
+	###    but it will be removed in future. Thanks!   ###
+	###  Also, you can find common configuration file  ###
+	###           at /etc/xdg/dswm/dswm.lisp           ###
+	###       (or, according to XDG_CONFIG_DIRS)       ###
+	######################################################
+	######################################################
 
 dswm.info: ../doc/dswm.texi
 	makeinfo ../doc/dswm.texi
@@ -137,7 +150,7 @@ dswm.uninstall:
 	rm -r "$(DESTDIR)$(datarootdir)/dswm"
 	rm "$(DESTDIR)$(etcdir)/dswm/dswm.lisp"
 	rm -r "$(DESTDIR)$(etcdir)/dswm/" || true
-	rm "$(DESTDIR)$(infodir)/dswm.info" || true
+	rm "$(DESTDIR)$(infodir)/dswm.info"
 
 dswm.shared.uninstall:
 	rm -r $(DSWMSHAREDIR) || true
