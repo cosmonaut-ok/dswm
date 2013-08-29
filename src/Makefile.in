@@ -5,8 +5,7 @@ bindir=@bindir@
 infodir=@infodir@
 etcdir = $(shell if [ ! -z ${XDG_CONFIG_DIRS} ]; then echo ${XDG_CONFIG_DIRS} | cut -d':' -f1; else echo /etc/xdg; fi)
 data_dir=$(DESTDIR)$(datarootdir)
-TMPDIR="/tmp/.dswm"
-DSWMSHAREDIR=@DSWM_SHARE_DIR@
+DSWMSOURCEDIR=@DSWM_SOURCE_DIR@
 root_dir=${PWD}
 dest_dir=dswm-@PACKAGE_VERSION@
 ##
@@ -44,7 +43,7 @@ dswm.texi: ../doc/dswm.texi.in
 dswm.shared:
 	echo "#!/bin/sh" > loader.sh; \
 	cat loader.header >> loader.sh; \
-	echo "LOADER=$(DSWMSHAREDIR)loader.lisp" >> loader.sh; \
+	echo "LOADER=$(DSWMSOURCEDIR)/loader.lisp" >> loader.sh; \
 	cat loader.sh.in >> loader.sh; \
 
 dswm.static: $(FILES)
@@ -78,7 +77,7 @@ testbuild:
 	cp -r $(root_dir)/../copyright /tmp/$(dest_dir).build/copyright
 	cd /tmp/$(dest_dir).build/src
 	autoconf
-	./configure --prefix=/tmp/$(dest_dir).build/dst # --prefix=/usr/local
+	./configure --prefix=/tmp/$(dest_dir).build/dst
 	make
 	make install
 	ls -l /tmp/$(dest_dir).build/dst/bin /tmp/$(dest_dir).build/dst/share/dswm /tmp/$(dest_dir).build/dst/share/dswm/modules
@@ -97,12 +96,12 @@ dswm.install:
 	test -d "$(DESTDIR)$(etcdir)/dswm/" || mkdir -p "$(DESTDIR)$(etcdir)/dswm"
 	test -f "$(DESTDIR)$(etcdir)/dswm/dswm.lisp" || install -m 644 ../config/dswm.lisp "$(DESTDIR)$(etcdir)/dswm/dswm.lisp"
 	install -d -m 755 modules "$(data_dir)/dswm/modules"
-	find modules -type f -exec install -D {} -m 644 $(data_dir)/dswm/{} \;
+	find modules -type f -exec install -D {} -m 644 $(data_dir)/dswm/{} \; || true
 	install -m 644 ../copyright/COPYING "$(data_dir)/dswm/"
 	install -m 644 ../copyright/AUTHORS "$(data_dir)/dswm/"
 
 dswm.static.install:
-	if test @SHAREDP@; \
+	if test @SOURCEDP@; \
 	then install -m 755 dswm "$(DESTDIR)$(bindir)/dswm.static"; \
 	else install -m 755 dswm "$(DESTDIR)$(bindir)/dswm"; \
 	fi
@@ -114,12 +113,10 @@ dswm.static.install:
 	install -m 644 ../copyright/AUTHORS "$(data_dir)/dswm/"
 
 dswm.shared.install:
-	rm -rf "$(TMPDIR)/dswm_install"
-	mkdir -p "$(TMPDIR)/dswm_install"
 	mkdir -p "$(DESTDIR)$(datarootdir)/dswm/source"
-	find . -name '*.lisp' -type f -exec install -m 644 -D {} "$(DESTDIR)$(datarootdir)/dswm/source/" \;
+	find . -name '*.lisp' -type f -exec install -m 644 -D {} "$(DSWMSOURCEDIR)" \;
 	install -m 755 loader.sh "$(DESTDIR)$(bindir)/dswm"
-	install -m 644 ../contrib/asdf.lisp "$(DESTDIR)$(datarootdir)/dswm/source/"
+	install -m 644 ../contrib/asdf.lisp "$(DSWMSOURCEDIR)"
 
 dswm.dm.install:
 	## Install dswm.desktop for desktop managers
@@ -153,7 +150,7 @@ dswm.uninstall:
 	rm "$(DESTDIR)$(infodir)/dswm.info"
 
 dswm.shared.uninstall:
-	rm -r $(DSWMSHAREDIR) || true
+	rm -r $(DSWMSOURCEDIR) || true
 
 dswm.static.uninstall:
 	rm "$(DESTDIR)$(bindir)/dswm.static" || true

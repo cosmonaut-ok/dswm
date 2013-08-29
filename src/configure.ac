@@ -22,7 +22,7 @@ AC_SUBST(LISP_BUILD_OPTIONS)
 AC_SUBST(LISP_INFO_OPTIONS)
 AC_SUBST(STATICP)
 AC_SUBST(SHAREDP)
-AC_SUBST(DSWM_SHARE_DIR)
+AC_SUBST(DSWM_SOURCE_DIR)
 
 ## detect Cygwin`s clisp
 if test ! -z esyscmd(uname -o | grep "Cygwin" | tr -d \\n); then
@@ -44,7 +44,7 @@ AC_ARG_ENABLE(shared, [  --enable-shared         compile DSWM as shared source f
 AC_ARG_WITH(clisp-link, [  --with-clisp-link=LINKNAME        specify clisp link ('base' by default)], CLISP_LINK=$withval, CLISP_LINK="base")
 AC_ARG_WITH(lisp-options, [  --with-lisp-options=OPTS          specify addition lisp translator options], LISP_OPTIONS=$withval, LISP_OPTIONS="")
 
-AC_ARG_WITH(dswm-share-dir, [  --with-dswm-share-dir=DIR         set directory for DSWM share files (optional. May need, if you build DSWM with --enable-shared option)], DSWM_SHARE_DIR=$withval, DSWM_SHARE_DIR='${data_dir}/dswm/source/')
+AC_ARG_WITH(dswm-source-dir, [  --with-dswm-source-dir=DIR         set directory for DSWM source files (optional. May need, if you build DSWM with --enable-shared option)], DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR='${data_dir}/dswm/source/')
 
 dnl AC_ARG_WITH(manual, [  --with-manual compile with manual for DSWM (need cl-ppcre)], MANUALP="true", MANUALP="")
 
@@ -140,7 +140,7 @@ fi
 
 ## check, if all targets are disabled
 if test "x$STATICP" = "x" && test "x$SHAREDP" = "x"; then
-   echo "(neither static nor shared) given. Nothing to do, exiting. Use --with-shared or/and --with-static for correct working"
+   echo "(neither static nor shared) given. Nothing to do, exiting. Use --enable-shared or/and --enable-static for correct working"
    exit 0
 fi
 
