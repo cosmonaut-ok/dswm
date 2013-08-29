@@ -18,6 +18,8 @@ FILES=$(shell cat dswm.asd | grep '\:file' | grep -vE '\;.*file' | \
 all: @MAKE_ALL_DEPS@
 
 dswm:
+
+dswm.message:
 	######################################################
 	###################### CAUTION! ######################
 	######################################################
@@ -41,10 +43,8 @@ dswm.texi: ../doc/dswm.texi.in
 	@LISP_PROGRAM@ @LISP_INFO_OPTIONS@
 
 dswm.shared:
-	echo "#!/bin/sh" > loader.sh; \
-	cat loader.header >> loader.sh; \
-	echo "LOADER=$(DSWMSOURCEDIR)/loader.lisp" >> loader.sh; \
-	cat loader.sh.in >> loader.sh; \
+	sed 's|\@DSWMSOURCEDIR\@|$(DSWMSOURCEDIR)|g' loader.sh.in > loader.sh
+	sed 's|\@DSWMSOURCEDIR\@|$(DSWMSOURCEDIR)|g' loader.lisp.in > loader.lisp
 
 dswm.static: $(FILES)
 	@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@
@@ -86,7 +86,7 @@ testbuild:
 clean:
 	rm -f *.fasl *.fas *.lib *.*fsl *.o
 	rm -f *.log *.fns *.fn *.aux *.cp *.ky *.log *.toc *.pg *.tp *.vr *.vrs
-	rm -rf dswm ../doc/dswm.texi dswm.info autom4te.cache config.status *.tar.* version.lisp module.lisp help.lisp loader.lisp loader.sh ../config/dswm.desktop Makefile install
+	rm -rf dswm ../doc/dswm.texi dswm.info autom4te.cache config.status *.tar.* version.lisp module.lisp help.lisp loader.sh ../config/dswm.desktop Makefile install
 
 install: @MAKE_INSTALL_DEPS@
 
@@ -101,7 +101,7 @@ dswm.install:
 	install -m 644 ../copyright/AUTHORS "$(data_dir)/dswm/"
 
 dswm.static.install:
-	if test @SOURCEDP@; \
+	if test "@SHAREDP@" = "yes"; \
 	then install -m 755 dswm "$(DESTDIR)$(bindir)/dswm.static"; \
 	else install -m 755 dswm "$(DESTDIR)$(bindir)/dswm"; \
 	fi
@@ -113,10 +113,11 @@ dswm.static.install:
 	install -m 644 ../copyright/AUTHORS "$(data_dir)/dswm/"
 
 dswm.shared.install:
-	mkdir -p "$(DESTDIR)$(datarootdir)/dswm/source"
+	mkdir -p "$(DSWMSOURCEDIR)"
 	find . -name '*.lisp' -type f -exec install -m 644 -D {} "$(DSWMSOURCEDIR)" \;
 	install -m 755 loader.sh "$(DESTDIR)$(bindir)/dswm"
 	install -m 644 ../contrib/asdf.lisp "$(DSWMSOURCEDIR)"
+	install -m 644 dswm.asd "$(DSWMSOURCEDIR)"
 
 dswm.dm.install:
 	## Install dswm.desktop for desktop managers

@@ -1,3 +1,27 @@
+#!/bin/sh
+
+# Copyright (C) 2013 Alexander aka 'CosmonauT' Vynnyk
+#
+# Maintainer: Alexander aka 'CosmonauT' Vynnyk
+#
+# DSWM Test Tool is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# DSWM Test Tool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+
+## Code
+
+LOADER="@DSWMSOURCEDIR@/loader.lisp"
+
 load_lisp() {
     case "$1" in
 	*cmucl)
@@ -7,7 +31,7 @@ load_lisp() {
 	    sbcl --load "$LOADER"
 	    ;;
 	*clisp)
-	    clisp "$LOADER"
+	    clisp -modern -i "$LOADER"
 	    ;;
 	*)
 	    echo "Unkown Common Lisp implementation."
@@ -20,11 +44,11 @@ if [ -z "$LISP" ]; then
     LISP=`which sbcl 2>/dev/null || which clisp 2>/dev/null || which cmucl 2>/dev/null`
 fi
 
-if [ -z $LISP ]; then
+if [ -z "$LISP" ]; then
     echo "CL implementation $LISP not found in your \$PATH."
     exit 1
 fi
 
-load_lisp $LISP
+load_lisp $LISP $@
 
 exit 0
