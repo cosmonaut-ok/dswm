@@ -1,0 +1,31 @@
+;;; @DSWM_SHARE_DIR@
+;;; @dswm_share_dir@
+
+(in-package :cl-user)
+
+#+clisp
+(require "clx")
+
+;;; We need to install lisp
+#-asdf
+(require :asdf #+clisp '(#P"asdf.lisp"))
+;; @prefix@/bin/dswm
+
+;; Hot-upgrade ASDF.
+;;
+;; It's useful if user has a local version of ASDF.
+;;
+;; Currently only available in ASDF2.
+#+asdf2
+(asdf:oos 'asdf:load-op :asdf)
+
+;; Cleanups after hot-upgrade.
+#+asdf2
+(asdf:clear-configuration)
+
+(asdf:oos 'asdf:load-op :dswm)
+
+(dswm:dswm)
+
+#+(or clisp sbcl)
+(quit)

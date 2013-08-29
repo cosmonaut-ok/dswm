@@ -1,0 +1,30 @@
+load_lisp() {
+    case "$1" in
+	*cmucl)
+	    cmucl -load "$LOADER"
+	    ;;
+	*sbcl)
+	    sbcl --load "$LOADER"
+	    ;;
+	*clisp)
+	    clisp "$LOADER"
+	    ;;
+	*)
+	    echo "Unkown Common Lisp implementation."
+	    exit 1
+	    ;;
+    esac
+}
+
+if [ -z "$LISP" ]; then
+    LISP=`which sbcl 2>/dev/null || which clisp 2>/dev/null || which cmucl 2>/dev/null`
+fi
+
+if [ -z $LISP ]; then
+    echo "CL implementation $LISP not found in your \$PATH."
+    exit 1
+fi
+
+load_lisp $LISP
+
+exit 0
