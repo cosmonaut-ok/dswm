@@ -43,7 +43,7 @@ Useful for run programs on startup etc."
 doesn't exist. Returns a values list: whether the file loaded (t if no
 rc files exist), the error if it didn't, and the rc file that was
 loaded. When CATCH-ERRORS is nil, errors are left to be handled further up. "
-  (let* ((user-rc (file-exists-p (data-dir-file "init" "lisp")))
+  (let* ((user-rc (file-exists-p (conf-dir-file "init" "lisp")))
 	 (user-initrc (file-exists-p (merge-pathnames (user-homedir-pathname)
 						      #p".dswm")))
 	 (etc-rc (find-etc-file "dswm" "lisp"))
@@ -73,7 +73,7 @@ loaded. When CATCH-ERRORS is nil, errors are left to be handled further up. "
 
 (defun error-handler (display error-key &rest key-vals &key asynchronous &allow-other-keys)
   "Handle X errors"
-  (cond 
+  (cond
     ;; ignore asynchronous window errors
     ((and asynchronous
           (find error-key '(xlib:window-error xlib:drawable-error xlib:match-error)))
@@ -203,7 +203,7 @@ of those expired."
   "Parse an X11 DISPLAY string and return the host and display from it."
   (ppcre:register-groups-bind (protocol host ('parse-integer display screen))
 			      ("^(?:(.*?)/)?(.*?)?:(\\d+)(?:\\.(\\d+))?" display :sharedp t)
-    (values 
+    (values
      ;; clx doesn't like (vector character *)
      (coerce (or host "")
 	     '(simple-array character (*)))
@@ -284,7 +284,7 @@ of those expired."
        (setf *last-unhandled-error* nil)
        (cond ((and (consp ret)
                    (typep (first ret) 'condition))
-              (format t "~&Caught '~a' at the top level. Please report this.~%~a" 
+              (format t "~&Caught '~a' at the top level. Please report this.~%~a"
                       (first ret) (second ret))
               (setf *last-unhandled-error* ret))
              ;; we need to jump out of the event loop in order to hup

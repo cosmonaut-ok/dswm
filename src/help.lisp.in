@@ -116,7 +116,7 @@ License: GNU GPL v.2^b" (print-key *escape-key*) (data-dir) (print-key *escape-k
                         (columnize data cols))))
 
 (defun first-start (&optional show)
-  (let ((not-firststart-p (data-dir-file ".started" "p"))
+  (let ((not-firststart-p (conf-dir-file ".started" "p"))
 	(*message-window-gravity* :center))
     (when (or (not (file-exists-p not-firststart-p))
 	       show)

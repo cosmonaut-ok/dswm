@@ -12,18 +12,10 @@ This file documents user visible changes between versions of DSWM
 ** add keys by-name-p and by-number-p to select-group function
    (select-group screen query :by-name-p <t/nil> :by-number-p <t/nil>)
 
-** new keys in ./configure script:
+** add keys in ./configure script:
    --enable-shared                     - enables DSWM build as shared library + startup script
    --enable-static                     - enables DSWM build as static binary file
    --with-lisp-extra-options="options" - possibility to add extra options to lisp compiler
-
-** replace configuration and data files path to XDG recommendations:
-   system configfile: XDG_CONFIG_DIRS/dswm/dswm.lisp -> /etc/xdg/dswm/dswm.lisp
-   user configfile: ~/.dswm -> XDG_CONFIG_HOME/dswm/init.lisp -> ~/.config/dswm/init.lisp
-   system configdir: XDG_CONFIG_DIRS/dswm/ -> /etc/xdg/dswm/
-   user configdir: XDG_CONFIG_HOME/dswm/ -> ~/.config/dswm/
-   system datadir: XDG_DATA_DIRS/dswm/
-   user datadir: XDG_DATA_HOME/dswm/
 
 ** add 'gmove-scratchpad' command (bound to PREF g s)
 
@@ -32,9 +24,6 @@ This file documents user visible changes between versions of DSWM
 ** add 'edit-variable' command (alias to 'edit')
 
 ** add support for clisp and ccl
-
-** replace 'emacs' to 'editor' command
-*** added *editor* variable
 
 ** add ENVIRONMENT variables support for 'browser', 'shell', 'editor' and 'terminal' commands
    *editor* -> $EDITOR -> 'emacs'
@@ -48,9 +37,50 @@ This file documents user visible changes between versions of DSWM
 
 ** add *quit-hook* hook
 
+** add full window-switching support to floating group
+*** add commands: 'float-focus-next' 'float-focus-previous' 'float-focus-other'
+*** add keybindings: 'PREF n' 'PREF SPC' 'PREF C-SPC' 'PREF p' 'PREF o'
+
+** add basic windows support, using cygwin (CLISP only)
+
+** add key argument 'number' to add-group function
+   (add-group screen name :number <number> :background <t/nil>)
+** change iresize behavior to more intuitive
+
+** replace configuration and data files path to XDG recommendations:
+   system configfile: XDG_CONFIG_DIRS/dswm/dswm.lisp -> /etc/xdg/dswm/dswm.lisp
+   user configfile: ~/.dswm -> XDG_CONFIG_HOME/dswm/init.lisp -> ~/.config/dswm/init.lisp
+   system configdir: XDG_CONFIG_DIRS/dswm/ -> /etc/xdg/dswm/
+   user configdir: XDG_CONFIG_HOME/dswm/ -> ~/.config/dswm/
+   system datadir: XDG_DATA_DIRS/dswm/
+   user datadir: XDG_DATA_HOME/dswm/
+
+** replace 'emacs' to 'editor' command
+*** added *editor* variable
+
+** replace commands:
+   'show-window-properties' -> 'window-info' ('info' saved)
+   'list-window-properties' -> 'window-full-info'
+
+** remove commands:
+   'groups' - use 'grouplist' or 'vgroups' instead
+   'windows' - use 'windowlist' or 'vgroups' instead
+
 ** fix scratchpad number changing, when DSWM reloads
 
-** fix
+** fix black screen in fullscreen games
+
+** fix bug in 'renumber' command (set <window number>+1 as real window number)
+
+** fix bug in command 'repack-window-numbers'
+
+** fix bug in command 'grun-new'
+
+** fix bug with deleting last group
+
+** fix bug with pull, when number of windows more, than mapping count
+
+**
 
 * Changes since 0.0.4
 

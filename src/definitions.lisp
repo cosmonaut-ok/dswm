@@ -173,7 +173,7 @@ A short for (concatenate 'string foo bar)."
 (defvar *data-dir* nil
   "Set default data directory")
 
-(defun data-dir (&optional subdir)
+(defun conf-dir (&optional subdir)
   (let* ((xdg-homedir (getenv "XDG_CONFIG_HOME"))
 	 (directory
 	  (cond ((not (null *data-dir*))
@@ -181,12 +181,40 @@ A short for (concatenate 'string foo bar)."
                   :directory (cons :absolute (string-to-path-list *data-dir* subdir))))
 		((not (null xdg-homedir))
 		 (make-pathname
-                  :directory (cons :absolute (string-to-path-list xdg-homedir subdir))))
+                  :directory (cons :absolute (string-to-path-list xdg-homedir "dswm" subdir))))
 		(t
 		 (make-pathname
                   :directory (cons :absolute
                                    (string-to-path-list (princ-to-string (user-homedir-pathname))
                                                         ".config" "dswm" subdir)))))))
+    directory))
+
+(defun conf-dir-file (name &optional type subdir)
+  "Return a pathname inside dswm's data dir with the specified name and type"
+  (if (not (null type))
+      (make-pathname :directory (cons :absolute
+				      (string-to-path-list
+				       (princ-to-string (conf-dir subdir))))
+		     :name name :type type)
+    (make-pathname :directory (cons :absolute
+				    (string-to-path-list
+				     (princ-to-string (conf-dir subdir))))
+		   :name name)))
+
+(defun data-dir (&optional subdir)
+  (let* ((xdg-homedir (getenv "XDG_DATA_HOME"))
+	 (directory
+	  (cond ((not (null *data-dir*))
+		 (make-pathname
+                  :directory (cons :absolute (string-to-path-list *data-dir* subdir))))
+		((not (null xdg-homedir))
+		 (make-pathname
+                  :directory (cons :absolute (string-to-path-list xdg-homedir "dswm" subdir))))
+		(t
+		 (make-pathname
+                  :directory (cons :absolute
+                                   (string-to-path-list (princ-to-string (user-homedir-pathname))
+                                                        ".local" "share" "dswm" subdir)))))))
     directory))
 
 (defun data-dir-file (name &optional type subdir)
@@ -203,7 +231,7 @@ A short for (concatenate 'string foo bar)."
 
 (defun module-data-dir-file (module name &optional type subdir)
   "Return a pathname inside dswm's module data dir with the specified name and type"
-  (let ((dir (string-to-path-list (princ-to-string (data-dir)) "modules.d" module subdir)))
+  (let ((dir (string-to-path-list (princ-to-string (data-dir)) "modules" module subdir)))
     (if (not (null type))
 	(make-pathname :directory (cons :absolute dir) :name name :type type)
       (make-pathname :directory (cons :absolute dir) :name name))))
@@ -218,16 +246,15 @@ A short for (concatenate 'string foo bar)."
   (let* ((etc-pathnames
 	  (if (not (null type))
 	      (mapcar #'(lambda (x) (merge-pathnames x (make-pathname :name name :type type))) (etc-dirs subdir))
-	      (mapcar #'(lambda (x) (merge-pathnames x (make-pathname :name name))) (etc-dirs subdir)))))
+	    (mapcar #'(lambda (x) (merge-pathnames x (make-pathname :name name))) (etc-dirs subdir)))))
     (labels ((etc-file-exists-p (pathnames)
-			       (cond ((null pathnames)
-				      nil)
-				     ((file-exists-p (car pathnames))
-				      (car pathnames))
-				     (t
-				      (etc-file-exists-p (cdr pathnames))))))
-	   (etc-file-exists-p etc-pathnames))))
-
+				(cond ((null pathnames)
+				       nil)
+				      ((file-exists-p (car pathnames))
+				       (car pathnames))
+				      (t
+				       (etc-file-exists-p (cdr pathnames))))))
+	    (etc-file-exists-p etc-pathnames))))
 
 (defmacro with-data-file ((s file &rest keys &key (if-exists :supersede) &allow-other-keys) type subdir &body body)
   "Open a file in DSWM's data directory. keyword arguments are sent
@@ -1058,10 +1085,10 @@ After changing this variable you may need to call
 sync-all-frame-windows to see the change.")
 
 ;; Names of dump files
-(defvar *desktop-dump-file* (data-dir-file "desktop" "rules" "rules.d")
+(defvar *desktop-dump-file* (conf-dir-file "desktop" "rules" "rules.d")
   "Default filename for dump group placement rules")
 
-(defvar *window-placement-dump-file* (data-dir-file "window-placement" "rules" "rules.d")
+(defvar *window-placement-dump-file* (conf-dir-file "window-placement" "rules" "rules.d")
   "Default filename for dump window placement rules")
 
 (defvar *default-window-name* "Unnamed"

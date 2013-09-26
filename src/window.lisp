@@ -1104,7 +1104,7 @@ is using the number, then the windows swap numbers. Defaults to current group."
 		   (remove
 		     (window-number w)
 		     (mapcar 'window-number windows))
-		   0))))))
+		   1))))))
 
 (defcommand windowlist (&optional (fmt *window-format*)) (:rest)
 "Allow the user to Select a window from the list of windows and focus
