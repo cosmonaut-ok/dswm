@@ -386,16 +386,41 @@ _NET_WM_STATE_DEMANDS_ATTENTION set"
    (xwin-net-wm-name win)
    (xlib:wm-name win)))
 
+(defun fullscreen-p (win)
+  (let* ((xwin (window-xwin win))
+         (hints (xlib:wm-normal-hints xwin))
+	 (screen (current-screen)))
+    (with-accessors
+     ((min-width xlib:wm-size-hints-min-width)
+      (max-width xlib:wm-size-hints-max-width)
+      (min-height xlib:wm-size-hints-min-height)
+      (max-height xlib:wm-size-hints-max-height)) hints
+     (and hints max-height min-height max-width min-width
+	  (= min-height max-height)
+	  (= min-width max-width)
+	  (= min-height (screen-height screen))
+	  (= min-width (screen-width screen))))))
+
 ;; FIXME: should we raise the winodw or its parent?
 (defmethod raise-window (win)
   "Map the window if needed and bring it to the top of the stack. Does not affect focus."
-  (when (window-urgent-p win)
-    (window-clear-urgency win))
-  (when (window-hidden-p win)
-    (unhide-window win)
-    (update-configuration win))
-  (when (window-in-current-group-p win)
-    (setf (xlib:window-priority (window-parent win)) :top-if)))
+  (let ((maxmin-notequal (not (fullscreen-p win))))
+    (when (window-urgent-p win)
+      (window-clear-urgency win))
+    (when (window-hidden-p win)
+      (unhide-window win)
+      (if maxmin-notequal
+          (update-configuration win)))
+    (when (and maxmin-notequal (window-in-current-group-p win))
+      (setf (xlib:window-priority (window-parent win)) :top-if))))
+
+  ;; (when (window-urgent-p win)
+  ;;   (window-clear-urgency win))
+  ;; (when (window-hidden-p win)
+  ;;   (unhide-window win)
+  ;;   (update-configuration win))
+  ;; (when (window-in-current-group-p win)
+  ;;   (setf (xlib:window-priority (window-parent win)) :top-if)))
 
 ;; some handy wrappers
 
@@ -439,7 +464,7 @@ _NET_WM_STATE_DEMANDS_ATTENTION set"
       (defun ,(intern1 (format nil "WINDOW-~a" attr)) (,win)
         (gethash ,attr (window-plist ,win)))
       (defun (setf ,(intern1 (format nil "WINDOW-~a" attr))) (,val ,win)
-        (setf (gethash ,attr (window-plist ,win))) ,val))))
+        (setf (gethash ,attr (window-plist ,win)) ,val)))))
 
 (defun sort-windows (group)
   "Return a copy of the screen's window list sorted by usage (emacs-like behavior)"
@@ -638,7 +663,7 @@ and bottom_end_x."
 
 (defun find-free-window-number (group)
   "Return a free window number for GROUP. Begining from '1'"
-  (find-free-number (mapcar 'window-number (group-windows group)) 0))
+  (find-free-number (mapcar 'window-number (group-windows group)) 1))
 
 (defun reparent-window (screen window)
   ;; apparently we need to grab the server so the client doesn't get
@@ -1029,13 +1054,12 @@ window. Default to the current window. if
       (group-focus-window (current-group) win))))
 
 (defcommand select-window-by-number (num &optional (group (current-group)))
-  ((:window-number "Select window: "))
+  ((:window-number "Select window number: "))
   "Find the window with the given number and focus it in its frame."
   (labels ((match (win)
 		  (= (window-number win) num)))
     (let ((win (find-if #'match (group-windows group))))
-      (when win
-        (group-focus-window group win)))))
+	  (group-focus-window group win))))
 
 (defcommand other-window (&optional (group (current-group))) ()
   "Switch to the window last focused."

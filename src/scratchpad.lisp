@@ -61,7 +61,7 @@
   (if-not-null (current-window)
 	       (if (eq (current-group) (find-scratchpad-group))
 		   (move-window-to-group (current-window) (cadr (screen-groups (current-screen))))
-		 (move-window-to-group (current-window) (find-scratchpad-group)))
+		   (move-window-to-group (current-window) (find-scratchpad-group)))
 	       (message "There is no window to move")))
 
 (defcommand gmove-marked-scratchpad () ()

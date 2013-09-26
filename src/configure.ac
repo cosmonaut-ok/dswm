@@ -38,7 +38,7 @@ AC_ARG_WITH([ccl], [AC_HELP_STRING([--with-ccl=PATH], [specify location of ccl])
 AC_ARG_WITH([ecl], [AC_HELP_STRING([--with-ecl=PATH], [specify location of ecl])], ECL_PATH=$withval, ECL_PATH="")
 
 AC_ARG_ENABLE([static], [AC_HELP_STRING([--disable-static], [do not build DSWM as static binary (enabled by default)])], [STATICP="$enableval"], [STATICP=yes])
-AC_ARG_ENABLE([shared], [AC_HELP_STRING([--disable-shared], [build DSWM as shared source files (disabled by default)])], [SHAREDP="$enableval"], [SHAREDP=no])
+AC_ARG_ENABLE([shared], [AC_HELP_STRING([--enable-shared], [build DSWM as shared source files (disabled by default)])], [SHAREDP="$enableval"], [SHAREDP=no])
 
 AC_ARG_WITH([clisp-link], [AC_HELP_STRING([--with-clisp-link=LINKNAME], [specify clisp link ('base' by default)])], CLISP_LINK=$withval, CLISP_LINK="base")
 AC_ARG_WITH([lisp-extra-options], [AC_HELP_STRING([--with-lisp-extra-options=OPTS], [specify addition lisp translator options])], LISP_OPTIONS=$withval, LISP_OPTIONS="")

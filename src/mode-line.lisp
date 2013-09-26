@@ -136,6 +136,19 @@ Redefining standard fmt-group-list for hiding scratchpad group"
 						       (format nil "")))))
 					    (sort-groups (group-screen (mode-line-current-group
 									ml)))))))))
+                ;;; Inversion
+                ;;;    \/
+                ;; (remove-empty-elements
+                ;;  (mapcar (lambda (w)
+                ;;            (let* ((str (format-expand *group-formatters* *group-format* w)))
+                ;;              (cond ((eq w (second (screen-groups (current-screen))))
+                ;;                     str)
+                ;;                    ((not (eq 0 (group-number w)))
+                ;;                     (fmt-highlight str))
+                ;;                    (t
+                ;;                     (format nil "")))))
+                ;;          (sort-groups (group-screen (mode-line-current-group
+                ;;                                      ml)))))
 	      (remove-empty-elements
 	       (mapcar (lambda (w)
 			 (let* ((str (format-expand *group-formatters* *group-format* w)))
@@ -286,7 +299,7 @@ critical."
 (defun resize-mode-line (ml)
   (when (eq (mode-line-mode ml) :ds)
     ;; This is a DSWM mode-line
-    (setf (xlib:drawable-height (mode-line-window ml)) 
+    (setf (xlib:drawable-height (mode-line-window ml))
           (+ (* (1+ (count #\Newline (mode-line-contents ml) :test #'equal))
                 (font-height (xlib:gcontext-font (mode-line-gc ml))))
              (* *mode-line-pad-y* 2))))
@@ -551,7 +564,7 @@ critical."
   (and
    (setf (symbol-value (intern (concat "*MODE-LINE-" (princ-to-string val) "-COLOR*"))) color)
    (maybe-refresh-mode-line (current-screen) (current-head))))
-   
+
 (defun set-mode-line-fg-color (color)
   "Set mode-line foreground color"
   (set-mode-line-any-color 'foreground color))

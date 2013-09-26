@@ -58,6 +58,7 @@
 	  *key-press-hook*
 	  *last-command*
 	  *list-hidden-groups*
+	  *loaded-modules-list*
 	  *map-window-hook*
 	  *max-last-message-size*
 	  *maxsize-border-width*
@@ -77,6 +78,7 @@
 	  *mode-line-position*
 	  *mode-line-timeout*
 	  *modifiers*
+	  *modules-load-paths-list*
 	  *mouse-focus-policy*
 	  *new-frame-action*
 	  *new-frame-hook*
@@ -86,6 +88,7 @@
 	  *normal-gravity*
 	  *place-window-hook*
 	  *processing-existing-windows*
+	  *quit-hook*
 	  *record-last-msg-override*
 	  *resize-hides-windows*
 	  *resize-map*
@@ -127,6 +130,7 @@
 	  data-dir-file
 	  find-etc-file
 	  module-data-dir-file
+	  string-to-path-list
 	  with-data-file
 	  make-color-hex
 	  concat
@@ -159,7 +163,8 @@ A short for (concatenate 'string foo bar)."
 (defun getenv (var)
   "Get values of UNIX system environment variables"
   (or #+:clisp (ext:getenv (string var))
-      #+:sbcl (sb-unix::posix-getenv (string var))))
+      #+:sbcl (sb-unix::posix-getenv (string var))
+      #+:ccl (ccl:getenv (string var))))
 
 (defun string-to-path-list (&rest strings)
   "Convert string to list for `make-pathname` function"
@@ -297,6 +302,9 @@ window group and frame")
 
 (defvar *start-hook* '()
   "A hook called when dswm starts.")
+
+(defvar *quit-hook* '()
+  "A hook called when dswm quits.")
 
 (defvar *internal-loop-hook* '()
   "A hook called inside dswm's inner loop.")
@@ -644,7 +652,7 @@ interactive:         set behavior, which will propose alternative, actions
   default-bg)
 
 
-(defvar *window-number-map* "123456789"
+(defvar *window-number-map* "0123456789"
   "Set this to a string to remap the window numbers to something more convenient.")
 
 (defvar *group-number-map* "123456789"
@@ -747,6 +755,7 @@ do:
 (defvar *window-formatters* '((#\n window-map-number)
                               (#\s fmt-window-status)
                               (#\t window-name)
+			      (#\T window-type)
                               (#\c window-class)
                               (#\i window-res)
                               (#\r window-role)
@@ -781,7 +790,7 @@ Note, a prefix number can be used to crop the argument to a specified
 size. For instance, @samp{%20t} crops the window's title to 20
 characters.")
 
-(defvar *window-info-format* (format nil "Size~15t:~t%wx%h~%Window number~15t:~t%n~%Title~15t:~t%t)")
+(defvar *window-info-format* (format nil "Frame size~16t:~t%wx%h~%Number in group~16t:~t%n~%Class~16t:~t%c~%Instance~16t:~t%i~%Type~16t:~t%T~%Role~16t:~5t%r~%Title~16t:~t%t")
   "The format used in the info command. @xref{*window-format*} for formatting details.")
 
 (defvar *group-formatters* '((#\n group-map-number)

@@ -1,6 +1,57 @@
 -*- outline -*-
 
 This file documents user visible changes between versions of DSWM
+* Changes since 0.0.5
+
+** add remember-forget-reacll subsystem
+*** add remember,forget,recall commands with options:
+    group,screen,desktop,window,group-windows,screen-windows,all-windows,all
+
+** add fselect-by-number command
+
+** add keys by-name-p and by-number-p to select-group function
+   (select-group screen query :by-name-p <t/nil> :by-number-p <t/nil>)
+
+** new keys in ./configure script:
+   --enable-shared                     - enables DSWM build as shared library + startup script
+   --enable-static                     - enables DSWM build as static binary file
+   --with-lisp-extra-options="options" - possibility to add extra options to lisp compiler
+
+** replace configuration and data files path to XDG recommendations:
+   system configfile: XDG_CONFIG_DIRS/dswm/dswm.lisp -> /etc/xdg/dswm/dswm.lisp
+   user configfile: ~/.dswm -> XDG_CONFIG_HOME/dswm/init.lisp -> ~/.config/dswm/init.lisp
+   system configdir: XDG_CONFIG_DIRS/dswm/ -> /etc/xdg/dswm/
+   user configdir: XDG_CONFIG_HOME/dswm/ -> ~/.config/dswm/
+   system datadir: XDG_DATA_DIRS/dswm/
+   user datadir: XDG_DATA_HOME/dswm/
+
+** add 'gmove-scratchpad' command (bound to PREF g s)
+
+** add fprev command
+
+** add 'edit-variable' command (alias to 'edit')
+
+** add support for clisp and ccl
+
+** replace 'emacs' to 'editor' command
+*** added *editor* variable
+
+** add ENVIRONMENT variables support for 'browser', 'shell', 'editor' and 'terminal' commands
+   *editor* -> $EDITOR -> 'emacs'
+   *shell* -> $SHELL -> 'sh -c'
+   *browser* -> $BROWSER -> 'conkeror'
+   *terminal* -> $TERM -> 'xterm'
+
+** add 'gconvert' command and 'convert-group' function
+
+** add *event-processing-hook* hook
+
+** add *quit-hook* hook
+
+** fix scratchpad number changing, when DSWM reloads
+
+** fix
+
 * Changes since 0.0.4
 
 ** fix error with desktop dump, when groups are empty

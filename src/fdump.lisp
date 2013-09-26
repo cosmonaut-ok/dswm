@@ -30,6 +30,7 @@
           dump-desktop-to-file
           dump-group-to-file
           dump-screen-to-file
+	  dump-to-file
           fdump
           fdump-current
           fdump-height
@@ -130,7 +131,7 @@
       (let ((*package* (find-package :dswm)))
         (read fp)))))
 
-(defun restore-group (group gdump &optional auto-populate (window-dump-fn 'window-id))
+(defun restore-group (group gdump &optional auto-populate (window-dump-fn 'window-id) restore-group-number-p)
   "Restore group from group dump"
   (let ((windows (group-windows group)))
     (labels ((give-frame-a-window (f)
@@ -189,7 +190,14 @@
 	;; If group is float and dump is tile or group is tile and dump is float
 	(t
 	 (convert-group group) ;; TODO: TEST! TEST! TEST!!!
-	 (restore-group group gdump))))))
+	 (restore-group group gdump)))
+      ;; correct group number, if needed
+      (when (not (null restore-group-number-p))
+        (let ((group-to-die
+               (select-group (group-screen group) (princ-to-string (gdump-number gdump)))))
+          (when group-to-die
+            (kill-group group-to-die group)))
+        (setf (group-number group) (gdump-number gdump))))))
 
 (defun restore-screen (screen sdump)
   "Restore all frames in all groups of given screen. Create groups if
@@ -199,19 +207,19 @@
 	   (format t "~a~%" (gdump-name gdump))
 	   (restore-group
 	    (or
-	     (find-group screen (gdump-name gdump))
+	     (find-group screen :name (gdump-name gdump))
 	     ;; FIXME: if the group doesn't exist then
 	     ;; windows won't be migrated from existing
 	     ;; groups
-	     (add-group screen (gdump-name gdump)))
+	     (add-group screen (gdump-name gdump) :number (gdump-number gdump)))
 	    gdump))
 	  ((eq (type-of gdump) 'fgdump)
 	   (format t "~a~%" (fgdump-name gdump))
 	   (format t "~a"
 		   (restore-group
 		    (or
-		     (find-group screen (fgdump-name gdump))
-		     (add-group screen (fgdump-name gdump) :type 'float-group))
+		     (find-group screen :name (fgdump-name gdump))
+		     (add-group screen (fgdump-name gdump) :number (fgdump-number gdump) :type 'float-group))
 		    gdump))))))
 
 (defun restore-desktop (ddump)

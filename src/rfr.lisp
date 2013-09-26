@@ -97,37 +97,49 @@
 	(t
 	 (cons (car dump-list) (remove-sdump-member-of-list sdump (cdr dump-list))))))
 
-(defun gdump-member-of-list-p (gdump dump-list) ;; TODO
+(defun gdump-member-of-list-p (gdump dump-list)
   "Check, if gdump is member of dump part"
   (cond ((null dump-list)
   	 nil)
   	((eq (type-of (car dump-list)) 'gdump)
   	 (if (or
-  	      (eq (gdump-number gdump) (gdump-number (car dump-list)))
-  	      (eq (gdump-name gdump) (gdump-number (car dump-list))))
+  	      (eq (group-dump-number gdump) (gdump-number (car dump-list)))
+  	      (equal (group-dump-name gdump) (gdump-number (car dump-list))))
   	     (car dump-list)
-  	     (gdump-member-of-list-p gdump (cdr dump-list))))
+	   (gdump-member-of-list-p gdump (cdr dump-list))))
   	((eq (type-of (car dump-list)) 'fgdump)
   	 (if (or
-  	      (eq (gdump-number gdump) (fgdump-number (car dump-list)))
-  	      (eq (gdump-name gdump) (fgdump-number (car dump-list))))
+  	      (eq (group-dump-number gdump) (fgdump-number (car dump-list)))
+  	      (equal (group-dump-name gdump) (fgdump-number (car dump-list))))
   	     (car dump-list)
-  	     (gdump-member-of-list-p gdump (cdr dump-list))))))
+	   (gdump-member-of-list-p gdump (cdr dump-list))))))
 
-(defun update-gdump-member-of-list (gdump dump-list) ;; TODO
+(defun group-dump-number (dump)
+  (cond ((eq (type-of dump) 'gdump)
+	 (gdump-number dump))
+	((eq (type-of dump) 'fgdump)
+	 (fgdump-number dump))))
+
+(defun group-dump-name (dump)
+  (cond ((eq (type-of dump) 'gdump)
+	 (gdump-name dump))
+	((eq (type-of dump) 'fgdump)
+	 (fgdump-name dump))))
+
+(defun update-gdump-member-of-list (gdump dump-list)
   "Replace, group dump with new group dump in dump list"
   (cond ((null dump-list)
   	 nil)
   	((eq (type-of (car dump-list)) 'gdump)
   	 (if (or
-  	      (eq (gdump-number gdump) (gdump-number (car dump-list)))
-  	      (eq (gdump-name gdump) (gdump-number (car dump-list))))
+  	      (eq (group-dump-number gdump) (gdump-number (car dump-list)))
+  	      (eq (group-dump-name gdump) (gdump-number (car dump-list))))
 	     (cons gdump (cdr dump-list))
   	     (cons (car dump-list) (update-gdump-member-of-list gdump (cdr dump-list)))))
   	((eq (type-of (car dump-list)) 'fgdump)
   	 (if (or
-  	      (eq (group-number gdump) (fgdump-number (car dump-list)))
-  	      (eq (group-name gdump) (fgdump-number (car dump-list))))
+  	      (eq (group-dump-number gdump) (fgdump-number (car dump-list)))
+  	      (eq (group-dump-name gdump) (fgdump-number (car dump-list))))
 	     (cons gdump (cdr dump-list))
   	     (cons (car dump-list) (update-gdump-member-of-list gdump (cdr dump-list)))))))
 
@@ -137,14 +149,14 @@
   	 nil)
   	((eq (type-of (car dump-list)) 'gdump)
   	 (if (or
-  	      (eq (gdump-number gdump) (gdump-number (car dump-list)))
-  	      (eq (gdump-number gdump) (gdump-number (car dump-list))))
+  	      (eq (group-dump-number gdump) (gdump-number (car dump-list)))
+  	      (eq (group-dump-number gdump) (gdump-number (car dump-list))))
 	     (cdr dump-list)
   	     (cons (car dump-list) (remove-gdump-member-of-list gdump (cdr dump-list)))))
   	((eq (type-of (car dump-list)) 'fgdump)
   	 (if (or
-  	      (eq (gdump-number gdump) (fgdump-number (car dump-list)))
-  	      (eq (gdump-name gdump) (fgdump-number (car dump-list))))
+  	      (eq (group-dump-number gdump) (fgdump-number (car dump-list)))
+  	      (eq (group-dump-name gdump) (fgdump-number (car dump-list))))
 	     (cdr dump-list)
   	     (cons (car dump-list) (remove-gdump-member-of-list gdump (cdr dump-list)))))))
 
@@ -215,33 +227,27 @@
 ;;;;
 
 (defun remember-group (&key (group (current-group)) permanent-p)
-  ;; (labels ((upd-list (group list)
-  ;; 		     (let* ((i (car list))
-  ;; 			    (gdumps (sdump-groups i)))
-  ;; 		       (cond ((null list) nil)
-  ;; 			     ((gdump-member-of-list-p (dump-group group) gdumps)
-  ;; 			      (setf (sdump-groups i)
-  ;; 				    (update-gdump-member-of-list (dump-group group) gdumps))
-  ;; 			      (cons
-  ;; 			     (t
-  ;; 			      (setf (sdump-groups i)
-  ;; 				    (cons (dump-group group) gdumps))))
-  ;; 		       (cons i (upd-list group (cdr list))))))
+  (let ((screen-number (screen-id (group-screen group)))
+  	(desktop-rules *desktop-rules*))
+    (labels ((add-gdump-to-sdump-list (gdump list)
+  	       (if (null (car list))
+  		   nil
+  		   (let ((cur-sdump (car list)))
+  		     (cond ((eq screen-number (sdump-number cur-sdump))
+  			    (setf (sdump-groups cur-sdump) (update-group-in-rules group (group-screen group)))
+			    (cons cur-sdump (add-gdump-to-sdump-list gdump (cdr list))))
+  			   (t
+  			    (cons (car list) (add-gdump-to-sdump-list gdump (cdr list)))))))))
+      (progn
+	(if (not (sdump-member-of-list-p (dump-screen (group-screen group)) (ddump-screens *desktop-rules*)))
+	    (progn
+	      (push (dump-screen (group-screen group)) (ddump-screens *desktop-rules*))
+	      (setf (sdump-groups (car (ddump-screens *desktop-rules*))) nil)))
 
-  ;; 	  (if-null (ddump-screens *desktop-rules*)
-  ;; 		   (setf (ddump-screens *desktop-rules*)
-  ;; 			 (list (make-sdump :number (screen-id (group-screen group))
-  ;; 					   :current (group-number group)
-  ;; 					   :groups (list (dump-group group))))))
-
-  ;; 	  (let ((screens (ddump-screens *desktop-rules*)))
-  ;; 	    (message "~a" (upd-list group screens))
-  ;; 	    (setf (ddump-screens *desktop-rules*)
-  ;; 		  (upd-list group screens))))
-
-  (if-not-null permanent-p
-  	       (dump-to-file *desktop-rules* *desktop-dump-file*))
-  (message "Locked ~a" (group-name group)))
+	(setf (ddump-screens *desktop-rules*) (add-gdump-to-sdump-list (dump-group group) (ddump-screens desktop-rules)))
+	(if-not-null permanent-p
+		     (dump-to-file *desktop-rules* *desktop-dump-file*))
+	))))
 
 (defun remember-screen (&key (screen (current-screen)) permanent-p)
   (progn
@@ -261,19 +267,26 @@
 		 (dump-to-file (dump-desktop) *desktop-dump-file*))))
 
 (defun remember-window-placement (&key (window (current-window)) (lock-p t) title-p permanent-p)
-  (progn
-    (make-rule-for-window window lock-p title-p)
-    (if-not-null permanent-p
-		 (dump-to-file *window-placement-rules* *window-placement-dump-file*))))
+  (if (not (rule-matching-window window))
+      (progn
+	(make-rule-for-window window lock-p title-p)
+	(if-not-null permanent-p
+		     (dump-to-file *window-placement-rules* *window-placement-dump-file*)))
+      (and
+       (forget-window-placement :window window)
+       (remember-window-placement :window window :lock-p lock-p :title-p title-p :permanent-p permanent-p))))
+
 
 (defun remember-group-windows-placement (&key (group (current-group)) (lock-p t) (title-p nil) (permanent-p nil))
   "Guess at a placement rule for all WINDOWS in group and add it to the current set."
   (if (> (length (group-windows group)) 0)
-      (dolist (i (group-windows group))
-	(remember-window-placement :window i
-				   :lock-p lock-p
-				   :title-p title-p
-				   :permanent-p permanent-p)) t)) ; dolist always gives nil
+      (progn
+	(forget-group-windows-placement :group group)
+	(dolist (i (group-windows group))
+	  (remember-window-placement :window i
+				     :lock-p lock-p
+				     :title-p title-p
+				     :permanent-p permanent-p)) t))) ; dolist always gives nil
 
 (defun remember-screen-windows-placement (&key (screen (current-screen)) (lock-p t) title-p permanent-p)
   "Guess at a placement rule for all WINDOWS in all groups in current screen and add it to the current set."
@@ -306,12 +319,21 @@ data dir"
 ;;;;
 
 (defun forget-group (&key (group (current-group)) permanent-p)
-  (progn
-    (dolist (i (ddump-screens *desktop-rules*))
-      (let ((grouplist i))
-	(setf i (remove-gdump-member-of-list (dump-group group) grouplist))))
-    (if-not-null permanent-p
-		 (dump-to-file *desktop-rules* *desktop-dump-file*))))
+  (let ((screen-number (screen-id (group-screen group)))
+	(desktop-rules *desktop-rules*))
+    (labels ((remove-gdump-from-sdump-list (gdump list)
+	       (if (null (car list))
+		   nil
+		   (let ((cur-sdump (car list)))
+		     (cond ((eq screen-number (sdump-number cur-sdump))
+			    (setf (sdump-groups cur-sdump) (remove-group-from-rules group (group-screen group)))
+			    (cons cur-sdump (remove-gdump-from-sdump-list gdump (cdr list))))
+			   (t
+			    (cons (car list) (remove-gdump-from-sdump-list gdump (cdr list)))))))))
+      (progn
+      	(setf (ddump-screens *desktop-rules*) (remove-gdump-from-sdump-list (dump-group group) (ddump-screens desktop-rules)))
+      	(if-not-null permanent-p
+      		     (dump-to-file *desktop-rules* *desktop-dump-file*))))))
 
 (defun forget-screen (&key (screen (current-screen)) permanent-p)
   (progn
@@ -340,8 +362,13 @@ data dir"
 
 (defun forget-group-windows-placement (&key (group (current-group)) permanent-p)
   "Forget all windows of given group"
-  (dolist (i (group-windows group))
-    (forget-window-placement :window i :permanent-p permanent-p)) t)
+  (dolist (i *window-placement-rules*)
+    (if (equal (group-name group) (car i))
+     	(setf *window-placement-rules*
+	(delete i *window-placement-rules*))))
+  (if-not-null permanent-p
+	       (dump-to-file *window-placement-rules*
+			     *window-placement-dump-file*)))
 
 (defun forget-screen-windows-placement (&key (screen (current-screen)) permanent-p)
   "Forget all windows of given screen"
@@ -365,18 +392,6 @@ data dir"
 ;; recall
 ;;;;
 
-;; (defun recall-group (&key (group (current-group)) permanent-p)
-;;   (progn
-;;     (if-not-null permanent-p
-;; 		 (setf *desktop-rules*
-;; 		       (read-dump-from-file *desktop-dump-file*)))
-;;     (let ((current-ddump (dump-desktop)))
-;;       (dolist (i (ddump-screens current-ddump))
-;; 	(dolist (j (sdump-groups i))
-;; 	  (setf j (update-gdump-member-of-list (dump-group group) j))))
-;;       (setf *desktop-rules* current-ddump)
-;;       (restore-desktop *desktop-rules*))))
-
 (defun recall-group (&key (group (current-group)) permanent-p)
   (labels ((get-gdump (group sdump-list)
 	     (if-not-null
@@ -395,7 +410,10 @@ data dir"
       (if-not-null permanent-p
 		   (setf *desktop-rules*
 			 (read-dump-from-file *desktop-dump-file*)))
-      (restore-group group (get-gdump group (ddump-screens *desktop-rules*))))))
+      (let ((dump
+	     (get-gdump group (ddump-screens *desktop-rules*))))
+	(if-not-null dump
+                     (restore-group group dump nil 'window-id t))))))
 
 (defun recall-screen (&key (screen (current-screen)) permanent-p)
   (progn
@@ -411,15 +429,17 @@ data dir"
 (defun recall-desktop (&key permanent-p)
   (progn
     (if-not-null permanent-p
-		 (setf *desktop-rules*
-		       (read-dump-from-file *desktop-dump-file*)))
+		 (if (file-exists-p *desktop-dump-file*)
+		     (setf *desktop-rules*
+			   (read-dump-from-file *desktop-dump-file*))))
     (restore-desktop *desktop-rules*) t))
 
 (defun recall-window-placement (&key (window (current-window)) (permanent-p nil))
   (progn
     (if-not-null permanent-p
-		 (setf *window-placement-rules*
-		       (read-dump-from-file *window-placement-dump-file*)))
+		 (if (file-exists-p *window-placement-dump-file*)
+		     (setf *window-placement-rules*
+			   (read-dump-from-file *window-placement-dump-file*))))
     (sync-window-placement window)))
 
 (defun recall-group-windows-placement (&key (group (current-group)) (permanent-p nil))
@@ -433,84 +453,107 @@ data dir"
 (defun recall-all-window-placement (&key permanent-p)
   (progn
     (if-not-null permanent-p
-		 (setf *window-placement-rules*
-		       (read-dump-from-file *window-placement-dump-file*)))
+		 (if (file-exists-p *window-placement-dump-file*)
+		     (setf *window-placement-rules*
+			   (read-dump-from-file *window-placement-dump-file*))))
     (sync-windows-placement)))
 
 (defun recall-all ()
   "Recall frame and group and windows placement rules of all groups and frames"
   (progn
-    (when (file-exists-p *desktop-dump-file*)
-      (restore-from-file *desktop-dump-file*))
-    (when (file-exists-p *window-placement-dump-file*)
-      (progn
-	(setf *window-placement-rules*
-	      (read-dump-from-file *window-placement-dump-file*))
-	(sync-windows-placement)))
+    (if (file-exists-p *desktop-dump-file*)
+	(recall-desktop :permanent-p t)
+      (recall-desktop))
+    (if (file-exists-p *window-placement-dump-file*)
+	(recall-all-window-placement :permanent-p t)
+      (recall-all-window-placement))
     ;; TODO: Add function for restore all programs, running in last session
     t) ;; unfortunately sync-window-placement gives nil, because dolist
   )
-
 
 (defcommand remember (what) ((:rfr "What element do you want to remember? "))
   "Remember rules for some desktop element, like frames placement on group,
  group placement on screen, or window-placement"
   (cond ((equal what "group")
-	 (remember-group :permanent-p *rfr-permanent-p*))
+	 (remember-group :permanent-p *rfr-permanent-p*)
+	(message "Group '~a' remembered" (group-name (current-group))))
 	((equal what "screen")
-	 (remember-screen :permanent-p *rfr-permanent-p*))
+	 (remember-screen :permanent-p *rfr-permanent-p*)
+	 (message "Screen '~a' remembered" (screen-number (current-screen))))
 	((equal what "window")
-	 (remember-window-placement :permanent-p *rfr-permanent-p*))
+	 (remember-window-placement :permanent-p *rfr-permanent-p*)
+	 (message "Window '~a' remembered" (window-name (current-window))))
 	((equal what "group-windows")
-	 (remember-group-windows-placement :permanent-p *rfr-permanent-p*))
+	 (remember-group-windows-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows in group '~a' remembered" (group-name (current-group))))
 	((equal what "screen-windows")
-	 (remember-screen-windows-placement :permanent-p *rfr-permanent-p*))
+	 (remember-screen-windows-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows on screen '~a' remembered" (screen-number (current-screen))))
 	((equal what "all-windows")
-	 (remember-all-window-placement :permanent-p *rfr-permanent-p*))
+	 (remember-all-window-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows  remembered"))
 	((equal what "desktop")
-	 (remember-desktop :permanent-p *rfr-permanent-p*))
+	 (remember-desktop :permanent-p *rfr-permanent-p*)
+	 (message "Desktop remembered"))
 	((equal what "all")
-	 (remember-all :permanent-p *rfr-permanent-p*))))
+	 (remember-all :permanent-p *rfr-permanent-p*)
+	 (message "All objects remembered"))))
 
 (defcommand forget (what) ((:rfr "What element do you want to forget? "))
   "Forget remembered rules for some desktop element, like frames
 placement on group, group placement on screen, or window-placement"
   (cond ((equal what "group")
-	 (forget-group :permanent-p *rfr-permanent-p*))
+	 (forget-group :permanent-p *rfr-permanent-p*)
+	 (message "Group '~a' forgot" (group-name (current-group))))
 	((equal what "screen")
-	 (forget-screen :permanent-p *rfr-permanent-p*))
+	 (forget-screen :permanent-p *rfr-permanent-p*)
+	 (message "Screen '~a' forgot" (screen-number (current-screen))))
 	((equal what "window")
-	 (forget-window-placement :permanent-p *rfr-permanent-p*))
+	 (forget-window-placement :permanent-p *rfr-permanent-p*)
+	 (message "Window '~a' forgot" (window-name (current-window))))
 	((equal what "group-windows")
-	 (forget-group-windows-placement :permanent-p *rfr-permanent-p*))
+	 (forget-group-windows-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows in group '~a' forgot" (group-name (current-group))))
 	((equal what "screen-windows")
-	 (forget-screen-windows-placement :permanent-p *rfr-permanent-p*))
+	 (forget-screen-windows-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows on screen '~a' forgot" (screen-number (current-screen))))
 	((equal what "all-windows")
-	 (forget-all-window-placement :permanent-p *rfr-permanent-p*))
+	 (forget-all-window-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows  forgot"))
 	((equal what "desktop")
-	 (forget-desktop :permanent-p *rfr-permanent-p*))
+	 (forget-desktop :permanent-p *rfr-permanent-p*)
+	 (message "Desktop forgot"))
 	((equal what "all")
-	 (forget-all :permanent-p *rfr-permanent-p*))))
+	 (forget-all :permanent-p *rfr-permanent-p*)
+	 (message "All objects forgot"))))
 
 (defcommand recall (what) ((:rfr "What element do you want to recall? "))
   "Recall remembered rules for some desktop element, like frames
 placement on group, group placement on screen, or window-placement"
   (cond ((equal what "group")
-	 (recall-group :permanent-p *rfr-permanent-p*))
+	 (recall-group :permanent-p *rfr-permanent-p*)
+	 (message "Group '~a' recalled" (group-name (current-group))))
 	((equal what "screen")
-	 (recall-screen :permanent-p *rfr-permanent-p*))
+	 (recall-screen :permanent-p *rfr-permanent-p*)
+	 (message "Screen '~a' recalled" (screen-number (current-screen))))
 	((equal what "window")
-	 (recall-window-placement :permanent-p *rfr-permanent-p*))
+	 (recall-window-placement :permanent-p *rfr-permanent-p*)
+	 (message "Window '~a' recalled" (window-name (current-window))))
 	((equal what "group-windows")
-	 (recall-group-windows-placement :permanent-p *rfr-permanent-p*))
+	 (recall-group-windows-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows in group '~a' recalled" (group-name (current-group))))
 	((equal what "screen-windows")
-	 (recall-screen-windows-placement :permanent-p *rfr-permanent-p*))
+	 (recall-screen-windows-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows on screen '~a' recalled" (screen-number (current-screen))))
 	((equal what "all-windows")
-	 (recall-all-window-placement :permanent-p *rfr-permanent-p*))
+	 (recall-all-window-placement :permanent-p *rfr-permanent-p*)
+	 (message "All windows  recalled"))
 	((equal what "desktop")
-	 (recall-desktop))
+	 (recall-desktop)
+	 (message "Desktop recalled"))
 	((equal what "all")
-	 (recall-all))))
+	 (recall-all)
+	 (message "All objects recalled"))))
 
 ;;;;
 ;;;;

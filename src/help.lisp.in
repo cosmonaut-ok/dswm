@@ -193,18 +193,11 @@ command prints the command bound to the specified key sequence."
                       cmd))))
 
 ;;; Window-properties commands
-
-(defcommand window-info () ()
-  "Shows the properties of the current window. These properties can be
-used for matching windows with run-or-raise or window placement
-rules."
-  (let ((w (current-window)))
-    (message-no-timeout "class: ~A~%instance: ~A~%type: :~A~%role: ~A~%title: ~A"
-                        (window-class w)
-                        (window-res w)
-                        (string (window-type w))
-                        (window-role w)
-                        (window-title w))))
+(defcommand window-info (&optional (fmt *window-info-format*)) (:rest)
+  "Display information about the current window."
+  (if (current-window)
+      (message "~a" (format-expand *window-formatters* fmt (current-window)))
+      (message "No Current Window")))
 
 (defcommand window-full-info () ()
   "List all the properties of the current window and their values,
@@ -237,13 +230,7 @@ like xprop."
                                                   (split-seq values '(0)))))
                     (t values)))))))
 
-(defcommand frame-info (&optional (fmt *window-info-format*)) (:rest)
-  "Display information about the current window."
-  (if (current-window)
-      (message "~a" (format-expand *window-formatters* fmt (current-window)))
-      (message "No Current Window")))
-
-(defcommand-alias info frame-info)
+(defcommand-alias info window-info)
 
 (defcommand modifiers () ()
   "List the modifiers dswm recognizes and what MOD-X it thinks they're on."

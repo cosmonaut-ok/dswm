@@ -15,7 +15,7 @@
 (defsystem :dswm
   :name "DSWM"
   :author "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
-  :version "010101"
+  :version "0.1"
   :maintainer "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
   :license "GNU General Public License"
   :description "A tiling, keyboard driven window manager"
@@ -50,7 +50,7 @@
                (:file "user")
                (:file "events")
                (:file "fdump")
-	       ;; (:file "rfr")
+	       (:file "rfr")
                (:file "time")
                (:file "mode-line")
                (:file "color")

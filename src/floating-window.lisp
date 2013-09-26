@@ -161,7 +161,7 @@
           (xlib:query-pointer (window-parent window))
         (declare (ignore relx rely same-screen-p child))
         (when (find :button-3 (xlib:make-state-keys state-mask))
-          (xlib:warp-pointer (window-parent window) initial-width initial-height)))
+           (xlib:warp-pointer (window-parent window) initial-width initial-height)))
 
       (multiple-value-bind (relx rely same-screen-p child state-mask)
           (xlib:query-pointer (window-parent window))

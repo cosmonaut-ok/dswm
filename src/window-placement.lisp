@@ -91,7 +91,7 @@
         (destructuring-bind (group-name frame raise lock
                              &key create restore class instance type role title) match
           (declare (ignore lock class instance type role title))
-          (let ((group (find-group screen group-name)))
+          (let ((group (find-group screen :name group-name)))
             (cond (group
                    (when (and restore (stringp restore))
                      (let ((restore-file (data-dir-file restore)))
@@ -132,7 +132,7 @@
 				  (unless (eq (window-frame window) frame)
 				    (pull-window window frame)))
 				 ((eq (type-of to-group) 'float-group)
-				  t
+				  (message "~a" frame)
 				  ))))))
 
 (defun sync-windows-placement ()
@@ -186,11 +186,12 @@ housekeeping."
 	 (let* ((group (window-group window))  ;; TODO: make rules for float windows
 		(group-name (group-name group))
 		(role (window-role window))
-		(width (float-window-last-width window))
-		(height (float-window-last-height window))
-		(x (float-window-last-x window))
-		(y (float-window-last-y window)))
-	   (push (list group-name (list width height x y) t lock
+		;; (width (float-window-last-width window))
+		;; (height (float-window-last-height window))
+		;; (x (float-window-last-x window))
+		;; (y (float-window-last-y window))
+		)
+	   (push (list group-name nil t lock ;; (list width height x y) t lock
 		       :class (window-class window)
 		       :instance (window-res window)
 		       :title (and title (window-name window))

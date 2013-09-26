@@ -268,7 +268,7 @@ elif [ "$1" == "-e" ]; then
 	exit 0
     fi
 elif [ ! -z "$1" ]; then
-    do_commands $@
+    do_commands "$@"
 else
     dswm_shell
 fi

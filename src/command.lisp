@@ -250,7 +250,7 @@ only return active commands."
       (throw 'error :abort)))
 
 (defmacro define-dswm-type (type (input prompt &key completion-builder) &body body)
-  "Create a new type that can be used for command arguments. @var{type} can be any symbol. 
+  "Create a new type that can be used for command arguments. @var{type} can be any symbol.
 
 When @var{body} is evaluated @var{input} is bound to the
 argument-line. It is passed to @code{argument-pop},
@@ -352,20 +352,6 @@ then describes the symbol."
             (nreverse (second (multiple-value-list
                                (read-from-keymap (top-maps) #'update)))))))))
 
-(define-dswm-type :window-number (input prompt)
-  (let ((n (or (argument-pop input)
-               (completing-read (current-screen)
-                                prompt
-                                (mapcar 'window-map-number
-                                        (group-windows (current-group)))))))
-    (when n
-      (let ((win (find n (group-windows (current-group))
-                       :test #'string=
-                       :key #'window-map-number)))
-        (if win
-            (window-number win)
-	  (throw 'error "No Such Window."))))))
-
 (define-dswm-type :number (input prompt)
   (let ((n (or (argument-pop input)
                (read-one-line (current-screen) prompt))))
@@ -375,7 +361,7 @@ then describes the symbol."
         (parse-error (c)
           (declare (ignore c))
           (throw 'error "Number required."))))))
-
+    
 (define-dswm-type :string (input prompt)
   (or (argument-pop input)
       (read-one-line (current-screen) prompt)))
@@ -407,7 +393,20 @@ then describes the symbol."
 	(completing-read (current-screen) prompt
 			 (mapcar 'window-name
 				 (group-windows (current-group)))))))
-  
+
+(define-dswm-type :window-number (input prompt)
+  (let* ((n (or (argument-pop input)
+		(read-one-line (current-screen) prompt)))
+	 (num (handler-case (parse-integer (princ-to-string n))
+			    (parse-error (c)
+					 (declare (ignore c))
+					 (throw 'error "Number required.")))))
+    (or (car (member num
+		     (mapcar #'(lambda (x)
+				 (parse-integer (princ-to-string (window-map-number x))))
+			     (group-windows (current-group)))))
+        (throw 'error "No such window with given number."))))
+
 (define-dswm-type :direction (input prompt)
   (let* ((values '(("up" :up)
                    ("down" :down)
@@ -433,27 +432,38 @@ then describes the symbol."
     (or gravity
         (throw 'error "No matching gravity."))))
 
-(defun select-group (screen query)
+(defun select-group (screen query &key (by-name-p t) (by-number-p t))
   "Attempt to match string QUERY against group number or partial name."
   (labels ((match-num (grp)
-             (string-equal (group-map-number grp) query))
+             (when (not (null by-number-p))
+               (string-equal (group-map-number grp) query)))
            (match-whole (grp)
-             (string-equal (group-name grp) query))
+             (when (not (null by-name-p))
+               (string-equal (group-name grp) query)))
            (match-partial (grp)
-             (let* ((end (min (length (group-name grp)) (length query))))
-               (string-equal (group-name grp) query :end1 end :end2 end))))
+             (when (not (null by-name-p))
+               (let* ((end (min (length (group-name grp)) (length query))))
+                 (string-equal (group-name grp) query :end1 end :end2 end)))))
     (when query
       (or (find-if #'match-num (screen-groups screen))
           (find-if #'match-whole (screen-groups screen))
           (find-if #'match-partial (screen-groups screen))))))
 
 (define-dswm-type :group (input prompt)
-  (let ((*current-input-history-slot* :group)
-	(match (select-group (current-screen)
+  (let ((match (select-group (current-screen)
                              (or (argument-pop input)
                                  (completing-read (current-screen) prompt
                                                   (mapcar 'group-name
-                                                          (screen-groups (current-screen))))))))
+                                                          (screen-groups (current-screen))))) :by-number-p nil)))
+    (or match
+        (throw 'error "No Such Group."))))
+
+(define-dswm-type :group-number (input prompt)
+  (let ((match (select-group (current-screen)
+                             (or (argument-pop input)
+                                 (completing-read (current-screen) prompt
+                                                  (mapcar 'group-name
+                                                          (screen-groups (current-screen))))) :by-name-p nil)))
     (or match
         (throw 'error "No Such Group."))))
 
@@ -548,11 +558,11 @@ user aborted."
         ;; this fancy footwork lets us grab the backtrace from where the
         ;; error actually happened.
         (restart-case
-            (handler-bind 
+            (handler-bind
                 ((error (lambda (c)
                           (invoke-restart 'eval-command-error
-                                          (format nil "^B^1*Error In Command '^b~a^B': ^n~A~a" 
-                                                  cmd c (if *show-command-backtrace* 
+                                          (format nil "^B^1*Error In Command '^b~a^B': ^n~A~a"
+                                                  cmd c (if *show-command-backtrace*
                                                             (backtrace-string) ""))))))
               (parse-and-run-command cmd))
           (eval-command-error (err-text)
@@ -595,6 +605,6 @@ supplied, the text will appear in the prompt."
 
 (defcommand edit-variable (var) ((:variable "Input variable name to edit it: "))
   "Edit any variable values"
-  (setf var (read-one-line (current-screen) "Edit variable value: " :initial-input (write-to-string (eval var)))))
+  (set (intern (string-upcase var)) (read-one-line (current-screen) "Edit variable value: " :initial-input (write-to-string (eval var)))))
 
 (defcommand-alias edit edit-variable)

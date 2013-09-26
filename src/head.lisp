@@ -55,7 +55,7 @@
                 for i = 0 then (1+ i)
                 for h in
                 (delete-duplicates
-                 (loop for i in (split-string (run-shell-command "xdpyinfo -ext XINERAMA" t))
+                 (loop for i in (split-string (run-shell-command "xdpyinfo -ext XINERAMA" t)) ;; TODO: need to remove 'run-shell-command'
                     for head = (parse-xinerama-head i)
                     when head
                     collect head)

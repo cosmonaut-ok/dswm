@@ -33,7 +33,9 @@
 
 (export '(add-modules-dir
 	  load-module
-          list-modules
+          modules
+	  modules-list
+	  module-info
 	  add-modules-dir
           find-module))
 

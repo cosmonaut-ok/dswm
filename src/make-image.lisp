@@ -1,5 +1,4 @@
-;; Copyright (C) 2003-2008 Shawn Betts
-;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
+;; Copyright (C) 2013 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -19,22 +18,46 @@
 
 ;; Commentary:
 ;;
+;; Dynamically loads DSWM into CL virtualmachine
+;;
 ;; Code:
+
+(in-package :cl-user)
+
 #-(or sbcl cmucl clisp openmcl ecl ccl)
 (error "This lisp implementation is not supported.")
 
-(require 'asdf)
-#+(or :clisp :ecl :cmucl) (require "clx") ;; because clisp and ecl uses it's own CLX module
+;;; We need to install lisp
+#-asdf
+(require :asdf #+clisp '(#P"../contrib/asdf.lisp"))
+
+#+(or :clisp :ecl :cmucl) (require "clx") ;; because clisp, cmucl and ecl uses it's own CLX module
+
+;; Hot-upgrade ASDF.
+;;
+;; It's useful if user has a local version of ASDF.
+;;
+;; Currently only available in ASDF2.
+#+asdf2
+(asdf:oos 'asdf:load-op :asdf)
+
+;; Cleanups after hot-upgrade.
+#+asdf2
+(asdf:clear-configuration)
+
+(load #P"dswm.asd")
+
 #-ecl (asdf:oos 'asdf:load-op 'dswm)
 #+ecl (asdf:oos 'asdf:load-fasl-op 'dswm)
 
 #+sbcl
-(sb-ext:save-lisp-and-die "dswm" :toplevel (lambda ()
-                                                ;; asdf requires sbcl_home to be set, so set it to the value when the image was built
-                                                (sb-posix:putenv (format nil "SBCL_HOME=~A" #.(sb-ext:posix-getenv "SBCL_HOME")))
-                                                (dswm:dswm)
-                                                0)
-                          :executable t)
+(sb-ext:save-lisp-and-die
+ "dswm" :toplevel (lambda ()
+		    ;; asdf requires sbcl_home to be set, so set it to the value when the image was built
+		    (sb-posix:putenv (format nil "SBCL_HOME=~A" #.(sb-ext:posix-getenv "SBCL_HOME")))
+		    (dswm:dswm)
+		    0)
+ :executable t)
 
 #+cmucl
 (save-lisp "dswm" :init-function (lambda ()
@@ -48,14 +71,13 @@
 					 (ext:quit))
                  :executable t :keep-global-handlers t :norc nil :documentation "The DSWM Executable")
 
+
 #+ccl
 (progn
-(asdf:oos 'asdf:load-op 'dswm)
-;; (ccl:save-application "dswm" :prepend-kernel t :toplevel-function #'dswm:dswm)
+ (asdf:oos 'asdf:load-op 'dswm)
+ (ccl:save-application "dswm" :prepend-kernel t :toplevel-function #'dswm:dswm)
 )
 
+
 #+ecl
-(asdf:make-build 'dswm :type :program :monolithic t
-                 :move-here "."
-                 :name-suffix ""
-                 :epilogue-code '(dswm:dswm))
+(dswm:dswm)

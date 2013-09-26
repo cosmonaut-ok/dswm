@@ -331,7 +331,7 @@ Groups are known as \"virtual desktops\" in the NETWM standard."
       (netwm-update-groups screen)
       (netwm-set-group-properties screen))))
 
-(defun add-group (screen name &key background (type *default-group-type*))
+(defun add-group (screen name &key number background (type *default-group-type*))
   "Create a new group in SCREEN with the supplied name. group names
     starting with a . are considered hidden groups. Hidden groups are
     skipped by gprev and gnext and do not show up in the group
@@ -339,27 +339,44 @@ Groups are known as \"virtual desktops\" in the NETWM standard."
     numbers."
   (check-type screen screen)
   (check-type name string)
-  (if (or (string= name "")
-          (string= name "."))
-      (message "^B^1*Error:^n Groups must have a name.")
-    (let ((ng (or (find-group screen name)
-		  (let ((ng (make-instance type
-					   :screen screen
-					   :number (if (char= (char name 0) #\.)
-						       (find-free-hidden-group-number screen)
-						     (find-free-group-number screen))
-					   :name name)))
-		    (setf (screen-groups screen) (append (screen-groups screen) (list ng)))
-		    (netwm-set-group-properties screen)
-		    (netwm-update-groups screen)
-		    ng))))
-      (unless background
-	(switch-to-group ng))
-      ng)))
+  (when (not (or (null number) (typep number 'number)))
+    (error "Variable `number` must be nil, or number"))
+  
+  (let* ((free-group-number
+	  (if (char= (char name 0) #\.)
+	      (find-free-hidden-group-number screen)
+	    (find-free-group-number screen)))
+	 (maybe-group-to-renumber
+	  (when (and (find-group screen :number number)
+		     (not (find-group screen :name name)))
+	    (find-group screen :number number))))
+    
+    (if (or (string= name "")
+	    (string= name "."))
+	(message "^B^1*Error:^n Groups must have a name.")
+      (progn
+	;; move group with number to free number
+	(when (and (typep number 'number) maybe-group-to-renumber)
+	  (setf (group-number maybe-group-to-renumber) free-group-number))
+	(let ((ng (or (find-group screen :name name)
+		      (let ((ng (make-instance type
+					       :screen screen
+					       :number (or number free-group-number)
+					       :name name)))
+			(setf (screen-groups screen) (append (screen-groups screen) (list ng)))
+			(netwm-set-group-properties screen)
+			(netwm-update-groups screen)
+			ng))))
+	  (unless background
+	    (switch-to-group ng))
+	  ng)))))
 
-(defun find-group (screen name)
-  "Return the group with the name, NAME. Or NIL if none exists."
-  (find name (screen-groups screen) :key 'group-name :test 'string=))
+(defun find-group (screen &key name number)
+  "Return the group with the name, NAME or number, NUMBER (if given). Or NIL if none exists."
+  (let ((groups (screen-groups screen)))
+    (if-not-null name (setf groups (find name groups :key 'group-name :test 'string=)))
+    (if-not-null number (setf groups (find number groups :key 'group-number :test 'eq)))
+    (when (atom groups) groups)))
 
 ;;; Group commands
 
@@ -454,7 +471,7 @@ window along."
 (defcommand grename (name) ((:current-group-name "Input new name for group: "))
   "Rename the current group."
   (let ((group (current-group)))
-    (cond ((find-group (current-screen) name)
+    (cond ((find-group (current-screen) :name name)
            (message "^Name already exists."))
           ((or (zerop (length name))
                (string= name "."))
@@ -499,6 +516,13 @@ the default group formatting and window formatting, respectively."
 		 t (or wfmt *window-format*)))
 
 (defcommand gselect (to-group) ((:group "Select group: "))
+  "Select the first group that starts with
+@var{substring}. @var{substring} can also be a number, in which case
+@command{gselect} selects the group with that number."
+  (when to-group
+    (switch-to-group to-group)))
+
+(defcommand gselect-by-number (to-group) ((:group-number "Select group number: "))
   "Select the first group that starts with
 @var{substring}. @var{substring} can also be a number, in which case
 @command{gselect} selects the group with that number."
@@ -575,7 +599,7 @@ The windows will be moved to group \"^B^2*~a^n\"
 (defcommand grun-new (command) ((:shell "Enter command to run program: "))
   "Run shell command in new tile group with same name with command"
   ;; FIXME: need to run, ignoring window placement rules
-  (if (find-group (current-screen) command)
+  (if (find-group (current-screen) :name command)
       (message "Group ~a already exists" command)
     (progn
       (add-group (current-screen) command)

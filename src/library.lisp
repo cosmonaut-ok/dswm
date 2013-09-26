@@ -119,7 +119,8 @@
   #+clisp
   (logand (posix:convert-mode (posix:file-stat-mode (posix:file-stat pathname)))
           (posix:convert-mode '(:xusr :xgrp :xoth)))
-  #-(or sbcl clisp) (error "Not implemented"))
+  #+openmcl t ;; there are no methods to detect if file is executable, using openmcl/ccl
+  #-(or sbcl clisp openmcl) (error "Not implemented"))
 
 (defun probe-path (path)
   "Return the truename of a supplied path, or nil if it does not exist."
@@ -237,8 +238,10 @@ directory form - see PATHNAME-AS-DIRECTORY."
   (let ((wildcard (directory-wildcard dirname)))
     #+:sbcl (directory wildcard)
     #+:clisp (nconc (directory wildcard :if-does-not-exist :keep)
-                    (directory (clisp-subdirectories-wildcard wildcard))))
-  #-(or :sbcl :clisp)
+                    (directory (clisp-subdirectories-wildcard wildcard)))
+    #+ccl (directory wildcard :directories t)
+    )
+  #-(or :sbcl :clisp :ccl)
   (error "Not implemented"))
 
 (defun pathname-as-file (pathspec)
@@ -819,16 +822,15 @@ display a message whenever you switch frames:
   (let ((pathlist (ppcre:split "\\:+" (getenv "PATH"))))
     (labels
      ((car-exists-p (list)
-		    (cond ((null list)
-			   nil)
-			  ((file-exists-p
-			    (make-pathname :directory
-					   (cons :absolute
-						 (string-to-path-list (car list)))
-					   :name file))
-			   (make-pathname :directory
-					  (cons :absolute
-						(string-to-path-list (car list)))
-					  :name file))
-			  (t (car-exists-p (cdr list))))))
-     (when (not (null file)) (car-exists-p pathlist)))))
+	(cond ((null list) nil)
+	      ((file-exists-p
+		(make-pathname :directory
+			       (cons :absolute
+				     (string-to-path-list (car list)))
+			       :name file))
+	       (make-pathname :directory
+			      (cons :absolute
+				    (string-to-path-list (car list)))
+			      :name file))
+	      (t (car-exists-p (cdr list))))))
+      (when (not (null file)) (car-exists-p pathlist)))))

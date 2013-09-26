@@ -86,7 +86,7 @@ testbuild:
 clean:
 	rm -f *.fasl *.fas *.lib *.*fsl *.o
 	rm -f *.log *.fns *.fn *.aux *.cp *.ky *.log *.toc *.pg *.tp *.vr *.vrs
-	rm -rf dswm ../doc/dswm.texi dswm.info autom4te.cache config.status *.tar.* version.lisp module.lisp help.lisp loader.sh ../config/dswm.desktop Makefile install
+	rm -rf dswm ../doc/dswm.texi dswm.info autom4te.cache config.status *.tar.* version.lisp module.lisp help.lisp loader.sh loader.lisp ../config/dswm.desktop Makefile install
 
 install: @MAKE_INSTALL_DEPS@
 

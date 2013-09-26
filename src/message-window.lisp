@@ -28,6 +28,7 @@
 (export '(echo-string
           err
           message
+	  message-no-timeout
 	  lastmsg))
 
 (defun max-width (font l)
