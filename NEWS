@@ -54,6 +54,7 @@ This file documents user visible changes between versions of DSWM
    user configdir: XDG_CONFIG_HOME/dswm/ -> ~/.config/dswm/
    system datadir: XDG_DATA_DIRS/dswm/
    user datadir: XDG_DATA_HOME/dswm/
+*** add functions '(conf-dir)', '(conf-dir-file <file> &optional <subdir>)'
 
 ** replace 'emacs' to 'editor' command
 *** added *editor* variable
