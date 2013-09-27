@@ -46,7 +46,7 @@
 This is first-start message for quick ^BDSWM^b usage learning
 -------------------------------------------------------------
 * Press ^5*~a ?^7* for more detail help.
-* Your config-file is {HOME}/.dswm or ~a/init.lisp
+* Your config-file is {HOME}/.dswm or ~a
 * Use prefix key ^5*~a^7* with keybindings
 
 Basic keybindings:
@@ -68,11 +68,15 @@ Basic keybindings:
 
 * Run in internal command ^Bdescribe-key or describe-command^b etc
   for describing keybinding or command
-* ^BYou can always show this message^b, entering ~a h^b, or throug
+* ^BYou can always show this message^b, entering ~a h^b, or using
   internal command ^Bhelp-short^b
 Notes:
 ^BVersion: ~a
-License: GNU GPL v.2^b" (print-key *escape-key*) (data-dir) (print-key *escape-key*) (print-key *escape-key*) *version*))
+License: GNU GPL v.2^b"
+																						 (print-key *escape-key*)
+																						 (conf-dir-file "init.lisp")
+																						 (print-key *escape-key*)
+																						 (print-key *escape-key*) *version*))
 
 (defun version () ()
 "Print version information and compilation date."
