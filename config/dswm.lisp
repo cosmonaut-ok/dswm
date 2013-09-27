@@ -124,7 +124,25 @@
 ;; 		;; ((kbd "XF86Launch1")  "exec mpc prev")
 ;; )
 
-;; ;;;; Wake up, Neo. Matrix has you
+;; ;;;; define and bind volume control commands
+;; (defcommand vol- () ()
+;;   "Decrease volume, using amixer"
+;;   (run-shell-command "amixer sset 'Master' 5%-"))
+
+;; (defcommand vol+ () ()
+;;   "Increase volume, using amixer"
+;;   (run-shell-command "amixer sset 'Master' 5%+"))
+
+;; (defcommand voltoggle () ()
+;;   "Toggle volume, using amixer"
+;;   (run-shell-command "amixer sset 'Master' toggle"))
+
+;; ;; Bind keys to commands
+;; (define-key dswm:*top-map* (kbd "XF86AudioLowerVolume") "vol-")
+;; (define-key dswm:*top-map* (kbd "XF86AudioRaiseVolume") "vol+")
+;; (define-key dswm:*top-map* (kbd "XF86AudioMute") "voltoggle")
+
+;; ;;;; wake up, Neo. Matrix has you
 ;; (defvar *matrix-bg-color* "black")
 ;; (defvar *matrix-fg-color* "green")
 ;; (defvar *matrix-cursor-color* "DarkRed")
@@ -133,28 +151,21 @@
 ;; (defvar *matrix-focus-color* "lightgreen")
 ;; (defvar *matrix-unfocus-color* "DarkGreen")
 
-;; ;;;; Do not load this code, when executing 'loadrc' command:
+;; ;;;; Load this code, only when (re)boot DSWM, but not when execute 'loadrc' command
 ;; (startup-only
 ;;  ;; let`s run some shell commands
 ;;  (run-shell-commands
-
 ;; 	;; set up X cursor color.
 ;; 	(format nil "xsetroot -cursor_name left_ptr -fg \"~a\"" "red" *matrix-cursor-color*)
-
 ;; 	;; simple set up multiple keymaps for different languages
 ;; 	"setxkbmap -layout 'us,ua,ru' -option 'grp:alt_shift_toggle,grp_led:caps,ctrl:nocaps"
-
 ;; 	;; disable replace Caps Lock to Control key
 ;; 	"setxkbmap -option 'ctrl:nocaps'"
-
 ;; 	;; let`s start conkeror automatically
 ;; 	"conkeror"
 ;; 	)
-
 ;; 	;; ...and load some DSWM modules...
 ;;  (load-module "s-bindings")
-
-;;  ;; input some your own commands here, if you wish
 ;;  )
 
 ;; ;;;; Eye candy
