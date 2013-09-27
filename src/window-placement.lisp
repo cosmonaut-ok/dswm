@@ -94,7 +94,7 @@
           (let ((group (find-group screen :name group-name)))
             (cond (group
                    (when (and restore (stringp restore))
-                     (let ((restore-file (data-dir-file restore)))
+                     (let ((restore-file (conf-dir-file restore)))
                        (if (file-exists-p restore-file)
                            (restore-group group
                                           (read-dump-from-file restore-file))
@@ -104,8 +104,8 @@
                   (create
                    (let ((new-group (add-group (current-screen) group-name))
                          (restore-file (if (stringp create)
-                                           (data-dir-file create)
-                                           (data-dir-file group-name))))
+                                           (conf-dir-file create)
+                                           (conf-dir-file group-name))))
                      (if (and new-group
                               (file-exists-p restore-file))
                          (restore-group new-group

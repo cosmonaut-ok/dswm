@@ -37,7 +37,8 @@
 	  modules-list
 	  module-info
 	  add-modules-dir
-          find-module))
+          find-module
+	  load-file))
 
 ;; (defun add-modules-dir (dir)
 ;;   "Add the location of the contrib modules"

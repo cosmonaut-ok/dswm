@@ -29,7 +29,8 @@
 	  set-mode-line-border-width
 	  set-mode-line-fg-color
 	  set-mode-line-format
-	  set-info-line-format))
+	  set-info-line-format
+		mode-line))
 
 (defstruct mode-line
   screen

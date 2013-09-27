@@ -335,8 +335,8 @@ then describes the symbol."
 				  (all-commands)))))
     (let ((*current-input-history-slot* :command))
     (when (and (not (equal cmd "colon"))
-	       (not (equal cmd (car (gethash *current-input-history-slot* *input-history*)))))
-      (push cmd (gethash *current-input-history-slot* *input-history*))))
+	       (not (equal cmd (car *input-history*))))
+      (push cmd *input-history*)))
     cmd))
 
 (define-dswm-type :key-seq (input prompt)
@@ -361,7 +361,7 @@ then describes the symbol."
         (parse-error (c)
           (declare (ignore c))
           (throw 'error "Number required."))))))
-    
+
 (define-dswm-type :string (input prompt)
   (or (argument-pop input)
       (read-one-line (current-screen) prompt)))

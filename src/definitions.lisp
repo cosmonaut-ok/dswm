@@ -126,6 +126,8 @@
 	  *window-parent-events*
 	  *x-selection*
 	  *xwin-to-window*
+		conf-dir
+		conf-dir-file
 	  data-dir
 	  data-dir-file
 	  find-etc-file

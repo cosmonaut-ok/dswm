@@ -104,59 +104,81 @@
 #-clisp
 (set-font "-*-fixed-medium-r-*-*-14-*-*-*-*-*-iso10646-1")
 
-;;;; Loading some external modules by default
-(load-module "s-bindings")
+;;;; let`s add custom directory with modules
+;; (add-modules-dir "/my/favorite/directory/dswm-modules")
 
-;;;; Load module amixer and define volume control functions
-(if (load-module "amixer")
-    (progn
-      (dswm::defvolcontrol amixer-PCM-5- "PCM" "5-")
-      (dswm::defvolcontrol amixer-PCM-5+ "PCM" "5+")
-      (dswm::defvolcontrol amixer-Front-5- "Front" "5-")
-      (dswm::defvolcontrol amixer-Front-5+ "Front" "5+")
-      (dswm::defvolcontrol amixer-Master-5- "Master" "5-")
-      (dswm::defvolcontrol amixer-Master-5+ "Master" "5+")
-      (dswm::defvolcontrol amixer-Headphone-5- "Headphone" "5-")
-      (dswm::defvolcontrol amixer-Headphone-5+ "Headphone" "5+")
-      (defkeys-top
-	("XF86AudioLowerVolume" "amixer-Master-5-")
-	("XF86AudioRaiseVolume" "amixer-Master-5+")
-	("XF86AudioMute" "amixer-Master-toggle"))))
+;; ;;;; Define some useful keybindings
+;; (define-keys *top-map*
+;; 	((kbd "XF86Calculator") "exec emacs -Q -f calc")
+;; 	((kbd "XF86HomePage") (concat "exec " *browser* " http://dss-project.org"))
+;; 	((kbd "XF86Search") (concat "exec " *browser* " http://google.com"))
+;; 	((kbd "XF86Mail") "exec thunderbird")
 
-;; Define some useful keybindings
-(defkeys-top
-  ("XF86Calculator" "exec emacs -Q -f calc")
-  ("XF86HomePage" (concat "exec " *browser* " http://dss-project.org"))
-  ("XF86Search" (concat "exec " *browser* " http://google.com"))
-  ("XF86Mail" "exec thunderbird")
-  ;; Good group navigation
-  ;;  ("XF86Forward" "gnext") ;; Goto next group
-  ;;  ("XF86Back" "gprev")    ;; Goto preview group
-  
-  ;; Control music playing. Need installed mpd and mpc
-  ;; ("XF86AudioPlay"  "exec mpc toggle")
-  ;; ("XF86Launch5"  "exec mpc next")
-  ;; ("XF86Launch1"  "exec mpc prev")
-)
+;; 		;; Good group navigation
+;; 		;; ((kbd "XF86Forward") "gnext") ;; Goto next group
+;; 		;; ((kbd "XF86Back") "gprev")    ;; Goto preview group
 
-;;;; set up X cursor color.
-;; (run-shell-command (format nil "xsetroot -cursor_name left_ptr -fg \"~a\"" "red" BACKGROUND-COLOR))
+;; 		;; Control music playing. Need installed mpd and mpc
+;; 		;; ((kbd "XF86AudioPlay")  "exec mpc toggle")
+;; 		;; ((kbd "XF86Launch5")  "exec mpc next")
+;; 		;; ((kbd "XF86Launch1")  "exec mpc prev")
+;; )
 
-;;;; Eye candy
-;;;; Set background color
-;; (set-bg-color "black")
+;; ;;;; Wake up, Neo. Matrix has you
+;; (defvar *matrix-bg-color* "black")
+;; (defvar *matrix-fg-color* "green")
+;; (defvar *matrix-cursor-color* "DarkRed")
+;; ;; also, we can define colors, using HEX codes
+;; (defvar *matrix-border-color* (make-color-hex "#008000"))
+;; (defvar *matrix-focus-color* "lightgreen")
+;; (defvar *matrix-unfocus-color* "DarkGreen")
 
-;;;; Set foreground color
-;; (set-fg-color "lightgreen")
+;; ;;;; Do not load this code, when executing 'loadrc' command:
+;; (startup-only
+;;  ;; let`s run some shell commands
+;;  (run-shell-commands
 
-;;;; Set border color
-;; (set-border-color "yellow")
+;; 	;; set up X cursor color.
+;; 	(format nil "xsetroot -cursor_name left_ptr -fg \"~a\"" "red" *matrix-cursor-color*)
 
-;;;; Set color of focused window
-;; (set-focus-color   "DarkRed")
+;; 	;; simple set up multiple keymaps for different languages
+;; 	"setxkbmap -layout 'us,ua,ru' -option 'grp:alt_shift_toggle,grp_led:caps,ctrl:nocaps"
 
-;;;; Set color of unfocused window
-;; (set-unfocus-color "black")
+;; 	;; disable replace Caps Lock to Control key
+;; 	"setxkbmap -option 'ctrl:nocaps'"
 
-;;;; Set message border width
+;; 	;; let`s start conkeror automatically
+;; 	"conkeror"
+;; 	)
+
+;; 	;; ...and load some DSWM modules...
+;;  (load-module "s-bindings")
+
+;;  ;; input some your own commands here, if you wish
+;;  )
+
+;; ;;;; Eye candy
+;; ;;;; Set background color
+;; (set-bg-color *matrix-bg-color*)
+
+;; ;;;; Set foreground color
+;; (set-fg-color *matrix-fg-color*)
+
+;; ;;;; Set border color
+;; (set-border-color *matrix-border-color*)
+
+;; ;;;; Set color of focused window
+;; (set-focus-color *matrix-focus-color*)
+
+;; ;;;; Set color of unfocused window
+;; (set-unfocus-color *matrix-unfocus-color*)
+
+;; ;;;; It's just a small bug ;)
+;; (in-package :dswm)
+;; ;;;; mode-line coloring
+;; (set-mode-line-fg-color *matrix-fg-color*)
+;; (set-mode-line-bg-color *matrix-bg-color*)
+;; (set-mode-line-border-color *matrix-border-color*)
+
+;; ;;;; Set message border width
 ;; (set-msg-border-width 0)
