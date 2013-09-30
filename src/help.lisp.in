@@ -45,8 +45,18 @@
 ^7*Welcome to The ^BD^beep ^BS^bpace ^BW^bindow ^BM^banager!
 This is first-start message for quick ^BDSWM^b usage learning
 -------------------------------------------------------------
+-------------------------------------------------------------
+^BPlease, be aware! DSWM moved to freedesktop recommendations
+for files and directories location. You must move your files
+to correct locations (see locations below)^b
+-------------------------------------------------------------
+-------------------------------------------------------------
 * Press ^5*~a ?^7* for more detail help.
-* Your config-file is {HOME}/.dswm or ~a
+* Your config-file is:
+    ^5*~a.dswm^7* or
+    ^5*~a^7*
+* Your own modules directory is:
+    ^5*~amodules/^7*
 * Use prefix key ^5*~a^7* with keybindings
 
 Basic keybindings:
@@ -73,10 +83,15 @@ Basic keybindings:
 Notes:
 ^BVersion: ~a
 License: GNU GPL v.2^b"
-																						 (print-key *escape-key*)
-																						 (conf-dir-file "init.lisp")
-																						 (print-key *escape-key*)
-																						 (print-key *escape-key*) *version*))
+					     (print-key *escape-key*)
+					     (princ-to-string
+					      (user-homedir-pathname))
+					     (princ-to-string
+					      (conf-dir-file "init" "lisp"))
+					     (princ-to-string
+					      (data-dir))
+					     (print-key *escape-key*)
+					     (print-key *escape-key*) *version*))
 
 (defun version () ()
 "Print version information and compilation date."
