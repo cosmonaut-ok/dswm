@@ -16,6 +16,8 @@ This file documents user visible changes between versions of DSWM
    --enable-shared                     - enables DSWM build as shared library + startup script
    --enable-static                     - enables DSWM build as static binary file
    --with-lisp-extra-options="options" - possibility to add extra options to lisp compiler
+   --clisp-link			       - choose, with what CLISP kernel do you want to build DSWM
+   --dswm-source-dir		       - directory with DSWM source (for --ehable-shared option)
 
 ** add 'gmove-scratchpad' command (bound to PREF g s)
 

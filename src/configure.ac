@@ -25,7 +25,9 @@ AC_SUBST(DSWM_SOURCE_DIR)
 
 ## detect Cygwin`s clisp
 if test ! -z esyscmd(uname -o | grep "Cygwin" | tr -d \\n); then
-   CLISP_LINK="full+new-clx"
+   CLISP_LINK_AUTO="full+new-clx"
+else
+   CLISP_LINK_AUTO="base"
 fi
 
 # Checks for programs.
@@ -40,7 +42,7 @@ AC_ARG_WITH([ecl], [AC_HELP_STRING([--with-ecl=PATH], [specify location of ecl])
 AC_ARG_ENABLE([static], [AC_HELP_STRING([--disable-static], [do not build DSWM as static binary (enabled by default)])], [STATICP="$enableval"], [STATICP=yes])
 AC_ARG_ENABLE([shared], [AC_HELP_STRING([--enable-shared], [build DSWM as shared source files (disabled by default)])], [SHAREDP="$enableval"], [SHAREDP=no])
 
-AC_ARG_WITH([clisp-link], [AC_HELP_STRING([--with-clisp-link=LINKNAME], [specify clisp link ('base' by default)])], CLISP_LINK=$withval, CLISP_LINK="base")
+AC_ARG_WITH([clisp-link], [AC_HELP_STRING([--with-clisp-link=LINKNAME], [specify clisp link ('base' by default)])], CLISP_LINK=$withval, CLISP_LINK="$CLISP_LINK_AUTO")
 AC_ARG_WITH([lisp-extra-options], [AC_HELP_STRING([--with-lisp-extra-options=OPTS], [specify addition lisp translator options])], LISP_OPTIONS=$withval, LISP_OPTIONS="")
 
 AC_ARG_WITH([dswm-source-dir], [AC_HELP_STRING([--with-dswm-source-dir=DIR], [set directory for DSWM source files (optional. May need, if you build DSWM with --enable-shared option)])], DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR='${data_dir}/dswm/source/')
@@ -202,3 +204,5 @@ AC_OUTPUT(module.lisp)
 AC_OUTPUT(help.lisp)
 AC_OUTPUT(../config/dswm.desktop)
 AC_OUTPUT(../doc/dswm.texi)
+AC_OUTPUT(loader.sh)
+AC_OUTPUT(loader.lisp)

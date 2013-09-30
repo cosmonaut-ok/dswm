@@ -43,8 +43,8 @@ dswm.texi: ../doc/dswm.texi.in
 	@LISP_PROGRAM@ @LISP_INFO_OPTIONS@
 
 dswm.shared:
-	sed 's|\@DSWMSOURCEDIR\@|$(DSWMSOURCEDIR)|g' loader.sh.in > loader.sh
-	sed 's|\@DSWMSOURCEDIR\@|$(DSWMSOURCEDIR)|g' loader.lisp.in > loader.lisp
+	# sed 's|\@DSWMSOURCEDIR\@|$(DSWMSOURCEDIR)|g' loader.sh.in > loader.sh
+	# sed 's|\@DSWMSOURCEDIR\@|$(DSWMSOURCEDIR)|g' loader.lisp.in > loader.lisp
 
 dswm.static: $(FILES)
 	@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@

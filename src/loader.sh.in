@@ -20,18 +20,24 @@
 
 ## Code
 
-LOADER="@DSWMSOURCEDIR@/loader.lisp"
+ME="$0"
+LOADER="@DSWM_SOURCE_DIR@/loader.lisp"
+[ ! -z $LISP ] || LISP="@LISP_PROGRAM@"
 
 load_lisp() {
-    case "$1" in
-	*cmucl)
-	    cmucl -load "$LOADER"
-	    ;;
+    lisp_exec="$1"
+    shift
+    lisp_options="$@"
+    case "$lisp_exec" in
 	*sbcl)
-	    sbcl --load "$LOADER"
+	    $lisp_exec $lisp_options --load "$LOADER"
 	    ;;
 	*clisp)
-	    clisp -modern -i "$LOADER"
+	    $lisp_exec $lisp_options -modern -i "$LOADER"
+	    ;;
+	*ccl)
+	    echo "Dynamic CCL loading is not supported yet"
+	    echo $lisp_exec -b $lisp_options --load "$LOADER"
 	    ;;
 	*)
 	    echo "Unkown Common Lisp implementation."
@@ -41,7 +47,7 @@ load_lisp() {
 }
 
 if [ -z "$LISP" ]; then
-    LISP=`which sbcl 2>/dev/null || which clisp 2>/dev/null || which cmucl 2>/dev/null`
+    LISP=`which sbcl 2>/dev/null || which clisp 2>/dev/null || which ccl 2>/dev/null`
 fi
 
 if [ -z "$LISP" ]; then
@@ -49,6 +55,12 @@ if [ -z "$LISP" ]; then
     exit 1
 fi
 
-load_lisp $LISP $@
+if [ ! -z $1 ] && ([ $1 = "-h" ] || [ $1 = "--help" ]); then
+    echo "USAGE: [LISP=<sbcl/clisp>] $ME [other lisp options]"
+    echo " NOTE: if you don't set LISP variable,"
+    echo "       $LISP will be used"
+else
+    load_lisp $LISP $@
+fi
 
 exit 0
