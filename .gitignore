@@ -26,3 +26,5 @@ dswm.info
 dswm.texi
 dswm
 nano.save
+src/loader.lisp
+src/loader.sh

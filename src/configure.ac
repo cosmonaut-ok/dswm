@@ -112,8 +112,8 @@ fi
 ## set common compile parameters for different lisp implementations
 if test "x$LISP" = "xsbcl"; then
    LISP_PROGRAM=$SBCL
-   LISP_BUILD_OPTIONS="$LISP_OPTIONS --eval '(require :asdf)' --load ./dswm.asd --load ./make-image.lisp"
-   LISP_INFO_OPTIONS="--eval '(progn (require :asdf) (require :dswm) (load \"manual.lisp\"))' --eval '(progn (dswm::generate-manual) (sb-ext:quit))'"
+   LISP_BUILD_OPTIONS="$LISP_OPTIONS --disable-debugger --eval '(require :asdf)' --load ./dswm.asd --load ./make-image.lisp"
+   LISP_INFO_OPTIONS="--disable-debugger --eval '(require :asdf)' --load ./dswm.asd --eval '(progn (require :dswm) (load \"manual.lisp\"))' --eval '(progn (dswm::generate-manual) (sb-ext:quit))'"
 
 elif test "x$LISP" = "xcmucl"; then
    LISP_PROGRAM=$CMUCL
