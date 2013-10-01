@@ -21,8 +21,8 @@
 ## Code
 
 ME="$0"
-LOADER="@DSWM_SOURCE_DIR@/loader.lisp"
-[ ! -z $LISP ] || LISP="@LISP_PROGRAM@"
+LOADER="@DSWMSOURCEDIR@/loader.lisp"
+[ ! -z $LISP ] || LISP=@LISP_PROGRAM@
 
 load_lisp() {
     lisp_exec="$1"

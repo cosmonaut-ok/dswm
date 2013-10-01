@@ -34,10 +34,10 @@ fi
 AC_ARG_WITH(lisp, [  --with-lisp=IMPL        use the specified lisp (sbcl, cmucl, clisp, ccl, ecl or lw)], LISP=$withval, LISP="any")
 
 AC_ARG_WITH([sbcl], [AC_HELP_STRING([--with-sbcl=PATH], [specify location of sbcl])], SBCL_PATH=$withval, SBCL_PATH="")
-AC_ARG_WITH([cmucl], [AC_HELP_STRING([--with-cmucl=PATH], [specify location of cmucl])], CMUCL_PATH=$withval, CMUCL_PATH="")
+dnl AC_ARG_WITH([cmucl], [AC_HELP_STRING([--with-cmucl=PATH], [specify location of cmucl])], CMUCL_PATH=$withval, CMUCL_PATH="")
 AC_ARG_WITH([clisp], [AC_HELP_STRING([--with-clisp=PATH], [specify location of clisp])], CLISP_PATH=$withval, CLISP_PATH="")
 AC_ARG_WITH([ccl], [AC_HELP_STRING([--with-ccl=PATH], [specify location of ccl])], CCL_PATH=$withval, CCL_PATH="")
-AC_ARG_WITH([ecl], [AC_HELP_STRING([--with-ecl=PATH], [specify location of ecl])], ECL_PATH=$withval, ECL_PATH="")
+dnl AC_ARG_WITH([ecl], [AC_HELP_STRING([--with-ecl=PATH], [specify location of ecl])], ECL_PATH=$withval, ECL_PATH="")
 
 AC_ARG_ENABLE([static], [AC_HELP_STRING([--disable-static], [do not build DSWM as static binary (enabled by default)])], [STATICP="$enableval"], [STATICP=yes])
 AC_ARG_ENABLE([shared], [AC_HELP_STRING([--enable-shared], [build DSWM as shared source files (disabled by default)])], [SHAREDP="$enableval"], [SHAREDP=no])
@@ -47,7 +47,7 @@ AC_ARG_WITH([lisp-extra-options], [AC_HELP_STRING([--with-lisp-extra-options=OPT
 
 AC_ARG_WITH([dswm-source-dir], [AC_HELP_STRING([--with-dswm-source-dir=DIR], [set directory for DSWM source files (optional. May need, if you build DSWM with --enable-shared option)])], DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR='${data_dir}/dswm/source/')
 
-dnl AC_ARG_WITH(manual, [  --with-manual compile with manual for DSWM (need cl-ppcre)], MANUALP="true", MANUALP="")
+AC_ARG_WITH(manual, [  --with-manual compile with manual for DSWM (need cl-ppcre)], [MANUALP="$withval"], [MANUALP=no])
 
 # checking for working SBCL
 if test -x "$SBCL_PATH"; then
@@ -155,8 +155,8 @@ fi
 AC_MSG_NOTICE([Using $LISP at $LISP_PROGRAM])
 
 # check for makeinfo
-if test "x$MANUALP" = "yes"; then
-   MAKE_ALL_DEPS="dswm dswm.info"
+if test "x$MANUALP" = "xyes"; then
+   MAKE_ALL_DEPS="dswm dswm.texi dswm.info"
    MAKE_INSTALL_DEPS="dswm.install dswm.info.install dswm.dm.install"
 
    # check for makeinfo

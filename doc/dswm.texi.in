@@ -132,6 +132,7 @@ Windows
 * Controlling Raise And Map Requests::  
 * Programming With Windows::    
 * Rule Based Window Placement::  
+* Remember-Forget-Recall Subsystem::  
 
 Frames
 
@@ -225,43 +226,55 @@ successfully started DSWM.
 @end enumerate
 
 @node Basic Usage, Interacting with the Lisp process, Starting DSWM, Introduction
+@section Some definitions
+In this manual we will use some special definitions:
+
+@subsection Key sequences
+@kbd{PREF} - means prefix keyboard sequence. It is @kbd{Control + j} by default
+@kbd{C-k}  - means, that you have to press keys ``Control'' and ``k'' at one time
+@kbd{M-k}  - means, that you have to press keys ``Alt and ``k'' at one time
+@kbd{S-k}  - means, that you have to press keys ``Shift'' and ``k'' at one time
+@kbd{C-K}  - means, that you have to press keys ``Control'', ``Shift'' and ``k'' at one time
+@kbd{s-k}  - means, that you have to press keys ``Windows''-key (``super'') and ``k'' at one time
+@kbd{PREF g k}  - means, that you have to press prefix key sequence, then press ``g'' and then press ``k''
+
 @section Basic Usage
 Once you have DSWM up and running, the first thing you might want
-to do is start @command{emacs}. Type @kbd{C-t e}, or in other words
-@kbd{Control + t} followed by @kbd{e}. Now perhaps you want an
-@command{xterm}. Type @kbd{C-t c}. Now you have some programs running.
+to do is start @command{emacs}. Type @kbd{PREF e}, or in other words
+@kbd{Control + j} followed by @kbd{e}. Now perhaps you want an
+@command{xterm}. Type @kbd{PREF c}. Now you have some programs running.
 
-To see a list of windows DSWM is managing, type @kbd{C-t w}. The
+To see a list of windows DSWM is managing, type @kbd{PREF w}. The
 highlighted window is the one you're looking at right now. It's the
 focused window.
 
 All of DSWM's keys are bound to named commands, which can be
-executed not only by keys but also from the input bar. Type @kbd{C-t
+executed not only by keys but also from the input bar. Type @kbd{PREF
 ;} to open a command prompt. Now type @command{time} and press
-return. Note, @command{time} can also be called by typing @kbd{C-t a}.
+return. Note, @command{time} can also be called by typing @kbd{PREF a}.
 Throughout this manual you'll find definitions for commands,
 functions, and variables. Any command you see in this manual can be
 executed from the input bar or bound to a key.
 
 At this point you probably want to switch back from your new
-@command{xterm} to @command{emacs}. Type @kbd{C-t C-t}. This runs the
+@command{xterm} to @command{emacs}. Type @kbd{PREF PREF}. This runs the
 @command{other} command. Type it again and you're back to xterm.
 
 Perhaps you'd like to see @command{emacs} and @command{xterm}
-side-by-side. Type @kbd{C-t s}. You have now split the screen into 2
+side-by-side. Type @kbd{PREF s}. You have now split the screen into 2
 @command{frames}. For more information see @ref{Frames}. To switch to the
-empty frame type @kbd{C-t TAB}. Now let's pull the xterm window into
-this empty frame. Type @kbd{C-t w} for a window listing. Find the
-@command{xterm} window. See the number beside it? Type @kbd{C-t} followed
+empty frame type @kbd{PREF TAB}. Now let's pull the xterm window into
+this empty frame. Type @kbd{PREF w} for a window listing. Find the
+@command{xterm} window. See the number beside it? Type @kbd{PREF} followed
 by @command{xterm}'s window number.
 
-Another common activity is browsing the interwebs. Type @kbd{C-t !}.
+Another common activity is browsing the interwebs. Type @kbd{PREF !}.
 The input bar pops up again. You can now run a shell command.  Let's
 start a web browser: type @command{firefox} into the input bar and press
 return.
 
 Unfortunately, @command{firefox} probably isn't wide enough because it's
-in one of the frames. Type @kbd{C-t Q} to remove all frames but the
+in one of the frames. Type @kbd{PREF Q} to remove all frames but the
 current one and resize it to fit the screen.
 
 For a full list of key bindings, see @ref{List of Default Keybindings}.
@@ -271,7 +284,7 @@ For a full list of key bindings, see @ref{List of Default Keybindings}.
 
 Since DSWM is a Lisp program, there is a way for you to evaluate
 Lisp code directly, on the same Lisp process that DSWM is running on.
-Type @kbd{C-t :} and an input box will appear. Then type some Lisp
+Type @kbd{PREF :} and an input box will appear. Then type some Lisp
 expression.
 
 When you call @command{eval} this way, you will be in the DSWM-USER
@@ -308,7 +321,7 @@ The DSWM IRC channel can be found on Freenode at
 @chapter Key Bindings
 DSWM is controlled entirely by keystrokes and Lisp commands. It
 mimics GNU Screen's keyboard handling. DSWM's default prefix key is
-@kbd{C-t}.
+@kbd{PREF}.
 
 @menu
 * List of Default Keybindings::  
@@ -321,200 +334,211 @@ mimics GNU Screen's keyboard handling. DSWM's default prefix key is
 The following is a list of keybindings.
 
 @table @kbd
-@item C-t @var{d}
+@item PREF @var{d}
 Select the window with the corresponding digit@tie{}@var{d}
 
-@item C-t C-@var{d}
+@item PREF C-@var{d}
 Pull the window with the corresponding digit@tie{}@var{d} into the current frame
 
-@item C-t n
-@itemx C-t C-n
-@itemx C-t Space
+@item PREF n
+@itemx PREF C-n
+@itemx PREF Space
 Go to the next window in the window list
 
-@item C-t p
-@itemx C-t C-p
+@item PREF p
+@itemx PREF C-p
 Go to the previous window in the window list
 
-@item C-t '
+@item PREF '
 Go to a window by name
 
-@item C-t "
+@item PREF "
 Select a window from a list and focus the window.
 
-@itemx C-t C-g
-Abort the current command. This is useful if you accidentally hit @kbd{C-t}
+@itemx PREF C-g
+Abort the current command. This is useful if you accidentally hit @kbd{PREF}
 
-@item C-t w
+@item PREF w
 List all the windows
 
-@item C-t i
+@item PREF i
 Display information about the current window.
 
-@item C-t f
+@item PREF f
 Select a frame by number
 
-@item C-t s
+@item PREF s
 Split current frame vertically
 
-@item C-t S
+@item PREF S
 Split current frame horizontally
 
-@item C-t k
-@itemx C-t C-k
+@item PREF k
+@itemx PREF C-k
 Sends a kill message to the current frame and the running program.
 
-@item C-t K
+@item PREF K
 Kills the current frame and running program; like a @command{kill -9}.
 
-@item C-t c
-@itemx C-t C-c
+@item PREF c
+@itemx PREF C-c
 Run an X terminal; by default @command{xterm}
 
-@item C-t e
-@itemx C-t C-e
+@item PREF e
+@itemx PREF C-e
 Run Emacs or raise it if it is already running.
 
-@item C-t t
-Sends a @kbd{C-t} to the frame; this is useful for applications like Firefox
-which make heavy use of @kbd{C-t} (in Firefox's case, for opening a new
+@item PREF t
+Sends a @kbd{PREF} to the frame; this is useful for applications like Firefox
+which make heavy use of @kbd{PREF} (in Firefox's case, for opening a new
 tab). This is similar to how GNU screen uses @kbd{C-a a}.
 
-@item C-t w
-@itemx C-t C-w
+@item PREF w
+@itemx PREF C-w
 Prints out a list of the windows, their number, and their name.
 
-@item C-t b
-@itemx C-t C-b
-Banish the mouse point to the lower right corner of the screen.
+@item PREF b
+@itemx PREF C-b
+Runs your default browser.
 
-@item C-t a
-@itemx C-t C-a
+@item PREF a
+@itemx PREF C-a
 Display the current time and date, much like the Unix command @command{date}.
 
-@item C-t C-t
+@item PREF PREF
 Switch to the last window to have focus in the current frame.
 
-@item C-t !
+@item PREF !
 Prompt for a shell command to run via @file{/bin/sh}. All output is discarded.
 
-@item C-t R
+@item PREF R
 If the screen is split into multiple frames, one split will be
-undone. If there is only one split, the effect will be the same as @kbd{C-t Q}.
+undone. If there is only one split, the effect will be the same as @kbd{PREF Q}.
 
-@item C-t o
-@itemx C-t TAB
+@item PREF o
+@itemx PREF TAB
 If the screen is split into multiple frames, focus shifts to the
 @command{next} frame, where it cycles to the right and then down; analogous
 to @kbd{C-x o} in Emacs.
 
-@item C-t F
+@item PREF F
 Display ``Current Frame'' in the frame which has focus.
 
-@item C-t ;
+@item PREF ;
 Opens the input box. DSWM commands can be run from here, and the
 input history moved through.
 
-@item C-t :
+@item PREF :
 Opens the input box, but all things typed in here will be sent to the
 Common Lisp interpreter where they will be ran as Lisp programs; thus,
 input should be valid Common Lisp.
 
-@item C-t C-h
-@itemx C-t ?
+@item PREF C-h
+The short help and basic DSWM information about system and default directories.
+@item PREF ?
 The help.
 
-@item C-t -
+@item PREF -
 Hide all frames and show the root window.
 
-@item C-t Q
+@item PREF Q
 Removes all splits and maximizes the frame with focus.
 
-@item C-t Up
-@itemx C-t Down
-@itemx C-t Left
-@itemx C-t Right
-Shift focus to an adjacent frame in the specified direction. @kbd{C-t Up} will
-shift focus up, if possible, @kbd{C-t Down} will shift downwards, etc.
+@item PREF Up
+@itemx PREF Down
+@itemx PREF Left
+@itemx PREF Right
+Shift focus to an adjacent frame in the specified direction. @kbd{PREF Up} will
+shift focus up, if possible, @kbd{PREF Down} will shift downwards, etc.
 
-@item C-t v
+@item PREF v
 Prints out the version of the running DSWM.
 
-@item C-t #
+@item PREF #
 Toggle the mark on the current window
 
-@item C-t m
-@itemx C-t C-m
+@item PREF m
+@itemx PREF C-m
 Display the last message. Hitting this keybinding again displays the
 message before that, and so on.
 
-@item C-t l
-@itemx C-t C-l
+@item PREF l
+@itemx PREF C-l
 redisplay the current window and force it to take up the entire frame.
 
-@item C-t G
+@item PREF G
 Display all groups and windows in each group. For more information see @ref{Groups}.
 
-@item C-t F@var{n}
-Jump to the corresponding group @var{n}. @kbd{C-t F1} jumps to group 1 and so on.
-
-@item C-t g g
+@item PREF F@var{n}
+Jump to the corresponding group @var{n}. @kbd{PREF F1} jumps to group 1 and so on.
+J
+@item PREF g g
 Show the list of groups.
 
-@item C-t g c
+@item PREF g c
 Create a new group.
 
-@item C-t g n
-@itemx C-t g C-n
-@itemx C-t g SPC
-@itemx C-t g C-SPC
+@item PREF g n
+@itemx PREF g C-n
+@itemx PREF g SPC
+@itemx PREF g C-SPC
 Go to the next group in the list.
 
-@item C-t g N
+@item PREF g !
+Prompt for a shell command to run via @file{/bin/sh} in new group with same name. All output is discarded.
+
+@item PREF g '@'
+Prompt for a shell command to run via @file{/bin/sh} in new float group with same name. All output is discarded.
+
+@item PREF g n
+@itemx PREF g C-n
+Go to the next group in the list.
+
+@item PREF g N
 Go to the next group in the list and bring the current window along.
 
-@item C-t g p
-@itemx C-t g C-p
+@item PREF g p
+@itemx PREF g C-p
 Go to the previous group in the list.
 
-@item C-t g P
+@item PREF g P
 Go to the previous group in the list and bring the current window along.
 
-@item C-t g '
+@item PREF g '
 Select a group by name or by number.
 
-@item C-t g "
+@item PREF g "
 Select a group from a list and switch to it.
 
-@item C-t g m
+@item PREF g m
 Move the current window to the specified group.
 
-@item C-t g k
+@item PREF g k
 Kill the current group. All windows are merged into the next group.
 
-@item C-t g A
-@itemx C-t g r
+@item PREF g A
+@itemx PREF g r
 Change the current group's name.
 
-@item C-t g @var{d}
-Go to the group with digit @var{d}. @kbd{C-t g 1} jumps to group 1 and so on.
+@item PREF g @var{d}
+Go to the group with digit @var{d}. @kbd{PREF g 1} jumps to group 1 and so on.
 
-@item C-t +
+@item PREF +
 Make frames the same height or width in the current frame's subtree.
 
-@item C-t h k
+@item PREF h k
 Describe the specified key binding.
 
-@item C-t h f
+@item PREF h f
 Describe the specified function.
 
-@item C-t h v
+@item PREF h v
 Describe the specified variable.
 
-@item C-t h w
+@item PREF h w
 List all key sequences that are bound to the specified command
 
-@item C-t h c
+@item PREF h c
 Describe the specified command.
 @end table
 
@@ -816,7 +840,6 @@ An input function takes 2 arguments: the input structure and the key pressed.
 !!! pull-hidden-previous
 !!! delete-window
 !!! kill-window
-!!! echo-windows
 !!! other-window
 !!! pull-hidden-other
 !!! renumber
@@ -826,7 +849,7 @@ An input function takes 2 arguments: the input structure and the key pressed.
 !!! title
 !!! windowlist
 !!! fullscreen
-!!! info
+!!! window-info
 !!! refresh
 !!! redisplay
 
@@ -840,6 +863,7 @@ An input function takes 2 arguments: the input structure and the key pressed.
 * Controlling Raise And Map Requests::  
 * Programming With Windows::    
 * Rule Based Window Placement::  
+* Remember-Forget-Recall Subsystem::  
 @end menu
 
 @node Window Marks, Customizing Window Appearance, Windows, Windows
@@ -907,16 +931,42 @@ Some examples follow.
 @@@ window-send-string
 ### *default-window-name*
 
-@node Rule Based Window Placement,  , Programming With Windows, Windows
+@node Rule Based Window Placement, Remember-Forget-Recall Subsystem, Programming With Windows, Windows
 @section Rule Based Window Placement
 
 %%% define-frame-preference
-@@@ clear-window-placement-rules
+
+@node Remember-Forget-Recall Subsystem, , Rule Based Window Placement, Windows
+@section Remember-Forget-Recall Subsystem
 
 !!! remember
 !!! forget
-!!! dump-window-placement-rules
-!!! restore-window-placement-rules
+!!! recall
+
+@@@ remember-group
+@@@ remember-screen
+@@@ remember-desktop
+@@@ remember-window-placement
+@@@ remember-group-windows-placement
+@@@ remember-screen-windows-placement
+@@@ remember-all-window-placement
+@@@ remember-all
+@@@ forget-group
+@@@ forget-screen
+@@@ forget-desktop
+@@@ forget-window-placement
+@@@ forget-group-windows-placement
+@@@ forget-screen-windows-placement
+@@@ forget-all-window-placement
+@@@ forget-all
+@@@ recall-group
+@@@ recall-screen
+@@@ recall-desktop
+@@@ recall-window-placement
+@@@ recall-group-windows-placement
+@@@ recall-screen-windows-placement
+@@@ recall-all-window-placement
+@@@ recall-all
 
 @node Frames, Mode-line, Windows, Top
 @chapter Frames
@@ -959,7 +1009,7 @@ window pool, where windows and frames are not so tightly connected.
 @section Interactively Resizing Frames
 There is a mode called @code{iresize} that lets you interactively
 resize the current frame. To enter the mode use the @code{iresize}
-command or type @key{C-t r}.
+command or type @key{PREF r}.
 
 The following keybindings apply to the mode:
 @table @kbd
@@ -1013,7 +1063,7 @@ the following commands.
 @chapter The Mode Line
 The mode line is a bar that runs across either the top or bottom of
 a head and is used to display information. By default the mode line
-displays the list of windows, similar to the output @kbd{C-t w} produces.
+displays the list of windows, similar to the output @kbd{PREF w} produces.
 
 Alternatively, external panel applications such as the GNOME panel and
 KDE's kicker may be used. Simply starting one of these programs is enough
@@ -1080,14 +1130,15 @@ Groups in DSWM are more commonly known as @dfn{virtual desktops} or
 !!! gprev-with-window
 !!! gother
 !!! gmerge
-!!! groups
 !!! vgroups
 !!! gselect
 !!! gmove
 !!! gkill
 !!! grename
 !!! grouplist
-
+!!! grun
+!!! grun-new
+!!! grun-new-float
 @menu
 * Customizing Groups::          
 @end menu
@@ -1157,7 +1208,7 @@ currently focused frame belongs.
 The following is a list of commands that don't really fit in any other
 section.
 
-!!! emacs
+!!! editor
 !!! banish
 !!! ratwarp
 !!! ratrelwarp
@@ -1177,7 +1228,7 @@ section.
 !!! copy-unhandled-error
 !!! commands
 !!! lastmsg
-!!! list-window-properties
+!!! window-full-info
 
 @@@ run-commands
 
@@ -1193,7 +1244,6 @@ section.
 
 %%% with-restarts-menu
 
-### *startup-message*
 ### *suppress-abort-messages*
 ### *default-package*
 
@@ -1234,12 +1284,37 @@ Select the highlighted option.
 @end table
 
 @node DSWM's Data Directory, Debugging DSWM, Menus, Miscellaneous Commands
-@section DSWM's Data Directory
+@section DSWM's Directories
+DSWM uses freedesktop recommendations for directories locations. So,
+your config and data directories by default are:
+
+@table @file
+@item System configuration file
+1. System environment variable @var{$XDG_CONFIG_DIR}
+2. If it is not set, than @file{/etc/xdg/dswm/dswm.lisp}
+
+@item User configuration file
+1. @file{~/.dswm}
+2. If it does not exists, than path, which set in system environment
+variable @var{$XDG_CONFIG_HOME/dswm/init.lisp}
+3. If it does not exists too, than @file{~/.config/dswm/init.lisp}
+
+@item System data directory
+1. System environment variable @var{$XDG_DATA_DIR}
+2. If it does not exists, than @file{/usr/local/share/dswm/} (or
+<where_your_share_prefix>/dswm/)
+
+@item User data directory
+1. System environment variable @var{$XDG_DATA_HOME/dswm/}
+2. If it does not exists, than @file{~/.local/share/dswm/}
+
+@end table
+
 If you want to store DSWM data between sessions, the recommended
-method is to store them in @file{~/.dswm.d/}. DSWM supplies
+method is to store them in DSWM data directory. DSWM supplies
 some functions to make doing this easier.
 
-### *data-dir*
+@@@ data-dir
 @@@ data-dir-file
 %%% with-data-file
 
@@ -1393,7 +1468,8 @@ $$$ *event-processing-hook*
 @node Modules, Hacking, Hooks, Top
 @chapter Modules
 DSWM has a growing number of modules not loaded by default. All
-modules exist in the @file{contrib/} directory of DSWM's archive.
+modules exist in the @file{modules/} subdirectory of DSWM's data
+directories.
 
 !!! load-module
 
@@ -1467,7 +1543,7 @@ it wouldn't give the prompt as long as you fed it arguments.
 
 @item
 Note that all commands defined using the @code{defcommand} syntax are
-available both to be called with @kbd{C-t ;} and from within other lisp
+available both to be called with @kbd{PREF ;} and from within other lisp
 programs, as though they had been defun-ned (which, in fact, they
 have).
 

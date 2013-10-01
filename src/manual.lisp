@@ -101,7 +101,7 @@
                                         (documentation cmd 'function))
                                 t)))
 
-(defun generate-manual (&key (in #p"dswm.texi.in") (out #p"dswm.texi")) ;; FIXME: don't working now!
+(defun generate-manual (&key (in #p"../doc/dswm.texi.in") (out #p"../doc/dswm.texi")) ;; FIXME: don't working now!
   (let ((*print-case* :downcase))
     (with-open-file (os out :direction :output :if-exists :supersede)
       (with-open-file (is in :direction :input)

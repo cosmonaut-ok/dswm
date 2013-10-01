@@ -207,7 +207,9 @@ command prints the command bound to the specified key sequence."
   (if bindings
       (message-no-timeout "\"~a\" is on ~{~a~^, ~}"
                       cmd
-                      (mapcar 'print-key-seq bindings))
+                      ;; (mapcar 'print-key-seq bindings)
+		      "ddd"
+		      )
       (message-no-timeout "Command \"~a\" is not currently bound"
                       cmd))))
 
