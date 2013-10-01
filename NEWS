@@ -18,6 +18,7 @@ This file documents user visible changes between versions of DSWM
    --with-lisp-extra-options="options" - possibility to add extra options to lisp compiler
    --clisp-link			       - choose, with what CLISP kernel do you want to build DSWM
    --dswm-source-dir		       - directory with DSWM source (for --ehable-shared option)
+   --with-info                         - also install info pages for DSWM
 
 ** add 'gmove-scratchpad' command (bound to PREF g s)
 

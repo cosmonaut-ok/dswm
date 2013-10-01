@@ -47,7 +47,7 @@ AC_ARG_WITH([lisp-extra-options], [AC_HELP_STRING([--with-lisp-extra-options=OPT
 
 AC_ARG_WITH([dswm-source-dir], [AC_HELP_STRING([--with-dswm-source-dir=DIR], [set directory for DSWM source files (optional. May need, if you build DSWM with --enable-shared option)])], DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR='${data_dir}/dswm/source/')
 
-AC_ARG_WITH(manual, [  --with-manual compile with manual for DSWM (need cl-ppcre)], [MANUALP="$withval"], [MANUALP=no])
+AC_ARG_WITH(info, [  --with-info compile with info for DSWM (need cl-ppcre)], [INFOP="$withval"], [INFOP=no])
 
 # checking for working SBCL
 if test -x "$SBCL_PATH"; then
@@ -113,27 +113,27 @@ fi
 if test "x$LISP" = "xsbcl"; then
    LISP_PROGRAM=$SBCL
    LISP_BUILD_OPTIONS="$LISP_OPTIONS --eval '(require :asdf)' --load ./dswm.asd --load ./make-image.lisp"
-   LISP_INFO_OPTIONS="--eval '(progn (require :asdf) (require :dswm) (load \"manual.lisp\"))' --eval '(progn (dswm::generate-manual) (sb-ext:quit))'"
+   LISP_INFO_OPTIONS="--eval '(progn (require :asdf) (require :dswm) (load \"info.lisp\"))' --eval '(progn (dswm::generate-info) (sb-ext:quit))'"
 
 elif test "x$LISP" = "xcmucl"; then
    LISP_PROGRAM=$CMUCL
    LISP_BUILD_OPTIONS="$LISP_OPTIONS -batch -load ./make-image.lisp -eval \"(quit)\""
-   LISP_INFO_OPTIONS="-eval \"(progn (require :asdf) (require :dswm) (load \"manual.lisp\"))\" -eval '(progn (dswm::generate-manual) (quit))'"
+   LISP_INFO_OPTIONS="-eval \"(progn (require :asdf) (require :dswm) (load \"info.lisp\"))\" -eval '(progn (dswm::generate-info) (quit))'"
 
 elif test "x$LISP" = "xclisp"; then
    LISP_PROGRAM=$CLISP
    LISP_BUILD_OPTIONS="$LISP_OPTIONS -modern -K $CLISP_LINK -i ../contrib/asdf.lisp -on-error exit -i ./make-image.lisp -x '(quit)'"
-   LISP_INFO_OPTIONS="-K $CLISP_LINK -on-error exit -x \"(require :asdf) (load \"dswm.asd\") (asdf:operate 'asdf:load-op :dswm) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)\""
+   LISP_INFO_OPTIONS="-K $CLISP_LINK -on-error exit -x \"(require :asdf) (load \"dswm.asd\") (asdf:operate 'asdf:load-op :dswm) (load (compile-file \"info.lisp\")) (dswm::generate-info) (ext:exit)\""
 
 elif test "x$LISP" = "xccl"; then
    LISP_PROGRAM=$CCL
    LISP_BUILD_OPTIONS="$LISP_OPTIONS --eval '(require :asdf)' --load dswm.asd --load ./make-image.lisp"
-   LISP_INFO_OPTIONS="--eval \"(progn (require :asdf) (require :dswm))\" --load manual.lisp --eval \"(progn (dswm::generate-manual) (quit))\""
+   LISP_INFO_OPTIONS="--eval \"(progn (require :asdf) (require :dswm))\" --load info.lisp --eval \"(progn (dswm::generate-info) (quit))\""
 
 elif test "x$LISP" = "xecl"; then
    LISP_PROGRAM=$ECL
    LISP_BUILD_OPTIONS="$LISP_OPTIONS -shell ./make-image.lisp"
-   LISP_INFO_OPTIONS="-eval '(progn (require :asdf) (require :dswm) (load \"manual.lisp\"))' -eval '(progn (dswm::generate-manual) (ext:quit))'"
+   LISP_INFO_OPTIONS="-eval '(progn (require :asdf) (require :dswm) (load \"info.lisp\"))' -eval '(progn (dswm::generate-info) (ext:quit))'"
    
 fi
 
@@ -155,14 +155,14 @@ fi
 AC_MSG_NOTICE([Using $LISP at $LISP_PROGRAM])
 
 # check for makeinfo
-if test "x$MANUALP" = "xyes"; then
+if test "x$INFOP" = "xyes"; then
    MAKE_ALL_DEPS="dswm dswm.texi dswm.info"
    MAKE_INSTALL_DEPS="dswm.install dswm.info.install dswm.dm.install"
 
    # check for makeinfo
    AC_CHECK_PROG(MAKEINFO,makeinfo,yes,no)
    if test "$MAKEINFO" = "no"; then
-      AC_MSG_ERROR([*** Please install makeinfo for the manual.])
+      AC_MSG_ERROR([*** Please install makeinfo for the info.])
    fi
 else
    MAKE_ALL_DEPS="dswm"
