@@ -59,7 +59,7 @@
 	       ;; (:file "experimental/mode-line-experimental")
                (:file "module")
                (:file "help")
-	       
+	       @ENABLE_DBUS@
 	       ;; (:file "experimental/ttf")
                (:file "dswm")
 ))

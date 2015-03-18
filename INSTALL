@@ -1,0 +1,2 @@
+autoconf && aclocal && automake --add-missing --copy
+
