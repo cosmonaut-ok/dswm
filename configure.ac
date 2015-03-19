@@ -21,12 +21,18 @@ dnl AC_SUBST(SHAREDP)
 dnl AC_SUBST(MAKE_STATIC_OR_SHARED)
 AC_SUBST(DSWM_SOURCE_DIR)
 AC_SUBST(MODULES_DIR)
-
-##cmucl, clisp, ccl, ecl or lw)])],
+AC_SUBST(QLP)
+#
+AC_SUBST(DBUS_FILE)
+AC_SUBST(DBUS_IMPORT_FILE)
 
 AC_ARG_WITH([lisp],  [AC_HELP_STRING([--with-lisp=IMPL],
 		     [use the specified lisp (sbcl, clisp)])],
-		     LISP_NAME=$withval, LISP_NAME="any")
+                     [case "$withval" in
+                          sbcl|cmucl|clisp|ccl) LISP_NAME=$withval ;;
+                          *) AC_MSG_ERROR([*** invalid lisp implementation specified]) ;;
+                     esac
+                     ],LISP_NAME="any")
 
 AC_ARG_WITH([sbcl],  [AC_HELP_STRING([--with-sbcl=PATH],
 		     [specify location of sbcl])],
@@ -43,6 +49,11 @@ dnl 		     CCL_PATH=$withval, CCL_PATH="")
 dnl AC_ARG_WITH([ecl], [AC_HELP_STRING([--with-ecl=PATH],
 dnl 		   [specify location of ecl])],
 dnl 		   ECL_PATH=$withval, ECL_PATH="")
+
+AC_ARG_ENABLE([debug], [AC_HELP_STRING([--enable-debug],
+                     [build system with debugger support (disabled by default)])],
+                     [DEBUG=yes], [DEBUG=no])
+                
 
 AC_ARG_ENABLE([static], [AC_HELP_STRING([--disable-static],
 			[do not build DSWM as static binary (enabled by default)])],
@@ -61,7 +72,7 @@ AC_ARG_WITH([lisp-extra-options], [AC_HELP_STRING([--with-lisp-extra-options=OPT
 
 AC_ARG_WITH([dswm-source-dir], [AC_HELP_STRING([--with-dswm-source-dir=DIR],
 			       [set directory for DSWM source files (optional. May need, if you build DSWM with --enable-shared option)])],
-			       DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR='${data_dir}/dswm/source/')
+			       DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR="$datadir/dswm/source/")
 
 AC_ARG_WITH([info], [AC_HELP_STRING([--with-info],
 		    [compile with info for DSWM (need cl-ppcre)])],
@@ -76,7 +87,7 @@ AC_ARG_WITH([ql], [AC_HELP_STRING([--with-ql],
 		    QLP=yes, QLP=no)
 
 ## Set common global variables
-MAKE_ALL_DEPS="dswm"
+MAKE_ALL_DEPS="dswm.common"
 MAKE_INSTALL_DEPS="dswm.install"
 MAKE_UNINSTALL_DEPS="dswm.uninstall"
 
@@ -98,6 +109,12 @@ test $CLISP_LINK || CLISP_LINK=$CLISP_LINK_AUTO
 if test "x$STATICP" = "xno" && test "x$SHAREDP" = "xno"; then
    AC_MSG_ERROR([*** Do not Use --disable-shared and --disable-static at the same time. Nothing to do, exiting."])
    exit 0
+fi
+
+## Check for DBUS support
+if test $DBUSP = yes; then
+   DBUS_FILE="(:file \"experimental/dbus\")"
+   DBUS_IMPORT_FILE="(:file \"experimental/dbus-import\")"
 fi
 
 # Checks for programs.
@@ -149,15 +166,15 @@ fi
 ## If lisp implementation not set
 if test "x$LISP_NAME" = "xany"; then
    if test "$SBCL"; then
-      LISP=sbcl
+      LISP_NAME=sbcl
    elif test "$CMUCL"; then
-      LISP=cmucl
+      LISP_NAME=cmucl
    elif test "$CLISP"; then
-      LISP=clisp
+      LISP_NAME=clisp
    elif test "$CCL"; then
-      LISP=ccl
+      LISP_NAME=ccl
    elif test "$ECL"; then
-      LISP=ecl
+      LISP_NAME=ecl
    fi
 fi
 
@@ -179,18 +196,15 @@ if test "x$LISP_NAME" = "xsbcl"; then
    LISP_EVAL="--eval"
    LISP_LOAD="--load"
    LISP_EXIT="(sb-ext:quit)"
-   LISP_COMMON_OPTIONS="--disable-debugger $LISP_EXTRA_OPTIONS $LISP_EVAL '(require :asdf)' $LISP_LOAD ./dswm.asd"
-   if test "$QLP" = "yes"; then
-      LISP_QL_OPTIONS="$LISP_LOAD ../contrib/quicklisp.lisp $LISP_EVAL '(quicklisp-quickstart:install)' $LISP_EVAL '(dolist (v (list $DSWM_DEPS)) (ql:quickload v))'"
+   if test $DEBUG = no; then
+      LISP_DEBUG="--disable-debugger"
    fi
+   LISP_COMMON_OPTIONS="$LISP_DEBUG $LISP_EXTRA_OPTIONS $LISP_EVAL '(require :asdf)' $LISP_LOAD \$(abs_top_srcdir)/src/dswm.asd"
 dnl elif test "x$LISP_NAME" = "xcmucl"; then
 dnl    LISP_PROGRAM=$CMUCL
 dnl    LISP_EVAL="-eval"
 dnl    LISP_LOAD="-load"
 dnl    LISP_COMMON_OPTIONS=""
-dnl    if test "$QLP" = "yes"; then
-dnl       LISP_QL_OPTIONS="$LISP_LOAD ../contrib/quicklisp.lisp $LISP_EVAL '(quicklisp-quickstart:install)' $LISP_EVAL '(dolist (v (list $DSWM_DEPS)) (ql:quickload v))'"
-dnl    fi
 dnl    LISP_BUILD_OPTIONS="$LISP_EXTRA_OPTIONS -batch -load ./make-image.lisp -eval \"(quit)\""
 dnl    LISP_INFO_OPTIONS="-eval \"(progn (require :asdf) (require :dswm) (load \"manual.lisp\"))\" -eval '(progn (dswm::generate-manual) (quit))'"
 elif test "x$LISP_NAME" = "xclisp"; then
@@ -199,10 +213,7 @@ elif test "x$LISP_NAME" = "xclisp"; then
    LISP_EVAL="-x"
    LISP_LOAD="-i"
    LISP_EXIT="(quit)"
-   LISP_COMMON_OPTIONS="-K $CLISP_LINK $LISP_EXTRA_OPTIONS -modern -on-error exit $LISP_LOAD ../contrib/asdf.lisp $LISP_EVAL \"(require :asdf)\" $LISP_LOAD dswm.asd"
-   if test "$QLP" = "yes"; then
-      LISP_QL_OPTIONS="$LISP_LOAD ../contrib/quicklisp.lisp $LISP_EVAL '(quicklisp-quickstart:install)' $LISP_EVAL '(dolist (v (list $DSWM_DEPS)) (ql:quickload v))'"
-   fi
+   LISP_COMMON_OPTIONS="-K $CLISP_LINK $LISP_EXTRA_OPTIONS -modern -on-error exit $LISP_LOAD \$(abs_top_srcdir)/contrib/asdf/asdf.lisp $LISP_EVAL \"(require :asdf)\" $LISP_LOAD dswm.asd"
 dnl elif test "x$LISP_NAME" = "xccl"; then
 dnl    LISP_PROGRAM=$CCL
 dnl       LISP_EVAL=
@@ -210,7 +221,6 @@ dnl    LISP_LOAD=
 dnl    LISP_COMMON_OPTIONS=
 dnl    LISP_BUILD_OPTIONS="$LISP_EXTRA_OPTIONS --eval '(require :asdf)' --load dswm.asd --load ./make-image.lisp"
 dnl    LISP_INFO_OPTIONS="--eval \"(progn (require :asdf) (require :dswm))\" --load manual.lisp --eval \"(progn (dswm::generate-manual) (quit))\""
-
 dnl elif test "x$LISP_NAME" = "xecl"; then
 dnl    LISP_PROGRAM=$ECL
 dnl       LISP_EVAL=
@@ -220,6 +230,9 @@ dnl    LISP_BUILD_OPTIONS="$LISP_EXTRA_OPTIONS -shell ./make-image.lisp"
 dnl    LISP_INFO_OPTIONS="-eval '(progn (require :asdf) (require :dswm) (load \"manual.lisp\"))' -eval '(progn (dswm::generate-manual) (ext:quit))'"   
 fi
 
+if test "$QLP" = "yes"; then
+   LISP_QL_OPTIONS="$LISP_LOAD \$(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp $LISP_EVAL '(quicklisp-quickstart:install)' $LISP_EVAL '(dolist (v (list $DSWM_DEPS)) (ql:quickload v))'"
+fi
 LISP_BUILD_OPTIONS="$LISP_COMMON_OPTIONS $LISP_QL_OPTIONS $LISP_LOAD ./make-image.lisp"
 LISP_INFO_OPTIONS="$LISP_COMMON_OPTIONS $LISP_EVAL '(progn (require :dswm) (load \"manual.lisp\"))' $LISP_EVAL \"(progn (dswm::generate-manual) $LISP_EXIT)\""
 
@@ -263,7 +276,9 @@ AC_HAVE_LIBRARY(fixposix, ,
 ### AC_CONFIG_SUBDIRS([src])
 # AC_OUTPUT
 AC_OUTPUT(Makefile src/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile)
-AC_OUTPUT(src/module.lisp src/help.lisp src/loader.lisp)
+AC_OUTPUT(src/module.lisp src/help.lisp src/loader.lisp src/dswm.asd)
 AC_OUTPUT(scripts/loader.sh)
 AC_OUTPUT(etc/dswm.desktop)
 AC_OUTPUT(doc/dswm.texi)
+
+# # TODO: add ‘lispdir’ for emacs lisp files to build

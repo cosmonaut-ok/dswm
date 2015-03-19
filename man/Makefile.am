@@ -1,1 +1,1 @@
-man_MANS = dswm.1
+# man_MANS = dswm.1

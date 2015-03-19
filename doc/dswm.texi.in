@@ -487,7 +487,7 @@ Go to the next group in the list.
 @item PREF g !
 Prompt for a shell command to run via @file{/bin/sh} in new group with same name. All output is discarded.
 
-@item PREF g '@'
+@item PREF g \@
 Prompt for a shell command to run via @file{/bin/sh} in new float group with same name. All output is discarded.
 
 @item PREF g n

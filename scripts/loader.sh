@@ -20,9 +20,11 @@
 
 ## Code
 
+prefix=/usr/local
+datarootdir=${prefix}/share
 ME="$0"
-LOADER="@DSWMSOURCEDIR@/loader.lisp"
-[ ! -z $LISP ] || LISP=
+LOADER="${datarootdir}/dswm/source//loader.lisp"
+[ ! -z $LISP ] || LISP=/usr/bin/sbcl
 
 load_lisp() {
     lisp_exec="$1"

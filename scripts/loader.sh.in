@@ -20,8 +20,10 @@
 
 ## Code
 
+prefix=@prefix@
+datarootdir=@datarootdir@
 ME="$0"
-LOADER="@DSWMSOURCEDIR@/loader.lisp"
+LOADER="@DSWM_SOURCE_DIR@/loader.lisp"
 [ ! -z $LISP ] || LISP=@LISP_PROGRAM@
 
 load_lisp() {

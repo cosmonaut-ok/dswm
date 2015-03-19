@@ -29,7 +29,7 @@
 
 ;;; We need to install lisp
 #-asdf
-(require :asdf #+clisp '(#P"@DSWMSOURCEDIR@/asdf.lisp"))
+(require :asdf #+clisp '(#P"@DSWM_SOURCE_DIR@/asdf.lisp"))
 
 #+(or :clisp :ecl :cmucl) (require "clx") ;; because clisp, cmucl and ecl uses it's own CLX module
 
