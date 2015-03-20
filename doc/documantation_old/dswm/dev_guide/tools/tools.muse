@@ -1,0 +1,2 @@
+http://alexott.net/common/emacs/dokuwiki.el
+http://kanis.fr/hg/lisp/muse/

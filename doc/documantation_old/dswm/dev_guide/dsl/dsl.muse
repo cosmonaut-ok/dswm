@@ -1,0 +1,38 @@
+* Deep Space Language specifications
+
+** Language constructions
+
+**add** - add some element to elements list
+**remove** - remove some element from list
+
+**set** - set some element
+**unset** - unset some element (reset to default value)
+
+_Cycles_
+
+***NOTE: internal variable is _element_***
+**for** element1 element2 element3 element4 ...
+<some operation1>
+<some operation2>
+...
+**end**
+
+_branching_
+
+***TODO: create and/or logic***
+
+**if** test1 and test2 or test3
+<some operation1>
+<some operation2>
+...
+[else] [else if tests]
+<some operation3>
+<some operation4>
+...
+[else]
+<some operation5>
+<some operation6>
+...
+**end**
+
+_using emacs muse syntax_ !!!

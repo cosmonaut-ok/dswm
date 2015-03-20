@@ -1,0 +1,378 @@
+*** File: module.lisp.in
+***variable*** *list-modules-dir* (list (string-as-directory "@prefix@/share/dswm/modules"))
+
+*** File: asdf.lisp
+***variable*** *asdf-revision* (let* ((v "$Revision: 1.109 $")
+***variable*** *compile-file-warnings-behaviour* :warn)
+***variable*** *compile-file-failure-behaviour* #+sbcl :error #-sbcl :warn)
+***variable*** *verbose-out* nil)
+***parameter*** +asdf-methods+
+***variable*** *defined-systems* (make-hash-table :test 'equal))
+***variable*** *system-definition-search-functions*
+***variable*** *central-registry*
+***variable*** *serial-depends-on*)
+
+*** File: user.lisp
+***variable*** *path-cache* nil
+
+*** File: bindings.lisp
+***variable*** *escape-key* (kbd "C-j")
+***variable*** *escape-fake-key* (kbd "j")
+***variable*** *root-map* nil
+***variable*** *groups-map* nil
+***variable*** *help-map* nil
+***variable*** *group-top-maps* '((tile-group *tile-group-top-map*)
+***variable*** *group-top-map* nil)
+***variable*** *group-root-map* nil)
+***variable*** *tile-group-top-map* nil)
+***variable*** *tile-group-root-map* nil)
+***variable*** *float-group-top-map* nil)
+***variable*** *float-group-root-map* nil)
+
+*** File: version.lisp.in
+***parameter*** *version*
+
+*** File: keytrans.lisp
+***variable*** *dswm-name->keysym-name-translations* (make-hash-table :test #'equal)
+
+*** File: dswm.conf
+;; (defvar *window-border-style* :thick)
+
+*** File: mode-line.lisp
+***variable*** *mode-line-position* :top
+***variable*** *mode-line-border-width* 1
+***variable*** *mode-line-pad-x* 5
+***variable*** *mode-line-pad-y* 1
+***variable*** *mode-line-background-color* "SteelBlue"
+***variable*** *mode-line-foreground-color* "White"
+***variable*** *mode-line-border-color* "Black"
+***variable*** *hidden-window-color* "^5*"
+***variable*** *screen-widget-line-format* "%d[%g]")
+***variable*** *screen-window-list-line-format* "%U%W")
+***variable*** *screen-mode-line-format* (format nil "~a~%~a" *screen-widget-line-format* *screen-window-list-line-format*)
+***variable*** *screen-mode-line-formatters* '((#\w fmt-window-list)
+***variable*** *current-mode-line-formatters* nil
+***variable*** *current-mode-line-formatter-args* nil
+***variable*** *mode-line-timeout* 1
+***variable*** *mode-line-timer* nil
+***variable*** *mode-line-blinker* nil
+***variable*** *bar-med-color* "^B")
+***variable*** *bar-hi-color* "^B^3*")
+***variable*** *bar-crit-color* "^B^1*")
+***variable*** *alt-prev-index* 0)
+***variable*** *alt-prev-time* 0)
+***variable*** *scroll-prev-index* 0)
+***variable*** *scroll-prev-time* 0)
+***variable*** *scroll-prev-dir* :forward)
+
+*** File: time.lisp
+***variable*** *time-format-string-default* "%a %b %e %k:%M:%S"
+***variable*** *time-modeline-string* "%a %b %e %k:%M:%S"
+***variable*** *time-month-names*
+***variable*** *time-day-names*
+***variable*** *time-format-string-alist*
+
+*** File: keysyms.lisp
+***variable*** *keysym-name-translations* (make-hash-table))
+***variable*** *name-keysym-translations* (make-hash-table :test #'equal))
+
+*** File: floating-group.lisp
+;; (defvar +default-frame-outline-width+ 1)
+***variable*** *float-window-title-height* 10)
+
+*** File: dswm.lisp
+***variable*** *timer-list* nil
+
+*** File: menu.lisp
+***variable*** *menu-map* nil
+***variable*** *current-menu-input* nil)
+
+*** File: message-window.lisp
+***variable*** *lastmsg-nth* nil)
+
+*** File: window.lisp
+***variable*** *default-window-name* "Unnamed"
+
+*** File: events.lisp
+***parameter*** *event-fn-table* (make-hash-table)
+
+*** File: modules/mem.lisp
+***variable*** *mem-usage-bar-width* 10)
+***variable*** *mem-usage-bar-full* #\#)
+***variable*** *mem-usage-bar-empty* #\:)
+
+*** File: modules/cpu.lisp
+***variable*** *cpu-usage-bar-width* 10)
+***variable*** *cpu-usage-bar-full* #\#)
+***variable*** *cpu-usage-bar-empty* #\:)
+***variable*** *prev-user-cpu* 0)
+***variable*** *prev-sys-cpu* 0)
+***variable*** *prev-idle-cpu* 0)
+***variable*** *prev-iowait* 0)
+***variable*** *prev-result* '(0 0 0))
+***variable*** *prev-time* 0)
+***variable*** *acpi-thermal-zone* (first (last
+
+*** File: modules/net.lisp
+***variable*** *net-device* nil) ; nil means auto. or specify explicitly, i.e. "wlan0"
+***variable*** *net-last-rx* 0)
+***variable*** *net-last-tx* 0)
+***variable*** *net-last-time* nil)
+***variable*** *net-rx* nil)
+***variable*** *net-tx* nil)
+***variable*** *net-time* nil)
+***constant*** +iface+ 0)
+***constant*** +destination+ 1)
+***constant*** +gateway+ 2)
+***constant*** +flags+ 3)
+***constant*** +mask+ 7)
+***constant*** +ipv4-zero+ "00000000")
+***variable*** *last-route-rescan-time* (now))
+***variable*** *last-route-device* nil)
+
+*** File: modules/disk.lisp
+***variable*** *disk-usage* nil)
+***variable*** *disk-usage-paths* '("/"))
+***variable*** *disk-formatters-alist*
+***variable*** *disk-modeline-fmt* "%m: %u/%s"
+
+*** File: modules/battery-portable.lisp
+***variable*** *refresh-time* 5
+***variable*** *prefer-sysfs* t
+
+*** File: modules/wifi.lisp
+***variable*** *iwconfig-path* "/sbin/iwconfig"
+***variable*** *wireless-device* nil
+
+*** File: modules/web.lisp
+***variable*** *default-geolocation* "ua"
+***variable*** *default-wiki-engine* "wikipedia"
+***variable*** *default-search-engine* "google"
+***variable*** *default-dict-engine* "reference"
+***variable*** *google-translate-languages* '("en" "uk")
+***variable*** *engines-list*
+***variable*** *hyperbookmarks-list* nil
+***variable*** *hyperbookmarks-browsers-list* '("firefox" "chromium" "opera"
+***variable*** *hyperbookmarks-file* (data-dir-file "hyperbookmarks" "list")
+
+*** File: modules/maildir.lisp
+***variable*** *maildir-timer* nil)
+***variable*** *maildir-update-time* 900
+***variable*** *maildir-path*
+***variable*** *maildir-new* '()
+***variable*** *maildir-cur* '()
+***variable*** *maildir-tmp* '()
+***variable*** *maildir-formatters-alist*
+***variable*** *maildir-modeline-fmt* "%n %c"
+
+*** File: modules/productivity.lisp
+***variable*** *productivity-mode-is-on* nil
+***variable*** *productivity-keys* '(("C-t" *root-map*))
+***variable*** *productivity-stop-message* "Break time!"
+***variable*** *productivity-start-message* "Get to work!"
+***variable*** *productivity-back-to-work-message* "Get back to work!"
+***variable*** *stump-key* (kbd "C-j")
+***variable*** *stump-fake-key* (kbd "j")
+***variable*** *stump-map* nil
+
+*** File: modules/mpd.lisp
+***parameter*** *mpd-socket* nil)
+***parameter*** *mpd-server*
+***parameter*** *mpd-port* 6600)
+***parameter*** *mpd-password* nil)
+***variable*** *mpd-timeout* 50)
+***variable*** *mpd-timer* nil)
+***variable*** *mpd-collapse-album-length* nil)
+***variable*** *mpd-collapse-all-length* nil)
+***parameter*** *mpd-current-song* nil)
+***parameter*** *mpd-status* nil)
+***variable*** *mpd-formatters-alist*
+***variable*** *mpd-current-song-fmt* "%a
+***variable*** *mpd-status-fmt* "%S [%s;%r;%F]"
+***variable*** *mpd-modeline-fmt* "%S [%s;%r;%F]: %a - %A - %t (%n/%p)"
+***variable*** *mpd-volume-step* 5)
+***variable*** *mpd-playlist-menu-map* nil)
+***variable*** *mpd-browse-menu-map* nil)
+***variable*** *mpd-xfade-default* 5
+***variable*** *mpd-search-map* nil)
+***variable*** *mpd-browse-map* nil)
+***variable*** *mpd-add-map* nil)
+***variable*** *mpd-map* nil)
+
+*** File: modules/notifications.lisp
+***parameter*** *notifications-delimiters* '("[" "]"))
+***variable*** notifications nil
+***variable*** *notifications-map*
+
+*** File: modules/battery.lisp
+***variable*** *bat-state* nil)
+***variable*** *bat-remain* 0)
+***variable*** *bat-remain-time* nil)
+***variable*** *bat-prev-time* 0)
+***variable*** *battery-name* "BAT0")
+
+*** File: modules/aumix.lisp
+***variable*** *aumix-program* "/usr/bin/aumix")
+***variable*** *aumix-channels*
+
+*** File: modules/dswm-mode.el
+***variable*** dswm-shell-program "dsish"
+
+*** File: modules/wmii-like-dswmrc.lisp
+***variable*** *terminal* "xterm"
+
+*** File: window-placement.lisp
+***variable*** *rule-scanners-cache* (make-hash-table :test 'equal)
+
+*** File: scratchpad.lisp
+***variable*** *scratchpad-group* '()
+
+*** File: command.lisp
+***variable*** *command-hash* (make-hash-table :test 'eq)
+***variable*** *max-command-alias-depth* 10
+***variable*** *command-type-hash* (make-hash-table)
+
+*** File: test-wm.lisp
+***parameter*** *current-test-num* 0)
+***parameter*** *tests* nil)
+***variable*** *dpy* nil)
+
+*** File: kmap.lisp
+***variable*** *top-map* nil
+\(defvar *my-frame-bindings*
+***variable*** *top-map-list* nil)
+
+*** File: test.lisp
+***parameter*** *argv*
+
+*** File: iresize.lisp
+***variable*** *resize-backup* nil)
+***variable*** *resize-increment* 10
+
+*** File: group.lisp
+***variable*** *default-group-type* 'tile-group
+
+*** File: primitives.lisp
+***variable*** *suppress-abort-messages* nil
+***variable*** *timeout-wait* 5
+***variable*** *timeout-frame-indicator-wait* 1
+***variable*** *frame-indicator-timer* nil
+***variable*** *frame-indicator-text* " Current Frame "
+***variable*** *suppress-frame-indicator* nil
+***variable*** *message-window-timer* nil
+***variable*** *urgent-window-hook* '()
+***variable*** *map-window-hook* '()
+***variable*** *unmap-window-hook* '()
+***variable*** *new-window-hook* '()
+***variable*** *destroy-window-hook* '()
+***variable*** *focus-window-hook* '()
+***variable*** *place-window-hook* '()
+***variable*** *start-hook* '()
+***variable*** *internal-loop-hook* '()
+***variable*** *focus-frame-hook* '()
+***variable*** *new-frame-hook* '()
+***variable*** *message-hook* '()
+***variable*** *top-level-error-hook* '()
+***variable*** *focus-group-hook* '()
+***variable*** *key-press-hook* '()
+***variable*** *root-click-hook* '()
+***variable*** *mode-line-click-hook* '()
+***variable*** *display* nil
+***variable*** *shell-program* "/bin/sh"
+***variable*** *terminal* "xterm"
+***variable*** *browser* "conkeror"
+***variable*** *emacs* "emacs"
+***variable*** *maxsize-border-width* 1
+***variable*** *transient-border-width* 1
+***variable*** *normal-border-width* 1
+***variable*** *text-color* "white"
+***parameter*** +netwm-supported+
+***parameter*** +netwm-allowed-actions+
+***parameter*** +netwm-window-types+
+***constant*** +withdrawn-state+ 0)
+***constant*** +normal-state+ 1)
+***constant*** +iconic-state+ 3)
+***variable*** *window-events* '(:structure-notify
+***variable*** *window-parent-events* '(:substructure-notify
+***variable*** *message-window-padding* 5
+***variable*** *message-window-gravity* :top-right
+***variable*** *editor-bindings* nil
+***variable*** *input-window-gravity* :bottom-left
+***parameter*** +default-foreground-color+ "White")
+***parameter*** +default-background-color+ "SteelBlue")
+***parameter*** +default-window-background-color+ "Black")
+***parameter*** +default-border-color+ "Black")
+***parameter*** +default-font-name+ "9x15bold")
+***parameter*** +default-focus-color+ "SteelBlue")
+***parameter*** +default-unfocus-color+ "Gray")
+***parameter*** +default-frame-outline-width+ 2)
+***variable*** *normal-gravity* :center)
+***variable*** *maxsize-gravity* :center)
+***variable*** *transient-gravity* :center)
+***variable*** *top-level-error-action* :abort
+***variable*** *window-name-source* :title
+***variable*** *frame-number-map* "123456789abcdefghijklmnopqrstuvxwyz"
+***variable*** *all-modifiers* nil
+***variable*** *modifiers* nil
+***variable*** *screen-list* '()
+***variable*** *initializing* nil
+***variable*** *processing-existing-windows* nil
+***variable*** *executing-dswm-command* nil
+***variable*** *interactivep* nil
+***variable*** *debug-level* 0
+***variable*** *debug-expose-events* nil
+***variable*** *debug-stream* *error-output*
+***variable*** *redirect-stream* nil
+***variable*** *window-formatters* '((#\n window-number)
+***variable*** *window-format* "%m%n%s%15t..."
+***variable*** *window-info-format* "%wx%h %n (%t)"
+***variable*** *group-formatters* '((#\n group-number)
+***variable*** *group-format* "%n%s%t"
+***variable*** *list-hidden-groups* nil
+***variable*** *x-selection* nil
+***variable*** *last-command* nil
+***variable*** *max-last-message-size* 20
+***variable*** *record-last-msg-override* nil
+***variable*** *suppress-echo-timeout* nil
+***variable*** *ignore-echo-timeout* nil
+***variable*** *run-or-raise-all-groups* t
+***variable*** *run-or-raise-all-screens* nil
+***variable*** *deny-map-request* nil
+***variable*** *deny-raise-request* nil
+***variable*** *suppress-deny-messages* nil
+***variable*** *honor-window-moves* t
+***variable*** *resize-hides-windows* nil
+***variable*** *min-frame-width* 50
+***variable*** *min-frame-height* 50
+***variable*** *new-frame-action* :last-window
+***variable*** *new-window-preferred-frame* '(:focused)
+***variable*** *startup-message* "^7*Welcome to The ^BD^beep ^BS^bpace ^BW^bindow ^BM^banager!
+***variable*** *default-package* (find-package '#:dswm-user)
+***variable*** *window-placement-rules* '()
+***variable*** *mouse-focus-policy* :sloppy
+***variable*** *root-click-focuses-frame* nil
+***variable*** *banish-pointer-to* :head
+***variable*** *xwin-to-window* (make-hash-table)
+***variable*** *resize-map* nil
+***variable*** *default-group-name* "Main"
+***variable*** *last-unhandled-error* nil
+***variable*** *show-command-backtrace* nil
+***variable*** *window-border-style* :thick
+***variable*** *data-dir* (make-pathname :directory (append (pathname-directory (user-homedir-pathname))
+
+*** File: color.lisp
+***variable*** *colors*
+***variable*** *color-map* nil)
+***variable*** *foreground* nil)
+***variable*** *background* nil)
+***variable*** *reverse* nil)
+***variable*** *color-stack* '())
+
+*** File: input.lisp
+***variable*** *input-map* nil
+***variable*** *input-history* nil
+***variable*** *input-last-command* nil
+***variable*** *input-completions* nil
+***variable*** *input-current-completions* nil
+***variable*** *input-current-completions-idx* nil
+***variable*** *input-history-ignore-duplicates* nil

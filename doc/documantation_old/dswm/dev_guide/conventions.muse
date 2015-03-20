@@ -1,0 +1,7 @@
+Convensions and developers recomendations
+
+Code writing:
+
+function names:
+
+commands:

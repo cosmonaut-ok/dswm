@@ -1,0 +1,39 @@
+Deep Space Language specifications
+
+destructing imperatives:
+
+add <value1> <value2> <value3> ... to <envelope name>
+remove <value1> <value2> <value3> ... from <envelope name>
+put <value> to <envelope name>
+get <envelope name>
+reset <envelope name>
+
+Functions, procedures and variables unified to 'envelopes'
+Envelope types: data, code. Data types: atom, list
+
+put instructions
+<instructions (in fact, code body)>
+to <envelope name>
+
+put instructions with parameters <parameter1> <parameter2> <parameter3>
+<instructions>
+to <envelope name>
+
+put list
+<element1> <element2>
+<element3>
+to <envelope name>
+
+put list <element1> <element2> <element3> to <envelope name>
+
+put "zzz" to <envelope name>
+
+Equations
+is
+is not, isn't
+more than
+less than
+
+cycles
+for <element1> <element2> <element3>
+

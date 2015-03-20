@@ -1,0 +1,21 @@
+---
+^^^
+|||--Freezed (+-)
+||---In Progress (+-)
+|----Done (+-)
+
+
+============================================
+--- install https://fosswiki.liip.ch/display/DOKU/Installation
+============================================
+--- Rename dump-restore commands and functions:
+function: dump-window-placement-rules-to-file
+command: dump-rules (dump-window-placement-rules-to-file with parameter)
+
+function: restore-window-placement-rules-from-file (restore-rules-from-file)
+command: restore-rules (restore-window-placement-rules-from-file with parameter)
+
+also:
+commands: {dump,restore}-{group,screen,desktop} as call {dump,restore}-{group,screen,desktop}-{from,to}-file with parameter
+
+commands: {dump,restore}-state - Command dumps and restore all frames and window placement rules

@@ -1,0 +1,110 @@
+** Generic functions
+*** File: mode-line.lisp
+***generic function*** mode-line-format-elt (elt))
+
+*** File: window.lisp
+***generic function*** update-decoration (window)
+***generic function*** focus-window (window)
+***generic function*** raise-window (window)
+***generic function*** window-visible-p (window)
+***generic function*** window-sync (window what-changed)
+***generic function*** window-head (window)
+
+*** File: modules/battery-portable.lisp
+***generic function*** all-batteries (method)
+***generic function*** state-of (battery)
+
+*** File: group.lisp
+***generic function*** group-startup (group)
+***generic function*** group-add-window (group window &key &allow-other-keys)
+***generic function*** group-delete-window (group window)
+***generic function*** group-wake-up (group)
+***generic function*** group-suspend (group)
+***generic function*** group-current-window (group)
+***generic function*** group-current-head (group)
+***generic function*** group-resize-request (group window width height)
+***generic function*** group-move-request (group window x y relative-to)
+***generic function*** group-raise-request (group window type)
+***generic function*** group-lost-focus (group)
+***generic function*** group-indicate-focus (group)
+***generic function*** group-focus-window (group win)
+***generic function*** group-button-press (group x y child)
+***generic function*** group-root-exposure (group)
+***generic function*** group-add-head (group)
+***generic function*** group-sync-head (group head)
+
+** Methods
+*** File: floating-group.lisp
+***method*** (setf window-x) :before (val (window float-window))
+***method*** (setf window-y) :before (val (window float-window))
+***method*** (setf window-width) :before (val (window float-window))
+***method*** (setf window-height) :before (val (window float-window))
+***method*** update-decoration ((window float-window))
+***method*** window-sync ((window float-window) hint)
+***method*** window-head ((window float-window))
+***method*** window-visible-p ((win float-window))
+***method*** (setf window-fullscreen) :after (val (window float-window))
+***method*** group-startup ((group float-group))
+***method*** group-add-window ((group float-group) window &key &allow-other-keys)
+***method*** group-delete-window ((group float-group) window)
+***method*** group-wake-up ((group float-group))
+***method*** group-suspend ((group float-group))
+***method*** group-current-window ((group float-group))
+***method*** group-current-head ((group float-group))
+***method*** group-resize-request ((group float-group) window width height)
+***method*** group-move-request ((group float-group) window x y relative-to)
+***method*** group-raise-request ((group float-group) window type)
+***method*** group-lost-focus ((group float-group))
+***method*** group-indicate-focus ((group float-group))
+***method*** group-focus-window ((group float-group) window)
+***method*** group-root-exposure ((group float-group))
+***method*** group-add-head ((group float-group))
+***method*** group-sync-head ((group float-group) head)
+***method*** group-button-press ((group float-group) x y (window float-window))
+***method*** group-button-press ((group float-group) x y where)
+
+*** File: tile-window.lisp
+***method*** update-decoration ((window tile-window))
+***method*** window-sync ((window tile-window) hint)
+***method*** window-visible-p ((window tile-window))
+***method*** window-head ((window tile-window))
+***method*** (setf window-fullscreen) :after (val (window tile-window))
+
+*** File: window.lisp
+***method*** print-object ((object window) stream)
+***method*** raise-window (win)
+***method*** focus-window (window)
+
+*** File: modules/battery-portable.lisp
+***method*** update-info ((battery procfs-battery))
+***method*** info-value ((battery procfs-battery) key)
+***method*** info-value-int ((battery procfs-battery) key)
+***method*** all-batteries ((method procfs-method))
+***method*** state-of ((battery procfs-battery))
+***method*** all-batteries ((m sysfs-method))
+***method*** state-of ((battery sysfs-battery))
+
+*** File: tile-group.lisp
+***method*** initialize-instance :after ((group tile-group) &key &allow-other-keys)
+***method*** group-startup ((group tile-group))
+***method*** group-wake-up ((group tile-group))
+***method*** group-delete-window ((group tile-group) window)
+***method*** group-add-window ((group tile-group) window &key frame raise &allow-other-keys)
+***method*** group-current-window ((group tile-group))
+***method*** group-current-head ((group tile-group))
+***method*** group-move-request ((group tile-group) window x y relative-to)
+***method*** group-resize-request ((group tile-group) window width height)
+***method*** group-raise-request ((group tile-group) window stack-mode)
+***method*** group-lost-focus ((group tile-group))
+***method*** group-indicate-focus ((group tile-group))
+***method*** group-focus-window ((group tile-group) win)
+***method*** group-button-press ((group tile-group) x y (where (eql :root)))
+***method*** group-button-press ((group tile-group) x y (where window))
+***method*** group-root-exposure ((group tile-group))
+***method*** group-add-head ((group tile-group))
+***method*** group-sync-head ((group tile-group) head)
+
+*** File: primitives.lisp
+***method*** print-object ((object frame) stream)
+***method*** print-object ((object screen) stream)
+
