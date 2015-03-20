@@ -1,0 +1,150 @@
+#+TITLE: This is the title of the document
+
+* Table of contents
+  
+#+OPTIONS: toc:2          (only to two levels in TOC)
+#+OPTIONS: toc:nil        (no TOC at all)
+
+
+* header 1
+
+** header 2
+
+*** header 3
+
+:LOGBOOK:
+
+:END:
+
+** List:
+
+1. list main item1
+2. ALt+Enter can number it automatic
+ - subitem 1
+ - subitem 2
+   biiig item (Enter then <Tab>
+ - Another subitem
+ - term :: subitem with term
+  + sub-subitem
+ - Control+Enter returns to upper level
+
+** Paragraphs, citates, line-brakers etc
+
+#+BEGIN_VERSE
+   Great clouds overhead
+   Tiny black birds rise and fall
+   Snow covers Emacs
+   
+   -- AlexSchroeder
+#+END_VERSE
+
+When quoting a passage from another document, it is customary to format this as a paragraph that is indented on both the left and the right margin. You can include quotations in Org-mode documents like this:
+
+#+BEGIN_QUOTE
+Everything should be made as simple as possible,
+but not any simpler -- Albert Einstein
+#+END_QUOTE
+
+If you would like to center some text, do it like this:
+
+#+BEGIN_CENTER
+Everything should be made as simple as possible, \\
+but not any simpler
+#+END_CENTER
+
+** Footnotes
+The Org homepage[fn:1] now looks a lot better than it used to. Use C-c C-x f to create footnote
+
+[fn:1] link is http://orgmode.org
+
+ololo[fn:name]
+
+[fn:name] ololo
+
+[1]
+    A plain numeric footnote marker. Compatible with footnote.el, but not recommended because something like ‘[1]’ could easily be part of a code snippet.
+[fn:name]
+    A named footnote reference, where name is a unique label word, or, for simplicity of automatic creation, a number.
+[fn:: This is the inline definition of this footnote]
+    A LaTeX-like anonymous footnote where the definition is given directly at the reference point.
+[fn:name: a definition]
+    An inline definition of a footnote, which also specifies a name for the note. Since Org allows multiple references to the same note, you can then use [fn:name] to create additional references. 
+
+
+
+** Emphasis and monospace
+
+You can make words *bold*, /italic/, _underlined_, =code= and ~verbatim~, and, if you must, ‘+strike-through+’. Text in the code and verbatim string is not processed for Org-mode specific syntax; it is exported verbatim. 
+
+** Horizontal rules
+
+A line consisting of only dashes, and at least 5 of them, will be exported as a horizontal line (‘<hr/>’ in HTML and \hrule in LaTeX). 
+
+
+
+
+** Comment lines
+
+Lines starting with ‘#’ in column zero are treated as comments and will never be exported. If you want an indented line to be treated as a comment, start it with ‘#+ ’. Also entire subtrees starting with the word ‘COMMENT’ will never be exported. Finally, regions surrounded by 
+#+BEGIN_COMMENT
+ ... 
+#+END_COMMENT
+ will not be exported.
+
+#Comment
+
+C-c ;
+    Toggle the COMMENT keyword at the beginning of an entry. 
+
+** Tables
+#+CAPTION: This is the caption for the next table (or link)
+#+LABEL:   tbl:basic-data
+ | Name  | Phone | Age |
+ |-------+-------+-----|
+ | Peter |  1234 |  17 |
+ |       |       |     |
+ |-------+-------+-----|
+
+http://orgmode.org/manual/Built_002din-table-editor.html#Built_002din-table-editor
+
+#+CAPTION: This is the caption for the next figure link (or table)
+#+LABEL:   fig:SED-HR4049
+#+BEGIN_QUOTE
+ [[./img/a.jpg]]
+#+END_QUOTE
+
+** Include files
+
+During export, you can include the content of another file. For example, to include your .emacs file, you could use:
+
+#+INCLUDE: "~/.emacs" src emacs-lisp
+
+The optional second and third parameter are the markup (e.g. ‘quote’, ‘example’, or ‘src’), and, if the markup is ‘src’, the language for formatting the contents. The markup is optional; if it is not given, the text will be assumed to be in Org-mode format and will be processed normally. The include line will also allow additional keyword parameters :prefix1 and :prefix to specify prefixes for the first line and for each following line, :minlevel in order to get org-mode content demoted to a specified level, as well as any options accepted by the selected markup. For example, to include a file as an item, use
+
+#+INCLUDE: "~/snippets/xx" :prefix1 "   + " :prefix "     "
+
+You can also include a portion of a file by specifying a lines range using the :lines parameter. The line at the upper end of the range will not be included. The start and/or the end of the range may be omitted to use the obvious defaults.
+
+#+INCLUDE: "~/.emacs" :lines "5-10"   Include lines 5 to 10, 10 excluded
+#+INCLUDE: "~/.emacs" :lines "-10"    Include lines 1 to 10, 10 excluded
+#+INCLUDE: "~/.emacs" :lines "10-"    Include lines from 10 to EOF
+
+C-c '
+    Visit the include file at point. 
+
+** Index entries
+
+You can specify entries that will be used for generating an index during publishing. This is done by lines starting with #+INDEX. An entry the contains an exclamation mark will create a sub item. See Generating an index for more information.
+
+#     * Curriculum Vitae
+#+INDEX: CV
+#+INDEX: Application!CV
+
+** Macro replacement
+
+You can define text snippets with
+
+#+MACRO: name   replacement text $1, $2 are arguments
+which can be referenced anywhere in the document (even in code examples) with {{{name(arg1,arg2)}}}. In addition to defined macros, {{{title}}}, {{{author}}}, etc., will reference information set by the #+TITLE:, #+AUTHOR:, and similar lines. Also, {{{date(FORMAT)}}} and {{{modification-time(FORMAT)}}} refer to current date time and to the modification time of the file being exported, respectively. FORMAT should be a format string understood by format-time-string.
+
+Macro expansion takes place during export, and some people use it to construct complex HTML code. 
