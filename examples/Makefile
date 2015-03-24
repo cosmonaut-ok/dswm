@@ -167,6 +167,7 @@ PACKAGE_URL =
 PACKAGE_VERSION = 20150325
 PATH_SEPARATOR = :
 QLP = yes
+QL_PATH = /tmp/.ql
 SBCL = /usr/bin/sbcl
 SET_MAKE = 
 SHELL = /bin/bash
