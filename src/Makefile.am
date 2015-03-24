@@ -86,6 +86,9 @@ dswm.static: $(FILES)
 	fi; fi
 	@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@
 
+deps:
+#	@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@
+
 install-exec-local: @MAKE_INSTALL_DEPS@
 
 install-data-local:

@@ -83,6 +83,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+build_triplet = @build@
+host_triplet = @host@
 bin_PROGRAMS = dswm$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -171,6 +173,7 @@ DBUS_FILE = @DBUS_FILE@
 DBUS_IMPORT_FILE = @DBUS_IMPORT_FILE@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
+DSWM_DATA_DIR = @DSWM_DATA_DIR@
 DSWM_SOURCE_DIR = @DSWM_SOURCE_DIR@
 ECHO_C = @ECHO_C@
 ECHO_N = @ECHO_N@
@@ -225,14 +228,23 @@ am__quote = @am__quote@
 am__tar = @am__tar@
 am__untar = @am__untar@
 bindir = @bindir@
+build = @build@
 build_alias = @build_alias@
+build_cpu = @build_cpu@
+build_os = @build_os@
+build_vendor = @build_vendor@
 builddir = @builddir@
 datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
+etcdir = $(sysconfdir)/xdg/
 exec_prefix = @exec_prefix@
+host = @host@
 host_alias = @host_alias@
+host_cpu = @host_cpu@
+host_os = @host_os@
+host_vendor = @host_vendor@
 htmldir = @htmldir@
 includedir = @includedir@
 infodir = @infodir@
@@ -256,7 +268,6 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-etcdir = $(sysconfdir)/xdg/
 
 # data_dir=$(DESTDIR)$(datarootdir)
 # DSWMSOURCEDIR=@DSWM_SOURCE_DIR@
@@ -625,6 +636,9 @@ dswm.static: $(FILES)
 		exit 1; \
 	fi; fi
 	@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@
+
+deps:
+#	@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@
 
 install-exec-local: @MAKE_INSTALL_DEPS@
 

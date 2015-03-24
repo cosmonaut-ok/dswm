@@ -1,2 +1,12 @@
-autoconf && aclocal && automake --add-missing --copy
+build dependencies: autotools (autoconf, automake, aclocal), git (optional), supported lisp implementation (sbcl/cmucl/clisp/lispworks/ecl), texinfo (optional: for manual)
 
+1. cd <path_to_dswm>
+<skip, if your lisp supports asdf>
+2.1. git submodule update --init
+2.2. cd contrib/asdf && make
+2.3. cd ../../
+<end skip>
+3 ./bootstrap
+4. ./configure [OPTIONS]
+5. make
+6. [sudo] make [DESTDIR=<destination_dir>] install

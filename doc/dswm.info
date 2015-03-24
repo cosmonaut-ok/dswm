@@ -455,7 +455,7 @@ The following is a list of keybindings.
      Prompt for a shell command to run via '/bin/sh' in new group with
      same name.  All output is discarded.
 
-'PREF g '''
+'PREF g \ '
      Prompt for a shell command to run via '/bin/sh' in new float group
      with same name.  All output is discarded.
 

@@ -83,6 +83,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+build_triplet = x86_64-unknown-linux-gnu
+host_triplet = x86_64-unknown-linux-gnu
 bin_PROGRAMS = dswm$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -152,12 +154,12 @@ am__define_uniq_tagged_files = \
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing aclocal-1.14
+ACLOCAL = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing aclocal-1.14
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing autoconf
-AUTOHEADER = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing autoheader
-AUTOMAKE = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing automake-1.14
+AUTOCONF = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing autoconf
+AUTOHEADER = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing autoheader
+AUTOMAKE = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing automake-1.14
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=none
@@ -169,8 +171,9 @@ CPPFLAGS =
 CYGPATH_W = echo
 DBUS_FILE = 
 DBUS_IMPORT_FILE = 
-DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150319\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150319\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150319\" -DHAVE_LIBFIXPOSIX=1
+DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150324\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150324\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150324\" -DHAVE_LIBFIXPOSIX=1
 DEPDIR = .deps
+DSWM_DATA_DIR = ${datarootdir}/dswm/
 DSWM_SOURCE_DIR = ${datarootdir}/dswm/source/
 ECHO_C = 
 ECHO_N = -n
@@ -192,7 +195,7 @@ LISP_NAME = sbcl
 LISP_PROGRAM = /usr/bin/sbcl
 LISP_SPECIAL_DEPS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing makeinfo
+MAKEINFO = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing makeinfo
 MAKE_ALL_DEPS = dswm.common dswm.static
 MAKE_INSTALL_DEPS = dswm.install dswm.static.install
 MAKE_UNINSTALL_DEPS = dswm.uninstall dswm.static.uninstall
@@ -202,22 +205,22 @@ OBJEXT = o
 PACKAGE = deep-space-window-manager
 PACKAGE_BUGREPORT = cosmonaut.ok@gmail.com
 PACKAGE_NAME = Deep Space Window Manager
-PACKAGE_STRING = Deep Space Window Manager 20150319
+PACKAGE_STRING = Deep Space Window Manager 20150324
 PACKAGE_TARNAME = deep-space-window-manager
 PACKAGE_URL = 
-PACKAGE_VERSION = 20150319
+PACKAGE_VERSION = 20150324
 PATH_SEPARATOR = :
 QLP = yes
 SBCL = /usr/bin/sbcl
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 20150319
+VERSION = 20150324
 XDPYINFO = yes
-abs_builddir = /home/cosmonaut/dev/dss/dswm2/src
-abs_srcdir = /home/cosmonaut/dev/dss/dswm2/src
-abs_top_builddir = /home/cosmonaut/dev/dss/dswm2
-abs_top_srcdir = /home/cosmonaut/dev/dss/dswm2
+abs_builddir = /home/cosmonaut/dev/dss/dswm/src
+abs_srcdir = /home/cosmonaut/dev/dss/dswm/src
+abs_top_builddir = /home/cosmonaut/dev/dss/dswm
+abs_top_srcdir = /home/cosmonaut/dev/dss/dswm
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -225,18 +228,27 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
+build = x86_64-unknown-linux-gnu
 build_alias = 
+build_cpu = x86_64
+build_os = linux-gnu
+build_vendor = unknown
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
+etcdir = $(sysconfdir)/xdg/
 exec_prefix = ${prefix}
+host = x86_64-unknown-linux-gnu
 host_alias = 
+host_cpu = x86_64
+host_os = linux-gnu
+host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/cosmonaut/dev/dss/dswm2/install-sh
+install_sh = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -251,17 +263,16 @@ psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
-sysconfdir = ${prefix}/etc
+sysconfdir = /etc
 target_alias = 
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
-etcdir = $(sysconfdir)/xdg/
 
 # data_dir=$(DESTDIR)$(datarootdir)
 # DSWMSOURCEDIR=${datarootdir}/dswm/source/
 # root_dir=${PWD}
-# dest_dir=dswm-20150319
+# dest_dir=dswm-20150324
 # linux_style_data_dir=$(DESTDIR)/usr/share/
 
 # dswm_SOURCES=$(shell cat dswm.asd | grep '\:file' | grep -vE '\;.*file' | grep -oE '\(\:.*\)' | grep -oE '\"[a-z,A-Z,0-9,.,-,_]*\"' | sed 's/^\"*/src\//g;s/\"/\.lisp/g')
@@ -323,9 +334,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/Makefile
+	  $(AUTOMAKE) --gnu src/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -626,6 +637,9 @@ dswm.static: $(FILES)
 	fi; fi
 	/usr/bin/sbcl   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load $(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp --eval '(quicklisp-quickstart:install)' --eval '(dolist (v (list "alexandria" "xembed" "cl-ppcre" "sb-posix" "clx" "cl-ppcre")) (ql:quickload v))' --load ./make-image.lisp
 
+deps:
+#	/usr/bin/sbcl   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load $(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp --eval '(quicklisp-quickstart:install)' --eval '(dolist (v (list "alexandria" "xembed" "cl-ppcre" "sb-posix" "clx" "cl-ppcre")) (ql:quickload v))' --load ./make-image.lisp
+
 install-exec-local: dswm.install dswm.static.install
 
 install-data-local:
@@ -640,21 +654,21 @@ clean-local:
 
 # # release:
 # # 	# TODO: We need to rewrite it!
-# # 	# git tag -a -m "version 20150319" 20150319
-# # 	git archive --format=tar --prefix=dswm-20150319/ HEAD > dswm-20150319.tar
-# # 	tar -xf dswm-20150319.tar
-# # 	rm -rf dswm-20150319/.git* dswm-20150319/autom4te.cache dswm-20150319/configure dswm-20150319/Makefile dswm-20150319/module.lisp dswm-20150319/config/dswm.desktop
-# # 	git log > dswm-20150319/ChangeLog
-# # 	cp configure dswm-20150319/
-# # 	tar -zcf dswm-20150319.tar.gz dswm-20150319
-# # 	tar -jcf dswm-20150319.tar.bz2 dswm-20150319
-# # 	rm -fr dswm-20150319/ dswm-20150319.tar
+# # 	# git tag -a -m "version 20150324" 20150324
+# # 	git archive --format=tar --prefix=dswm-20150324/ HEAD > dswm-20150324.tar
+# # 	tar -xf dswm-20150324.tar
+# # 	rm -rf dswm-20150324/.git* dswm-20150324/autom4te.cache dswm-20150324/configure dswm-20150324/Makefile dswm-20150324/module.lisp dswm-20150324/config/dswm.desktop
+# # 	git log > dswm-20150324/ChangeLog
+# # 	cp configure dswm-20150324/
+# # 	tar -zcf dswm-20150324.tar.gz dswm-20150324
+# # 	tar -jcf dswm-20150324.tar.bz2 dswm-20150324
+# # 	rm -fr dswm-20150324/ dswm-20150324.tar
 # # release-upload:
-# # #	gpg -b dswm-20150319.tgz
+# # #	gpg -b dswm-20150324.tgz
 # # 	ssh cosmonaut-ok,dswm@shell.sourceforge.net create
-# # 	ssh cosmonaut-ok,dswm@shell.sourceforge.net test -d /home/frs/project/d/ds/dswm/20150319 || mkdir /home/frs/project/d/ds/dswm/20150319/
-# # 	scp dswm-20150319.tar.gz cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/20150319/dswm-20150319.tar.gz
-# # 	scp dswm-20150319.tar.bz2 cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/20150319/dswm-20150319.tar.bz2
+# # 	ssh cosmonaut-ok,dswm@shell.sourceforge.net test -d /home/frs/project/d/ds/dswm/20150324 || mkdir /home/frs/project/d/ds/dswm/20150324/
+# # 	scp dswm-20150324.tar.gz cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/20150324/dswm-20150324.tar.gz
+# # 	scp dswm-20150324.tar.bz2 cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/20150324/dswm-20150324.tar.bz2
 
 # deps:
 # 	/usr/bin/sbcl @LISP_QL_LOADDEPS_OPTIONS@

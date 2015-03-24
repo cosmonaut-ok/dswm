@@ -1,0 +1,10 @@
+#!/bin/sh
+set -x
+
+if [ "$(which aclocal)" ] && [ "$(which autoconf)" ] && [ "$(which automake)" ]; then
+    aclocal
+    automake --add-missing --copy
+    autoconf
+else
+    echo "Some components not found: aclocal/automake/autoconf"
+fi

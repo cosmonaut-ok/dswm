@@ -5,7 +5,16 @@ AC_PREREQ([2.59])
 
 AC_INIT(Deep Space Window Manager, esyscmd(date +%Y%m%d | tr -d \\n), esyscmd(grep :author src/dswm.asd.in | cut -d\< -f2 | cut -d\> -f1 | tr -d \\n))
 
-AM_INIT_AUTOMAKE
+AC_CONFIG_AUX_DIR([acdir])
+AC_CONFIG_MACRO_DIR([acdir])
+
+AM_INIT_AUTOMAKE([-Wno-portability])
+
+# AM_PATH_LISPDIR
+
+AC_CANONICAL_HOST
+
+AM_CONDITIONAL(WIN32, test x$win32 = xtrue)
 
 AC_SUBST(LISP_NAME)
 AC_SUBST(LISP_PROGRAM)
@@ -20,11 +29,15 @@ dnl AC_SUBST(STATICP)
 dnl AC_SUBST(SHAREDP)
 dnl AC_SUBST(MAKE_STATIC_OR_SHARED)
 AC_SUBST(DSWM_SOURCE_DIR)
+AC_SUBST(DSWM_DATA_DIR)
 AC_SUBST(MODULES_DIR)
 AC_SUBST(QLP)
 #
 AC_SUBST(DBUS_FILE)
 AC_SUBST(DBUS_IMPORT_FILE)
+
+AC_SUBST(etcdir)
+AC_SUBST([sysconfdir], ['/etc'])
 
 AC_ARG_WITH([lisp],  [AC_HELP_STRING([--with-lisp=IMPL],
 		     [use the specified lisp (sbcl, clisp)])],
@@ -74,6 +87,10 @@ AC_ARG_WITH([dswm-source-dir], [AC_HELP_STRING([--with-dswm-source-dir=DIR],
 			       [set directory for DSWM source files (optional. May need, if you build DSWM with --enable-shared option)])],
 			       DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR="$datadir/dswm/source/")
 
+AC_ARG_WITH([dswm-data-dir], [AC_HELP_STRING([--with-dswm-data-dir=DIR],
+			       [set directory for DSWM data files (optional)])],
+			       DSWM_DATA_DIR=$withval, DSWM_DATA_DIR="$datadir/dswm/")
+
 AC_ARG_WITH([info], [AC_HELP_STRING([--with-info],
 		    [compile with info for DSWM (need cl-ppcre)])],
 		    INFOP=$withval, INFOP=no)
@@ -97,12 +114,26 @@ if test "DBUSP" = "yes"; then
    DSWM_COMMON_DEPS=$DSWM_COMMON_DEPS '"dbus" "bordeaux-threads" "mailbox" "cl-async-future"'
 fi
 
-## check for Cygwin`s clisp
-if test ! -z esyscmd(uname -o | grep "Cygwin" | tr -d \\n); then
-   CLISP_LINK_AUTO="full+new-clx"
+## etcdir
+if test x${XDG_CONFIG_DIRS} != x; then
+   etcdir_=esyscmd(echo ${XDG_CONFIG_DIRS} | cut -d':' -f1)
+   etcdir=$etcdir_/dswm/
 else
-   CLISP_LINK_AUTO="base"
+   etcdir=${sysconfdir}/xdg/dswm/
 fi
+
+## check for Cygwin`s clisp
+case "$host" in
+        *mingw*|*cygwin*)
+                CLISP_LINK_AUTO="full+new-clx" ;;
+        *)
+                CLISP_LINK_AUTO="base" ;;
+esac
+dnl if test ! -z esyscmd(uname -o | grep "Cygwin" | tr -d \\n); then
+dnl    CLISP_LINK_AUTO="full+new-clx"
+dnl else
+dnl    CLISP_LINK_AUTO="base"
+dnl fi
 test $CLISP_LINK || CLISP_LINK=$CLISP_LINK_AUTO
 
 ## check, if all targets are disabled
@@ -275,7 +306,7 @@ AC_HAVE_LIBRARY(fixposix, ,
 
 ### AC_CONFIG_SUBDIRS([src])
 # AC_OUTPUT
-AC_OUTPUT(Makefile src/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile)
+AC_OUTPUT(Makefile src/Makefile doc/Makefile examples/Makefile man/Makefile scripts/Makefile etc/Makefile)
 AC_OUTPUT(src/module.lisp src/help.lisp src/loader.lisp src/dswm.asd)
 AC_OUTPUT(scripts/loader.sh)
 AC_OUTPUT(etc/dswm.desktop)

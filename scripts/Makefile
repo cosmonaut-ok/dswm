@@ -75,6 +75,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
+build_triplet = x86_64-unknown-linux-gnu
+host_triplet = x86_64-unknown-linux-gnu
 subdir = scripts
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/loader.sh.in
@@ -106,12 +108,12 @@ am__can_run_installinfo = \
   esac
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) $(LISP)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing aclocal-1.14
+ACLOCAL = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing aclocal-1.14
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
-AUTOCONF = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing autoconf
-AUTOHEADER = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing autoheader
-AUTOMAKE = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing automake-1.14
+AUTOCONF = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing autoconf
+AUTOHEADER = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing autoheader
+AUTOMAKE = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing automake-1.14
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=none
@@ -123,8 +125,9 @@ CPPFLAGS =
 CYGPATH_W = echo
 DBUS_FILE = 
 DBUS_IMPORT_FILE = 
-DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150319\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150319\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150319\" -DHAVE_LIBFIXPOSIX=1
+DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150324\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150324\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150324\" -DHAVE_LIBFIXPOSIX=1
 DEPDIR = .deps
+DSWM_DATA_DIR = ${datarootdir}/dswm/
 DSWM_SOURCE_DIR = ${datarootdir}/dswm/source/
 ECHO_C = 
 ECHO_N = -n
@@ -146,7 +149,7 @@ LISP_NAME = sbcl
 LISP_PROGRAM = /usr/bin/sbcl
 LISP_SPECIAL_DEPS = 
 LTLIBOBJS = 
-MAKEINFO = ${SHELL} /home/cosmonaut/dev/dss/dswm2/missing makeinfo
+MAKEINFO = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing makeinfo
 MAKE_ALL_DEPS = dswm.common dswm.static
 MAKE_INSTALL_DEPS = dswm.install dswm.static.install
 MAKE_UNINSTALL_DEPS = dswm.uninstall dswm.static.uninstall
@@ -156,22 +159,22 @@ OBJEXT = o
 PACKAGE = deep-space-window-manager
 PACKAGE_BUGREPORT = cosmonaut.ok@gmail.com
 PACKAGE_NAME = Deep Space Window Manager
-PACKAGE_STRING = Deep Space Window Manager 20150319
+PACKAGE_STRING = Deep Space Window Manager 20150324
 PACKAGE_TARNAME = deep-space-window-manager
 PACKAGE_URL = 
-PACKAGE_VERSION = 20150319
+PACKAGE_VERSION = 20150324
 PATH_SEPARATOR = :
 QLP = yes
 SBCL = /usr/bin/sbcl
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = 20150319
+VERSION = 20150324
 XDPYINFO = yes
-abs_builddir = /home/cosmonaut/dev/dss/dswm2/scripts
-abs_srcdir = /home/cosmonaut/dev/dss/dswm2/scripts
-abs_top_builddir = /home/cosmonaut/dev/dss/dswm2
-abs_top_srcdir = /home/cosmonaut/dev/dss/dswm2
+abs_builddir = /home/cosmonaut/dev/dss/dswm/scripts
+abs_srcdir = /home/cosmonaut/dev/dss/dswm/scripts
+abs_top_builddir = /home/cosmonaut/dev/dss/dswm
+abs_top_srcdir = /home/cosmonaut/dev/dss/dswm
 ac_ct_CC = gcc
 am__include = include
 am__leading_dot = .
@@ -179,18 +182,27 @@ am__quote =
 am__tar = $${TAR-tar} chof - "$$tardir"
 am__untar = $${TAR-tar} xf -
 bindir = ${exec_prefix}/bin
+build = x86_64-unknown-linux-gnu
 build_alias = 
+build_cpu = x86_64
+build_os = linux-gnu
+build_vendor = unknown
 builddir = .
 datadir = ${datarootdir}
 datarootdir = ${prefix}/share
 docdir = ${datarootdir}/doc/${PACKAGE_TARNAME}
 dvidir = ${docdir}
+etcdir = /etc/xdg/dswm/
 exec_prefix = ${prefix}
+host = x86_64-unknown-linux-gnu
 host_alias = 
+host_cpu = x86_64
+host_os = linux-gnu
+host_vendor = unknown
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/cosmonaut/dev/dss/dswm2/install-sh
+install_sh = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -205,7 +217,7 @@ psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
 sharedstatedir = ${prefix}/com
 srcdir = .
-sysconfdir = ${prefix}/etc
+sysconfdir = /etc
 target_alias = 
 top_build_prefix = ../
 top_builddir = ..
@@ -222,9 +234,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign scripts/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu scripts/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign scripts/Makefile
+	  $(AUTOMAKE) --gnu scripts/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
