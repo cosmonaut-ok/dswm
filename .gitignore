@@ -26,3 +26,5 @@ src/module.lisp
 .#*
 src/modules/*#*
 contrib
+*Makefile
+*Makefile.in
