@@ -214,9 +214,9 @@ INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LDFLAGS = 
 LIBOBJS = 
 LIBS = -lfixposix 
-LISP_BUILD_OPTIONS =   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load $(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp --eval '(quicklisp-quickstart:install)' --eval '(dolist (v (list "alexandria" "xembed" "cl-ppcre" "sb-posix" "clx" "cl-ppcre")) (ql:quickload v))' --load ./make-image.lisp
+LISP_BUILD_OPTIONS = --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd  --load ./make-image.lisp
 LISP_COMMON_DEPS = 
-LISP_INFO_OPTIONS =   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+LISP_INFO_OPTIONS = --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
 LISP_NAME = sbcl
 LISP_PROGRAM = /usr/bin/sbcl
 LISP_SPECIAL_DEPS = 
@@ -236,7 +236,7 @@ PACKAGE_TARNAME = deep-space-window-manager
 PACKAGE_URL = 
 PACKAGE_VERSION = 20150324
 PATH_SEPARATOR = :
-QLP = yes
+QLP = no
 SBCL = /usr/bin/sbcl
 SET_MAKE = 
 SHELL = /bin/sh
@@ -751,7 +751,7 @@ uninstall-am: uninstall-docDATA uninstall-dvi-am uninstall-html-am \
 .PHONY: dswm.texi
 
 dswm.texi:
-	/usr/bin/sbcl   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+	/usr/bin/sbcl --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

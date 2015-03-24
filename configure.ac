@@ -95,9 +95,9 @@ AC_ARG_WITH([info], [AC_HELP_STRING([--with-info],
 		    [compile with info for DSWM (need cl-ppcre)])],
 		    INFOP=$withval, INFOP=no)
 
-AC_ARG_WITH([dbus], [AC_HELP_STRING([--with-dbus],
+AC_ARG_ENABLE([dbus], [AC_HELP_STRING([--enable-dbus],
 		    [compile with dbus support (ndded for some dbus-related plugins, disabled by default)])],
-		    DBUSP=yes, DBUSP=no)
+		    DBUSP="$enableval", DBUSP=no)
 
 AC_ARG_WITH([ql], [AC_HELP_STRING([--with-ql],
 		    [resolve external dependencies with quicklisp, disabled by default])],
