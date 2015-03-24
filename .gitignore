@@ -25,4 +25,4 @@ src/module.lisp
 #*
 .#*
 src/modules/*#*
-
+contrib
