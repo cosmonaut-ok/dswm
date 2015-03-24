@@ -1,6 +1,7 @@
 #!/bin/sh
 set -x
 
+test -d acdir || mkdir -p acdir
 if [ "$(which aclocal)" ] && [ "$(which autoconf)" ] && [ "$(which automake)" ]; then
     aclocal
     automake --add-missing --copy

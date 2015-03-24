@@ -16,6 +16,11 @@ AC_CANONICAL_HOST
 
 AM_CONDITIONAL(WIN32, test x$win32 = xtrue)
 
+dnl AC_DEFUN([AC_DATADIR_CHECKED])
+dnl AC_DEFUN([AC_DATAROOTDIR_CHECKED])
+
+AC_DEFINE_DIR([DATADIR], [datadir], [Where data are placed to.])
+
 AC_SUBST(LISP_NAME)
 AC_SUBST(LISP_PROGRAM)
 AC_SUBST(LISP_COMMON_DEPS)
@@ -32,6 +37,7 @@ AC_SUBST(DSWM_SOURCE_DIR)
 AC_SUBST(DSWM_DATA_DIR)
 AC_SUBST(MODULES_DIR)
 AC_SUBST(QLP)
+AC_SUBST(INFOP)
 #
 AC_SUBST(DBUS_FILE)
 AC_SUBST(DBUS_IMPORT_FILE)
@@ -75,6 +81,10 @@ AC_ARG_ENABLE([shared], [AC_HELP_STRING([--enable-shared],
 			[build DSWM as shared source files (disabled by default)])],
 			[SHAREDP="$enableval"], [SHAREDP=no])
 
+AC_ARG_ENABLE([dbus], [AC_HELP_STRING([--enable-dbus],
+                        [compile with dbus support (ndded for some dbus-related plugins, disabled by default)])],
+                        DBUSP="$enableval", DBUSP=no)
+
 AC_ARG_WITH([clisp-link], [AC_HELP_STRING([--with-clisp-link=LINKNAME],
 			  [specify clisp link ('base' by default for linux and 'full+new-clx' for Cygwin)])],
 			  CLISP_LINK=$withval, CLISP_LINK="")
@@ -85,19 +95,15 @@ AC_ARG_WITH([lisp-extra-options], [AC_HELP_STRING([--with-lisp-extra-options=OPT
 
 AC_ARG_WITH([dswm-source-dir], [AC_HELP_STRING([--with-dswm-source-dir=DIR],
 			       [set directory for DSWM source files (optional. May need, if you build DSWM with --enable-shared option)])],
-			       DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR="$datadir/dswm/source/")
+			       DSWM_SOURCE_DIR=$withval, DSWM_SOURCE_DIR="$DATADIR/dswm/source/")
 
 AC_ARG_WITH([dswm-data-dir], [AC_HELP_STRING([--with-dswm-data-dir=DIR],
 			       [set directory for DSWM data files (optional)])],
-			       DSWM_DATA_DIR=$withval, DSWM_DATA_DIR="$datadir/dswm/")
+			       DSWM_DATA_DIR=$withval, DSWM_DATA_DIR="$DATADIR/dswm/")
 
 AC_ARG_WITH([info], [AC_HELP_STRING([--with-info],
 		    [compile with info for DSWM (need cl-ppcre)])],
 		    INFOP=$withval, INFOP=no)
-
-AC_ARG_ENABLE([dbus], [AC_HELP_STRING([--enable-dbus],
-		    [compile with dbus support (ndded for some dbus-related plugins, disabled by default)])],
-		    DBUSP="$enableval", DBUSP=no)
 
 AC_ARG_WITH([ql], [AC_HELP_STRING([--with-ql],
 		    [resolve external dependencies with quicklisp, disabled by default])],
@@ -110,8 +116,17 @@ MAKE_UNINSTALL_DEPS="dswm.uninstall"
 
 ## set lisp common deps
 DSWM_COMMON_DEPS='"alexandria" "xembed" "cl-ppcre"'
+DSWM_DEPS="$DSWM_DEPS $DSWM_COMMON_DEPS"
+QL_PATH="/tmp/.ql"
+## set dbus deps
 if test "DBUSP" = "yes"; then
-   DSWM_COMMON_DEPS=$DSWM_COMMON_DEPS '"dbus" "bordeaux-threads" "mailbox" "cl-async-future"'
+   DSWM_DEPS=$DSWM_DEPS '"dbus" "bordeaux-threads" "mailbox" "cl-async-future"'
+   DBUS_FILE="(:file \"experimental/dbus\")"
+   DBUS_IMPORT_FILE="(:file \"experimental/dbus-import\")"
+fi
+## set info deps
+if test $INFOP = yes; then
+   DSWM_INFO_DEPS="$DSWM_COMMON_DEPS \"cl-ppcre\" \"xembed\""
 fi
 
 ## etcdir
@@ -140,12 +155,6 @@ test $CLISP_LINK || CLISP_LINK=$CLISP_LINK_AUTO
 if test "x$STATICP" = "xno" && test "x$SHAREDP" = "xno"; then
    AC_MSG_ERROR([*** Do not Use --disable-shared and --disable-static at the same time. Nothing to do, exiting."])
    exit 0
-fi
-
-## Check for DBUS support
-if test $DBUSP = yes; then
-   DBUS_FILE="(:file \"experimental/dbus\")"
-   DBUS_IMPORT_FILE="(:file \"experimental/dbus-import\")"
 fi
 
 # Checks for programs.
@@ -222,7 +231,7 @@ fi
 
 ## set common compile parameters for different lisp implementations
 if test "x$LISP_NAME" = "xsbcl"; then
-   DSWM_DEPS="$DSWM_COMMON_DEPS \"sb-posix\" \"clx\" \"cl-ppcre\""
+   DSWM_DEPS="$DSWM_DEPS \"sb-posix\" \"clx\" \"cl-ppcre\""
    LISP_PROGRAM=$SBCL
    LISP_EVAL="--eval"
    LISP_LOAD="--load"
@@ -239,7 +248,7 @@ dnl    LISP_COMMON_OPTIONS=""
 dnl    LISP_BUILD_OPTIONS="$LISP_EXTRA_OPTIONS -batch -load ./make-image.lisp -eval \"(quit)\""
 dnl    LISP_INFO_OPTIONS="-eval \"(progn (require :asdf) (require :dswm) (load \"manual.lisp\"))\" -eval '(progn (dswm::generate-manual) (quit))'"
 elif test "x$LISP_NAME" = "xclisp"; then
-   DSWM_DEPS="$DSWM_COMMON_DEPS \"clx\" \"cl-ppcre\"" ## TODO: test for adding CLX module
+   DSWM_DEPS="$DSWM_DEPS \"clx\" \"cl-ppcre\"" ## TODO: test for adding CLX module
    LISP_PROGRAM=$CLISP
    LISP_EVAL="-x"
    LISP_LOAD="-i"
@@ -261,11 +270,26 @@ dnl    LISP_BUILD_OPTIONS="$LISP_EXTRA_OPTIONS -shell ./make-image.lisp"
 dnl    LISP_INFO_OPTIONS="-eval '(progn (require :asdf) (require :dswm) (load \"manual.lisp\"))' -eval '(progn (dswm::generate-manual) (ext:quit))'"   
 fi
 
+## We always use this values, because info builds only after
+## main application. So, all needed quicklisp deps should be
+## already fetched
+QL_INFO_LOAD_FILE=$QL_PATH/setup.lisp
+QUICKINSTALL_INFO="(princ \"skip\")"
+
 if test "$QLP" = "yes"; then
-   LISP_QL_OPTIONS="$LISP_LOAD \$(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp $LISP_EVAL '(quicklisp-quickstart:install)' $LISP_EVAL '(dolist (v (list $DSWM_DEPS)) (ql:quickload v))'"
+   if test -f $QL_PATH/setup.lisp; then
+      QL_LOAD_FILE=$QL_INFO_LOAD_FILE
+      QUICKINSTALL=$QUICKINSTALL_INFO
+   else
+      QL_LOAD_FILE="\$(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp"
+      QUICKINSTALL="(quicklisp-quickstart:install :path \"$QL_PATH\")"
+   fi
+   LISP_QL_OPTIONS="$LISP_LOAD $QL_LOAD_FILE $LISP_EVAL '$QUICKINSTALL' $LISP_EVAL '(dolist (v (list $DSWM_DEPS)) (ql:quickload v))'"
+   LISP_QL_INFO_OPTIONS="$LISP_LOAD $QL_INFO_LOAD_FILE $LISP_EVAL '$QUICKINSTALL_INFO' $LISP_EVAL '(dolist (v (list $DSWM_INFO_DEPS)) (ql:quickload v))'"
 fi
+
 LISP_BUILD_OPTIONS="$LISP_COMMON_OPTIONS $LISP_QL_OPTIONS $LISP_LOAD ./make-image.lisp"
-LISP_INFO_OPTIONS="$LISP_COMMON_OPTIONS $LISP_EVAL '(progn (require :dswm) (load \"manual.lisp\"))' $LISP_EVAL \"(progn (dswm::generate-manual) $LISP_EXIT)\""
+LISP_INFO_OPTIONS="$LISP_COMMON_OPTIONS $LISP_QL_INFO_OPTIONS $LISP_EVAL '(progn (require :dswm) (load \"manual.lisp\"))' $LISP_EVAL \"(progn (dswm::generate-manual) $LISP_EXIT)\""
 
 AC_MSG_NOTICE([Using $LISP_NAME at $LISP_PROGRAM])
 
@@ -285,9 +309,6 @@ fi
 
 # Checks for makeinfo.
 if test "$INFOP" = "yes"; then
-   MAKE_ALL_DEPS="$MAKE_ALL_DEPS dswm.info"
-   MAKE_INSTALL_DEPS="$MAKE_INSTALL_DEPS dswm.info.install dswm.dm.install" ## what aboud dswm.dm.install
-   MAKE_UNINSTALL_DEPS="$MAKE_UNINSTALL_DEPS dswm.info.uninstall dswm.dm.uninstall"
    AC_CHECK_PROG(MAKEINFO,makeinfo,yes,no)
    if test "$MAKEINFO" = "no"; then
       AC_MSG_ERROR([*** Please install makeinfo for the info.])

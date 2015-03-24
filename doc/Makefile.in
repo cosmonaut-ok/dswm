@@ -83,7 +83,8 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/dswm.texi.in $(top_srcdir)/acdir/texinfo.tex INSTALL \
 	README texinfo.tex
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acdir/acinclude.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -195,6 +196,7 @@ CLISP = @CLISP@
 CMUCL = @CMUCL@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
+DATADIR = @DATADIR@
 DBUS_FILE = @DBUS_FILE@
 DBUS_IMPORT_FILE = @DBUS_IMPORT_FILE@
 DEFS = @DEFS@
@@ -206,6 +208,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 ECL = @ECL@
 EXEEXT = @EXEEXT@
+INFOP = @INFOP@
 INSTALL = @INSTALL@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -309,9 +312,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign doc/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu doc/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign doc/Makefile
+	  $(AUTOMAKE) --gnu doc/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -751,7 +754,9 @@ uninstall-am: uninstall-docDATA uninstall-dvi-am uninstall-html-am \
 .PHONY: dswm.texi
 
 dswm.texi:
-	@LISP_PROGRAM@ @LISP_INFO_OPTIONS@
+	if test ! x@INFOP@ == xno; then \
+		@LISP_PROGRAM@ @LISP_INFO_OPTIONS@; \
+	else :;	fi
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

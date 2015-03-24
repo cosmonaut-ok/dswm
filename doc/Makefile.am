@@ -5,5 +5,7 @@ info_TEXINFOS = dswm.texi
 .PHONY: dswm.texi
 
 dswm.texi:
-	@LISP_PROGRAM@ @LISP_INFO_OPTIONS@
+	if test ! x@INFOP@ == xno; then \
+		@LISP_PROGRAM@ @LISP_INFO_OPTIONS@; \
+	else :;	fi
 

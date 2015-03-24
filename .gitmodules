@@ -1,10 +1,6 @@
-[submodule "config"]
-	# path = contrib/quicklisp-bootstrap
-	path = config
-	url = https://github.com/quicklisp/quicklisp-bootstrap.git
 [submodule "contrib/asdf"]
 	path = contrib/asdf
-	url = git://common-lisp.net/projects/asdf/asdf.git
+	url = https://gitlab.common-lisp.net/asdf/asdf.git
 [submodule "contrib/quicklisp-bootstrap"]
 	path = contrib/quicklisp-bootstrap
 	url = https://github.com/quicklisp/quicklisp-bootstrap.git

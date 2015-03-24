@@ -37,7 +37,7 @@
 
 ;; Version
 (defparameter *version*
-  #.(concat "20150324" " Compiled On "
+  #.(concat "20150325" " Compiled On "
 	    (format-expand *time-format-string-alist*
 			   *time-format-string-default*)))
 

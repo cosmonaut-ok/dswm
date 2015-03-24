@@ -80,7 +80,8 @@ host_triplet = x86_64-unknown-linux-gnu
 subdir = examples
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acdir/acinclude.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -118,21 +119,23 @@ CC = gcc
 CCDEPMODE = depmode=none
 CCL = 
 CFLAGS = -g -O2
-CLISP = /usr/bin/clisp
+CLISP = 
 CMUCL = 
 CPPFLAGS = 
 CYGPATH_W = echo
-DBUS_FILE = (:file "experimental/dbus")
-DBUS_IMPORT_FILE = (:file "experimental/dbus-import")
-DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150324\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150324\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150324\" -DHAVE_LIBFIXPOSIX=1
+DATADIR = /usr/local/share
+DBUS_FILE = 
+DBUS_IMPORT_FILE = 
+DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150325\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150325\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150325\" -DDATADIR=\"/usr/local/share\"
 DEPDIR = .deps
-DSWM_DATA_DIR = ${datarootdir}/dswm/
-DSWM_SOURCE_DIR = ${datarootdir}/dswm/source/
+DSWM_DATA_DIR = /usr/local/share/dswm/
+DSWM_SOURCE_DIR = /usr/local/share/dswm/source/
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
 ECL = 
 EXEEXT = 
+INFOP = yes
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
@@ -140,10 +143,10 @@ INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -lfixposix 
-LISP_BUILD_OPTIONS = --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd  --load ./make-image.lisp
+LIBS = 
+LISP_BUILD_OPTIONS =   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load $(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp --eval '(quicklisp-quickstart:install :path "/tmp/.ql")' --eval '(dolist (v (list  "alexandria" "xembed" "cl-ppcre" "sb-posix" "clx" "cl-ppcre")) (ql:quickload v))' --load ./make-image.lisp
 LISP_COMMON_DEPS = 
-LISP_INFO_OPTIONS = --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+LISP_INFO_OPTIONS =   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load /tmp/.ql/setup.lisp --eval '(princ "skip")' --eval '(dolist (v (list "alexandria" "xembed" "cl-ppcre" "cl-ppcre" "xembed")) (ql:quickload v))' --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
 LISP_NAME = sbcl
 LISP_PROGRAM = /usr/bin/sbcl
 LISP_SPECIAL_DEPS = 
@@ -152,23 +155,23 @@ MAKEINFO = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing makeinfo
 MAKE_ALL_DEPS = dswm.common dswm.static
 MAKE_INSTALL_DEPS = dswm.install dswm.static.install
 MAKE_UNINSTALL_DEPS = dswm.uninstall dswm.static.uninstall
-MKDIR_P = /usr/bin/mkdir -p
+MKDIR_P = /bin/mkdir -p
 MODULES_DIR = 
 OBJEXT = o
 PACKAGE = deep-space-window-manager
 PACKAGE_BUGREPORT = cosmonaut.ok@gmail.com
 PACKAGE_NAME = Deep Space Window Manager
-PACKAGE_STRING = Deep Space Window Manager 20150324
+PACKAGE_STRING = Deep Space Window Manager 20150325
 PACKAGE_TARNAME = deep-space-window-manager
 PACKAGE_URL = 
-PACKAGE_VERSION = 20150324
+PACKAGE_VERSION = 20150325
 PATH_SEPARATOR = :
-QLP = no
+QLP = yes
 SBCL = /usr/bin/sbcl
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = 
-VERSION = 20150324
+VERSION = 20150325
 XDPYINFO = yes
 abs_builddir = /home/cosmonaut/dev/dss/dswm/examples
 abs_srcdir = /home/cosmonaut/dev/dss/dswm/examples
@@ -234,9 +237,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign examples/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu examples/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign examples/Makefile
+	  $(AUTOMAKE) --gnu examples/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

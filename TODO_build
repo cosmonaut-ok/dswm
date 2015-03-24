@@ -7,7 +7,11 @@
 6. make dswm install config
 
 add configure options:
---enable-dbus
---enable-debug
---with-ql
+--enable-dbus +-
+--enable-debug ++
+--with-ql ++
+--with-info ++
+
+add: additional dbus build dependencies ++
+add: manual dependencies ++
 

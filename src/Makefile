@@ -91,7 +91,8 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(srcdir)/module.lisp.in $(srcdir)/help.lisp.in \
 	$(srcdir)/loader.lisp.in $(srcdir)/dswm.asd.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/acdir/acinclude.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -165,21 +166,23 @@ CC = gcc
 CCDEPMODE = depmode=none
 CCL = 
 CFLAGS = -g -O2
-CLISP = /usr/bin/clisp
+CLISP = 
 CMUCL = 
 CPPFLAGS = 
 CYGPATH_W = echo
-DBUS_FILE = (:file "experimental/dbus")
-DBUS_IMPORT_FILE = (:file "experimental/dbus-import")
-DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150324\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150324\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150324\" -DHAVE_LIBFIXPOSIX=1
+DATADIR = /usr/local/share
+DBUS_FILE = 
+DBUS_IMPORT_FILE = 
+DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150325\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150325\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150325\" -DDATADIR=\"/usr/local/share\"
 DEPDIR = .deps
-DSWM_DATA_DIR = ${datarootdir}/dswm/
-DSWM_SOURCE_DIR = ${datarootdir}/dswm/source/
+DSWM_DATA_DIR = /usr/local/share/dswm/
+DSWM_SOURCE_DIR = /usr/local/share/dswm/source/
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
 ECL = 
 EXEEXT = 
+INFOP = yes
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_PROGRAM = ${INSTALL}
@@ -187,10 +190,10 @@ INSTALL_SCRIPT = ${INSTALL}
 INSTALL_STRIP_PROGRAM = $(install_sh) -c -s
 LDFLAGS = 
 LIBOBJS = 
-LIBS = -lfixposix 
-LISP_BUILD_OPTIONS = --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd  --load ./make-image.lisp
+LIBS = 
+LISP_BUILD_OPTIONS =   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load $(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp --eval '(quicklisp-quickstart:install :path "/tmp/.ql")' --eval '(dolist (v (list  "alexandria" "xembed" "cl-ppcre" "sb-posix" "clx" "cl-ppcre")) (ql:quickload v))' --load ./make-image.lisp
 LISP_COMMON_DEPS = 
-LISP_INFO_OPTIONS = --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+LISP_INFO_OPTIONS =   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load /tmp/.ql/setup.lisp --eval '(princ "skip")' --eval '(dolist (v (list "alexandria" "xembed" "cl-ppcre" "cl-ppcre" "xembed")) (ql:quickload v))' --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
 LISP_NAME = sbcl
 LISP_PROGRAM = /usr/bin/sbcl
 LISP_SPECIAL_DEPS = 
@@ -199,23 +202,23 @@ MAKEINFO = ${SHELL} /home/cosmonaut/dev/dss/dswm/acdir/missing makeinfo
 MAKE_ALL_DEPS = dswm.common dswm.static
 MAKE_INSTALL_DEPS = dswm.install dswm.static.install
 MAKE_UNINSTALL_DEPS = dswm.uninstall dswm.static.uninstall
-MKDIR_P = /usr/bin/mkdir -p
+MKDIR_P = /bin/mkdir -p
 MODULES_DIR = 
 OBJEXT = o
 PACKAGE = deep-space-window-manager
 PACKAGE_BUGREPORT = cosmonaut.ok@gmail.com
 PACKAGE_NAME = Deep Space Window Manager
-PACKAGE_STRING = Deep Space Window Manager 20150324
+PACKAGE_STRING = Deep Space Window Manager 20150325
 PACKAGE_TARNAME = deep-space-window-manager
 PACKAGE_URL = 
-PACKAGE_VERSION = 20150324
+PACKAGE_VERSION = 20150325
 PATH_SEPARATOR = :
-QLP = no
+QLP = yes
 SBCL = /usr/bin/sbcl
 SET_MAKE = 
-SHELL = /bin/sh
+SHELL = /bin/bash
 STRIP = 
-VERSION = 20150324
+VERSION = 20150325
 XDPYINFO = yes
 abs_builddir = /home/cosmonaut/dev/dss/dswm/src
 abs_srcdir = /home/cosmonaut/dev/dss/dswm/src
@@ -270,9 +273,9 @@ top_builddir = ..
 top_srcdir = ..
 
 # data_dir=$(DESTDIR)$(datarootdir)
-# DSWMSOURCEDIR=${datarootdir}/dswm/source/
+# DSWMSOURCEDIR=/usr/local/share/dswm/source/
 # root_dir=${PWD}
-# dest_dir=dswm-20150324
+# dest_dir=dswm-20150325
 # linux_style_data_dir=$(DESTDIR)/usr/share/
 
 # dswm_SOURCES=$(shell cat dswm.asd | grep '\:file' | grep -vE '\;.*file' | grep -oE '\(\:.*\)' | grep -oE '\"[a-z,A-Z,0-9,.,-,_]*\"' | sed 's/^\"*/src\//g;s/\"/\.lisp/g')
@@ -334,9 +337,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign src/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --foreign src/Makefile
+	  $(AUTOMAKE) --gnu src/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -626,19 +629,19 @@ dswm.common:
 # 	makeinfo ../doc/dswm.texi
 
 # dswm.texi: ../doc/dswm.texi.in
-# 	/usr/bin/sbcl --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+# 	/usr/bin/sbcl   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load /tmp/.ql/setup.lisp --eval '(princ "skip")' --eval '(dolist (v (list "alexandria" "xembed" "cl-ppcre" "cl-ppcre" "xembed")) (ql:quickload v))' --eval '(progn (require :dswm) (load "manual.lisp"))' --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
 
 dswm.shared:
 
 dswm.static: $(FILES)
-	if test no = yes; then if test -z `ping -c1 quicklisp.org 2>/dev/null`; then \
+	if test yes = yes; then if test -z `ping -c1 quicklisp.org 2>/dev/null`; then \
 		echo "No internet connection for quicklisp working"; \
 		exit 1; \
 	fi; fi
-	/usr/bin/sbcl --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd  --load ./make-image.lisp
+	/usr/bin/sbcl   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load $(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp --eval '(quicklisp-quickstart:install :path "/tmp/.ql")' --eval '(dolist (v (list  "alexandria" "xembed" "cl-ppcre" "sb-posix" "clx" "cl-ppcre")) (ql:quickload v))' --load ./make-image.lisp
 
 deps:
-#	/usr/bin/sbcl --disable-debugger  --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd  --load ./make-image.lisp
+#	/usr/bin/sbcl   --eval '(require :asdf)' --load $(abs_top_srcdir)/src/dswm.asd --load $(abs_top_srcdir)/contrib/quicklisp-bootstrap/quicklisp.lisp --eval '(quicklisp-quickstart:install :path "/tmp/.ql")' --eval '(dolist (v (list  "alexandria" "xembed" "cl-ppcre" "sb-posix" "clx" "cl-ppcre")) (ql:quickload v))' --load ./make-image.lisp
 
 install-exec-local: dswm.install dswm.static.install
 
@@ -654,21 +657,21 @@ clean-local:
 
 # # release:
 # # 	# TODO: We need to rewrite it!
-# # 	# git tag -a -m "version 20150324" 20150324
-# # 	git archive --format=tar --prefix=dswm-20150324/ HEAD > dswm-20150324.tar
-# # 	tar -xf dswm-20150324.tar
-# # 	rm -rf dswm-20150324/.git* dswm-20150324/autom4te.cache dswm-20150324/configure dswm-20150324/Makefile dswm-20150324/module.lisp dswm-20150324/config/dswm.desktop
-# # 	git log > dswm-20150324/ChangeLog
-# # 	cp configure dswm-20150324/
-# # 	tar -zcf dswm-20150324.tar.gz dswm-20150324
-# # 	tar -jcf dswm-20150324.tar.bz2 dswm-20150324
-# # 	rm -fr dswm-20150324/ dswm-20150324.tar
+# # 	# git tag -a -m "version 20150325" 20150325
+# # 	git archive --format=tar --prefix=dswm-20150325/ HEAD > dswm-20150325.tar
+# # 	tar -xf dswm-20150325.tar
+# # 	rm -rf dswm-20150325/.git* dswm-20150325/autom4te.cache dswm-20150325/configure dswm-20150325/Makefile dswm-20150325/module.lisp dswm-20150325/config/dswm.desktop
+# # 	git log > dswm-20150325/ChangeLog
+# # 	cp configure dswm-20150325/
+# # 	tar -zcf dswm-20150325.tar.gz dswm-20150325
+# # 	tar -jcf dswm-20150325.tar.bz2 dswm-20150325
+# # 	rm -fr dswm-20150325/ dswm-20150325.tar
 # # release-upload:
-# # #	gpg -b dswm-20150324.tgz
+# # #	gpg -b dswm-20150325.tgz
 # # 	ssh cosmonaut-ok,dswm@shell.sourceforge.net create
-# # 	ssh cosmonaut-ok,dswm@shell.sourceforge.net test -d /home/frs/project/d/ds/dswm/20150324 || mkdir /home/frs/project/d/ds/dswm/20150324/
-# # 	scp dswm-20150324.tar.gz cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/20150324/dswm-20150324.tar.gz
-# # 	scp dswm-20150324.tar.bz2 cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/20150324/dswm-20150324.tar.bz2
+# # 	ssh cosmonaut-ok,dswm@shell.sourceforge.net test -d /home/frs/project/d/ds/dswm/20150325 || mkdir /home/frs/project/d/ds/dswm/20150325/
+# # 	scp dswm-20150325.tar.gz cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/20150325/dswm-20150325.tar.gz
+# # 	scp dswm-20150325.tar.bz2 cosmonaut-ok,dswm@frs.sourceforge.net:/home/frs/project/d/ds/dswm/20150325/dswm-20150325.tar.bz2
 
 # deps:
 # 	/usr/bin/sbcl @LISP_QL_LOADDEPS_OPTIONS@

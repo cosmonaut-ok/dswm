@@ -23,7 +23,7 @@
 prefix=/usr/local
 datarootdir=${prefix}/share
 ME="$0"
-LOADER="${datarootdir}/dswm/source//loader.lisp"
+LOADER="/usr/local/share/dswm/source//loader.lisp"
 [ ! -z $LISP ] || LISP=/usr/bin/sbcl
 
 load_lisp() {
