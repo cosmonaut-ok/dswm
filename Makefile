@@ -207,8 +207,8 @@ CLISP = /usr/bin/clisp
 CMUCL = 
 CPPFLAGS = 
 CYGPATH_W = echo
-DBUS_FILE = 
-DBUS_IMPORT_FILE = 
+DBUS_FILE = (:file "experimental/dbus")
+DBUS_IMPORT_FILE = (:file "experimental/dbus-import")
 DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150324\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150324\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150324\" -DHAVE_LIBFIXPOSIX=1
 DEPDIR = .deps
 DSWM_DATA_DIR = ${datarootdir}/dswm/

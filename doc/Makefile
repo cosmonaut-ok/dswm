@@ -195,8 +195,8 @@ CLISP = /usr/bin/clisp
 CMUCL = 
 CPPFLAGS = 
 CYGPATH_W = echo
-DBUS_FILE = 
-DBUS_IMPORT_FILE = 
+DBUS_FILE = (:file "experimental/dbus")
+DBUS_IMPORT_FILE = (:file "experimental/dbus-import")
 DEFS = -DPACKAGE_NAME=\"Deep\ Space\ Window\ Manager\" -DPACKAGE_TARNAME=\"deep-space-window-manager\" -DPACKAGE_VERSION=\"20150324\" -DPACKAGE_STRING=\"Deep\ Space\ Window\ Manager\ 20150324\" -DPACKAGE_BUGREPORT=\"cosmonaut.ok@gmail.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"deep-space-window-manager\" -DVERSION=\"20150324\" -DHAVE_LIBFIXPOSIX=1
 DEPDIR = .deps
 DSWM_DATA_DIR = ${datarootdir}/dswm/
@@ -309,9 +309,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu doc/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign doc/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu doc/Makefile
+	  $(AUTOMAKE) --foreign doc/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

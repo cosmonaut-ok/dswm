@@ -22,7 +22,7 @@
   :serial t
   :depends-on (:cl-ppcre #-(or cmu clisp ecl) :clx #+sbcl :sb-posix :xembed :alexandria) ;; :clx-truetype)
   :components ((:file "package")
-							 
+							 (:file "experimental/dbus-import")
                (:file "definitions")
 							 (:file "library")
 							 ;; (:file "workarounds") ;; removed workarounds. Checking for sbcl bugs...
@@ -60,7 +60,7 @@
 	       ;; (:file "experimental/mode-line-experimental")
                (:file "module")
                (:file "help")
-							 
+							 (:file "experimental/dbus")
 	       ;; (:file "experimental/ttf")
                (:file "dswm")
 ))
