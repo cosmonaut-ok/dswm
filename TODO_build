@@ -1,0 +1,8 @@
+1. make dswm
+2. make dswm data
+3. make dswm config
+
+4. make dswm install
+5. make dswm install data
+6. make dswm install config
+
