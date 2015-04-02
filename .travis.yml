@@ -16,7 +16,7 @@ before_script:
   - git submodule update --init
   - ./bootstrap
   - export LISP_NAME=$LISP
-  - test ! $LISP == "sbcl" && cd contrib/asdf && make && cd ../../
+  - test ! $LISP == "sbcl" && cd contrib/asdf && make && cd ../../ || true
   - ./configure --enable-ql --enable-dbus --enable-gnome --enable-kde --enable-mate --enable-xfce --enable-cinnamon --enable-lxde --with-lisp=$LISP
 
 script:
