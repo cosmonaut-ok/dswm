@@ -4,7 +4,7 @@ env:
   matrix:
     - LISP=sbcl
     - LISP=ccl
-    - LISP=clisp
+    # - LISP=clisp
     # - LISP=ecl
 
 install:
