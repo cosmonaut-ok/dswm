@@ -504,11 +504,11 @@ table {
 
 body {
   font: 14px/22px "Quattrocento Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color: #666;
+  color: #000000;
   font-weight: 300;
   margin: 0px;
   padding: 0px 0 20px 0px;
-  background: url(../images/body-background.png) #eae6d1;
+  background: url(../images/body-background.png) #443333;
 }
 
 h1, h2, h3, h4, h5, h6 {
