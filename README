@@ -6,10 +6,11 @@ attempts to be highly and easy customizable while relying entirely on the
 keyboard for input. You will not find buttons, icons, title bars, tool
 bars, or any of the other conventional GUI widgets.
 
-DSWM is a fork of StumpWM, so have most of all features, which have
-StumpWM, but it designed for better usability and better integration with
-emacs. It is an early release, so some of it`s own features may not work
-or may work incorrect. In future releases we will fix it.
+DSWM is a fork of StumpWM, so it has most of the features that StumpWM
+has, but it is designed for better usability and better integration with
+emacs. It is an early release under active development, so some of its
+own features may not work or may not work correctly. In future releases
+we will fix it.
 
 These design decisions reflect the growing popularity of productive,
 customizable lisp based systems.
@@ -22,22 +23,23 @@ To get help see the next information:
 
 ----
 
-There's a texinfo manual, doc/dswm.texi. the build scripts generate an
-info file you can read in emacs or with the `info' program.
+There's a texinfo manual, doc/dswm.texi. The build scripts generate an
+info file that you can read in emacs or with the `info' program.
 
 For other stuff visit the dswm wiki:
 http://wiki.dss-project.org/doku.php/en:index
 
-But, as it's not properly completed now, you can also visit stumpwm wiki too:
+But, as the DSWM wiki is not yet properly complete, you can also visit the stumpwm wiki:
 https://github.com/sabetts/stumpwm/wiki/
 
-Also, you can visit to #dswm channel on irc.freenoode.net for issues directly related to dswm
+Also, you can visit to #dswm channel on irc.freenoode.net for issues directly related to DSWM.
 
 Mailing lists: dswm-user@lists.sourceforge.net and dswm-devel@lists.sourceforge.net
 
-Finally, you can see the DSWM news on official site
+Finally, you can see the DSWM news on the official site:
 http://dss-project.org/
-or read some useful information on DSWM blog
+
+Or read some useful information on the DSWM blog:
 english: http://dss-project.blogspot.com/
 russian: http://dss-project-ru.blogspot.com/
 ukrainian: http://dss-project-uk.blogspot.com/
