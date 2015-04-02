@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# Time-stamp: <2014-10-21 18:23:11 pdm>
+#
+# Copyright 2007 Luca Capello <luca@pca.it>
+#           2011 Desmond O. Chang <dochang@gmail.com>
+# This file is part of the Debian DSWM package and is licensed
+# under the terms of the GNU GPL version 2 or later.  Check
+# /usr/share/doc/dswm/copyright for more information.
+#
+# DSWM startup file.  Check /usr/share/doc/dswm/README.Debian
+# to know how to setup your ~/.dswmrc file to define the Common
+# Lisp implementation DSWM should use.
+
+
+LOADER="/usr/lib/dswm/load.lisp"
+
+load_lisp() {
+    case "$1" in
+	cmucl)
+	    cmucl -load "$LOADER"
+	    ;;
+	sbcl)
+	    sbcl --load "$LOADER"
+	    ;;
+	clisp)
+	    clisp "$LOADER"
+	    ;;
+	*)
+	    echo "Unkown Common Lisp implementation."
+	    exit 1
+	    ;;
+    esac
+}
+
+if [ -z "$LISP" ]; then
+    LISP_DSWMRC_TMP="`grep --no-messages debian= $HOME/.dswmrc`"
+    LISP_DSWMRC=${LISP_DSWMRC_TMP##*=}
+    LISP=${LISP_DSWMRC:-sbcl}
+fi
+
+if ! which $LISP >/dev/null; then
+    echo "CL implementation $LISP not found in your \$PATH."
+    exit 1
+fi
+
+load_lisp $LISP
+
+exit 0

@@ -1,0 +1,4 @@
+[GNOME Session]
+Name=GNOME/DSWM fallback (Safe Mode)
+RequiredComponents=dswm;gnome-settings-daemon
+DesktopName=GNOME

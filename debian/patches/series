@@ -1,0 +1,6 @@
+04_default-to-x-terminal-emulator.diff
+05_default-to-x-www-browser.diff
+06_add-upstream-changelog.diff
+07_build-with-clisp.diff
+08_bashism.diff
+09_version.diff

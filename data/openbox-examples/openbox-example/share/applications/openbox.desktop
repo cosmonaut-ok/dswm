@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=DSWM
+Comment=Log in using the DSWM window manager (without a session manager)
+Comment[pt_BR]=Use esta sessãpara executar o DSWM como o seu ambiente de trabalho
+Exec=/usr/bin/dswm-session
+TryExec=/usr/bin/dswm-session
+Icon=dswm.png
+Type=XSession

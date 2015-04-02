@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=DSwm
+Comment=Tiling, keyboard driven Common Lisp window manager
+NoDisplay=true
+TryExec=dswm
+Exec=dswm
+Type=Application
+
+[X-Window Manager]
+SessionManaged=true

@@ -1,0 +1,47 @@
+.\" -*- nroff -*-
+.\"
+.\" Copyright (c) 2007-2008 Luca Capello <luca@pca.it>
+
+.TH DSWM 1 "Jul 23, 2008"
+
+.SH NAME
+dswm \- a Common Lisp window manager
+
+.SH SYNOPSIS
+.B dswm
+
+.SH DESCRIPTION
+DSwm is a tiling, keyboard driven X11 Window Manager written
+entirely in Common Lisp.
+
+DSWM attempts to be customizable yet visually minimal.  There are
+no window decorations, no icons, and no buttons.  It does have various
+hooks to attach your personal customizations, and variables to tweak.
+
+.SH FILES
+.I ~/.dswmrc
+
+.SH ENVIRONMENT
+.B LISP
+.IP
+Specify which Common Lisp implementation should be used.  Default to
+CLISP, other values are SBCL and CMUCL (all lowercase).  This can also
+be configured in \fI~/.dswmrc\fP as "\fB;debian=lisp\fP".
+
+.SH SEE ALSO
+.BR clisp (1),
+.BR sbcl (1),
+.BR cmucl (1)
+.P
+The complete DSWM documentation is available under the info
+subsystem, as well as the SLIME documentation.
+
+.SH AUTHORS
+DSWM was principally written by Shawn Betts <sabetts@vcn.bc.ca> and
+is licensed under the terms of the GNU General Public License (GPL),
+version 2 or later.
+
+This manual page was written by Luca Capello <luca@pca.it> for the
+Debian DSWM package and is licensed under the terms of the GNU
+General Public License (GPL), version 2 or later.  Check
+/usr/share/doc/dswm/copyright for more information.

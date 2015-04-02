@@ -1,0 +1,24 @@
+language: lisp
+
+env:
+  matrix:
+    - LISP=sbcl
+    - LISP=ccl
+    - LISP=clisp
+    # - LISP=ecl
+
+install:
+  - sudo apt-get install texinfo autoconf automake m4 libtool libcurl4-openssl-dev sbcl clisp ecl #build-essential
+  #- curl -L https://raw.github.com/KeenS/CIM/master/scripts/cim_installer | /bin/sh
+  - /bin/sh scripts/install.sh
+
+before_script:
+  - git submodule update --init
+  - ./bootstrap
+  - export LISP_NAME=$LISP
+  - test ! $LISP == "sbcl" && cd contrib/asdf && make && cd ../../
+  - ./configure --enable-ql --enable-dbus --enable-gnome --enable-kde --enable-mate --enable-xfce --enable-cinnamon --enable-lxde --with-lisp=$LISP
+
+script:
+  - make
+

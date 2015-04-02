@@ -1,2 +1,3 @@
-exampledir = $(datarootdir)/doc/@PACKAGE@
-# example_DATA = sample1.dat
+exampledir = $(datadir)/doc/@PACKAGE@/examples
+example_DATA = init.lisp
+

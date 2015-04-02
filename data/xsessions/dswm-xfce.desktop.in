@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=XFCE4/DSWM
+Comment=Use the Dswm window manager inside of the XFCE4 desktop environment
+Exec=@LIBEXECDIR@/dswm-xfce4-session
+TryExec=xfce4-session
+Icon=dswm.png
+Type=XSession

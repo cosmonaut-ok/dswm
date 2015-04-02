@@ -1,0 +1,8 @@
+dswm ++ : dswm.static Needed only, when both --enable-static and --enable-shared are enabled
+modules ++
+configfiles ++
+examples ++
+manpages --
+infopages 
+dswm_script
+source

@@ -148,18 +148,15 @@
   (when (< (length heads) (length (screen-heads screen)))
     ;; Some heads were removed (or cloned), try to guess which.
     (dolist (oh (screen-heads screen))
-      (dolist (nh heads)
-        (when (and (= (head-x nh) (head-x oh))
-                   (= (head-y nh) (head-y oh)))
-          ;; Same screen position; probably the same head.
-          (setf (head-number nh) (head-number oh)))))
-    ;; Actually remove the missing heads.
-    (dolist (head (set-difference (screen-heads screen) heads :key 'head-number))
-      (remove-head screen head)))
+			(when (= (head-number oh) (head-number nh))
+				;; Same frame number, probably the same head
+				(setf (head-number nh) (head-number oh)))))
+	;; Actually remove the missing heads.
+	(dolist (head (set-difference (screen-heads screen) heads :key 'head-number))
+		(remove-head screen head))
   (loop
    for nh in heads
    as oh = (find (head-number nh) (screen-heads screen) :key 'head-number)
    do (if oh
           (scale-head screen oh nh)
           (add-head screen nh))))
-

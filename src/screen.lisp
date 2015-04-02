@@ -299,7 +299,8 @@ identity with a range check."
 
 (defun update-border-for-screen (screen)
   (setf (xlib:drawable-border-width (screen-input-window screen)) (screen-msg-border-width screen)
-        (xlib:drawable-border-width (screen-message-window screen)) (screen-msg-border-width screen)))
+	(xlib:drawable-border-width (screen-message-window screen)) (screen-msg-border-width screen)
+	(xlib:drawable-border-width (screen-frame-window screen)) (screen-msg-border-width screen)))
 
 (defun update-border-all-screens ()
   "After setting the border width call this to sync any existing windows."
@@ -360,8 +361,7 @@ there is more than one frame."
   (set-any-color screen-unfocus-color color))
 
 (defun set-msg-border-width (width)
-  "Set the border width for the message bar and input
-bar."
+  "Set the border width for the message bar input bar and frame indicator."
   (check-type width (integer 0))
   (dolist (i *screen-list*)
     (setf (screen-msg-border-width i) width))
@@ -553,7 +553,7 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
       (netwm-set-properties screen focus-window)
       (update-colors-for-screen screen)
       (update-color-map screen)
-      (xwin-grab-keys focus-window screen)
+      (xwin-grab-keys focus-window group)
       screen)))
 
 ;;; Screen commands

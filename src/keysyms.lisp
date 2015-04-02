@@ -61,7 +61,7 @@
 		      :dswm-name (dswm-key-dswm-name key)
 		      :keysym-name (dswm-key-keysym-name key)
 		      :syms (remove-from-list (dswm-key-syms key) keysym)))))))
-	
+
 (defun define-keysym (keysym keysym-name &optional dswm-name)
   "Define a mapping from a keysym name to a keysym."
   (let ((key (get-key-by-keysym-name keysym-name *keys*)))
@@ -83,7 +83,7 @@
 			     :dswm-name dswm-name
 			     :keysym-name keysym-name
 			     :syms (list keysym))))))
-	  
+
 
 (defun keysym-name->keysyms (name)
   "Return keysyms list corresponding to NAME."
@@ -2144,6 +2144,7 @@
 (define-keysym #x1008FFA9 "XF86TouchpadToggle")
 (define-keysym #x1008FFB0 "XF86TouchpadOn")
 (define-keysym #x1008FFB1 "XF86TouchpadOff")
+(define-keysym #x1008FFB2 "XF86AudioMicMute")
 (define-keysym #x1008FE01 "XF86_Switch_VT_1")
 (define-keysym #x1008FE02 "XF86_Switch_VT_2")
 (define-keysym #x1008FE03 "XF86_Switch_VT_3")

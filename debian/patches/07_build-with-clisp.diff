@@ -1,0 +1,33 @@
+use default linking set for clisp
+Index: dswm/Makefile.in
+===================================================================
+--- dswm.orig/Makefile.in	2014-05-29 21:40:39.000000001 +0200
++++ dswm/Makefile.in	2014-05-29 21:51:52.000000001 +0200
+@@ -1,12 +1,12 @@
+ LISP=@LISP_PROGRAM@
+ 
+-clisp_BUILDOPTS=-K full -on-error exit < ./make-image.lisp
++clisp_BUILDOPTS=-on-error exit < ./make-image.lisp
+ sbcl_BUILDOPTS=--load ./make-image.lisp
+ ccl_BUILDOPTS=--load ./make-image.lisp
+ ecl_BUILDOPTS=-shell ./make-image.lisp
+ lw_BUILDOPTS=-build ./make-image.lisp
+ 
+-clisp_INFOOPTS=-K full -on-error exit -x "(load (compile-file \"load-dswm.lisp\")) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)"
++clisp_INFOOPTS=-on-error exit -x "(load \"/usr/share/common-lisp/source/cl-asdf/asdf.lisp\") (load (compile-file \"load-dswm.lisp\")) (load (compile-file \"manual.lisp\")) (dswm::generate-manual) (ext:exit)"
+ sbcl_INFOOPTS=--eval "(progn (load \"load-dswm.lisp\") (load \"manual.lisp\"))" --eval "(progn (dswm::generate-manual) (sb-ext:quit))"
+ ccl_INFOOPTS=--eval "(load \"load-dswm.lisp\")" --load manual.lisp --eval "(progn (dswm::generate-manual) (quit))"
+ ecl_INFOOPTS=-eval "(progn (load \"load-dswm.lisp\") (load \"manual.lisp\"))" -eval "(progn (dswm::generate-manual) (ext:quit))"
+Index: dswm/primitives.lisp
+===================================================================
+--- dswm.orig/primitives.lisp	2014-05-14 20:22:43.000000001 +0200
++++ dswm/primitives.lisp	2014-05-29 21:52:09.000000001 +0200
+@@ -25,7 +25,7 @@
+ 
+ (in-package :dswm)
+ 
+-#+ecl (require "clx")
++#+(or ecl clisp) (require "clx")
+ 
+ (export '(*suppress-abort-messages*
+           *suppress-frame-indicator*

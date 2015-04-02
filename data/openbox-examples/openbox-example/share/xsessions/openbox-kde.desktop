@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=KDE/DSWM
+Comment=Use the DSWM window manager inside of the K Desktop Environment
+Exec=/usr/bin/dswm-kde-session
+TryExec=startkde
+Icon=dswm.png
+Type=XSession

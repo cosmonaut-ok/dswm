@@ -128,7 +128,7 @@ seperated by a colon."
       for dir = (probe-path p)
       when dir
       nconc (loop
-               for file in 
+               for file in
 	       ;; SBCL doesn't match files with types if type
 	       ;; is not wild and CLISP won't match files
 	       ;; without a type when type is wild. So cover all the bases
@@ -319,7 +319,7 @@ instance. @var{all-groups} overrides this default. Similarily for
          (let* ((group (window-group win))
                 (frame (window-frame win))
                 (old-frame (tile-group-current-frame group)))
-           (frame-raise-window group frame win)
+           ;; (frame-raise-window group frame win) ;; TODO: stumpwm #68. Test
            (focus-all win)
            (unless (eq frame old-frame)
              (show-frame-indicator group)))))
@@ -368,7 +368,7 @@ current frame instead of switching to the window."
 		 (getenv "EDITOR")
 		 (princ-to-string (which "emacs"))))
 	 (ed-coerce (coerce (princ-to-string ed) 'list))
-	 (ed-class 
+	 (ed-class
 	  (coerce (cons (char-upcase (car ed-coerce)) (cdr ed-coerce)) 'string)))
     (if-null ed
 	     (error "No editor found, and it was not defined in *editor* variable")
@@ -383,7 +383,7 @@ current frame instead of switching to the window."
 	      (which "conkeror")
 	      (which "firefox")))
 	 (br-coerce (coerce (princ-to-string (basename br)) 'list))
-	 (br-class 
+	 (br-class
 	  (coerce (cons (char-upcase (car br-coerce)) (cdr br-coerce)) 'string)))
     (if-null br
 	     (error "No browser found, and it was not defined in *browser* variable")

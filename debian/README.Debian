@@ -1,0 +1,73 @@
+dswm for Debian
+------------------
+
+* HowTo start DSWM
+
+DSWM can be started using the /usr/bin/dswm executable.  By
+default, the binary assumes that you want to use DSWM with CLISP.
+In case you prefer SBCL or CMUCL, please configure it via an
+environment variable:
+
+  LISP=$COMMON_LISP_IMPLEMENTATION_TO_BE_USED
+
+or in your ~/.dswmrc like:
+
+  ;debian=$COMMON_LISP_IMPLEMENTATION_TO_BE_USED
+
+where COMMON_LISP_IMPLEMENTATION_TO_BE_USED is clisp, sbcl or cmucl.
+
+At least one trailing semicolon is required since ~/.dswmrc
+is read by DSWM as its configuration file, thus the debian
+declaration must be commented out.
+
+Note for SBCL users: unfortunately, the first time CLX-0.7.3 is
+loaded it requires manual intervention:
+
+  http://bugs.debian.org/492046
+
+Thus, if you want to start DSWM you need to be sure to have loaded
+CLX at least once, like, in a new terminal:
+
+  $ sbcl
+  * (asdf:oos 'asdf:load-op 'clx)
+    ACCEPT (i.e. press 2 and then RET)
+  * (quit)
+
+
+* Control a running DSWM session
+
+Taking advantage of the swank module of the SLIME package, you can
+control a running DSWM session from Emacs.  In order to do so,
+start the swank directly in your ~/.dswmrc with:
+
+  * (asdf:oos 'asdf:load-op 'swank)
+  * (swank:create-server :dont-close t)
+
+Please refer to the SLIME documentation for more information.
+
+
+* Load contrib files
+
+DSWM comes with some user-contributed files to add extra features
+(e.g. CPU and battery status for the `mode-line').  You can load any
+of them by putting in your ~/.dswmrc:
+
+  * (load "/usr/share/common-lisp/source/dswm/contrib/FILE.lisp")
+
+Check the file sources to find out how to use the extra features.
+
+
+* Emacs `dswm-mode'
+
+To directly eval code from Emacs buffers into a running DSWM using
+DSISH, please do the following from Emacs:
+
+  * M-x load-file RET /usr/share/doc/dswm/dswm-mode.el RET
+  * M-x dswm-mode
+
+Now you can call `dswm-eval-defun', `dswm-eval-last-sexp' and
+`dswm-eval-region', the first two mapped to the regular bindings.
+
+
+ -- Luca Capello <luca@pca.it>, Wed, 23 Jul 2008 21:46:04 +0200
+

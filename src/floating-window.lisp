@@ -88,15 +88,25 @@
   )
 
 (defmethod window-head ((window float-window))
-  (dolist (head (screen-heads (group-screen (window-group window))))
-    (when (and
-           (>= (window-x window) (frame-x head))
-           (>= (window-y window) (frame-y head))
-           (<= (+ (window-x window) (window-width window))
-               (+ (frame-x head) (frame-width head)))
-           (<= (+ (window-y window) (window-height window))
-               (+ (frame-y head) (frame-height head))))
-      (return head))))
+  (let ((left (window-x window))
+	(right (+ (window-x window) (window-width window)))
+	(top (window-y window))
+	(bottom (+ (window-y window) (window-height window)))
+	(heads (screen-heads (group-screen (window-group window)))))
+    (flet ((within-frame-p (y x head)
+			   (and (>= x (frame-x head))
+				(< x (+ (frame-x head) (frame-width head)))
+				(>= y (frame-y head))
+				(< y (+ (frame-y head) (frame-height head))))))
+      (or (find-if (lambda (head)
+		     (or (within-frame-p top left head)
+			 (within-frame-p top right head)
+			 (within-frame-p bottom left head)
+			 (within-frame-p bottom right head)))
+		   heads)
+	  ;; Didn't find any head, so give up and return the first one
+	  ;; in the list.
+	  (first heads)))))
 
 (defmethod window-visible-p ((win float-window))
   (eql (window-state win) +normal-state+))
@@ -130,7 +140,10 @@
   (screen-focus (group-screen group)))
 
 (defmethod group-current-head ((group float-group))
-  (first (screen-heads (group-screen group))))
+	(if (group-current-window group)
+			(window-head (group-current-window group))
+			(first (screen-heads (group-screen group)))))
+
 
 (defun float-window-align (window)
   (with-slots (parent xwin width height) window
@@ -140,7 +153,7 @@
             (xlib:drawable-height parent) (+ height (screen-float-window-title-height (current-screen)) (screen-frame-outline-width (current-screen)))
             (xlib:window-background parent) (screen-win-bg-color (current-screen))))
     (xlib:clear-area (window-parent window))))
-  
+
 (defmethod group-button-press ((group float-group) x y (window float-window))
   (let ((screen (group-screen group))
         (initial-width (xlib:drawable-width (window-parent window)))

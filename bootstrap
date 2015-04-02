@@ -1,11 +1,12 @@
 #!/bin/sh
-set -x
+# set -x
 
 test -d acdir || mkdir -p acdir
 if [ "$(which aclocal)" ] && [ "$(which autoconf)" ] && [ "$(which automake)" ]; then
-    aclocal
-    automake --add-missing --copy
+    aclocal -I acdir --install
     autoconf
+    echo '@setfilename dswm.info' > ./doc/dswm.texi
+    automake --add-missing --copy
 else
     echo "Some components not found: aclocal/automake/autoconf"
 fi

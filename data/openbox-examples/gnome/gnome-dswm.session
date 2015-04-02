@@ -1,0 +1,10 @@
+[GNOME Session]
+Name=GNOME DSWM
+RequiredComponents=gnome-panel;gnome-settings-daemon;
+RequiredProviders=windowmanager;
+DefaultProvider-windowmanager=dswm
+DefaultProvider-notifications=notify-osd
+DesktopName=GNOME
+
+
+### usr/share/mate-session/sessions/mate-dswm.session

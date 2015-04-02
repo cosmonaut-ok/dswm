@@ -227,12 +227,14 @@ _NET_WM_STATE_DEMANDS_ATTENTION set"
          (root-id (xlib:drawable-id root))
          (tr (window-transient-for window)))
     (cond
-      ((or (not tr)
-           (eq tr root-id))
-       (window-gang window))
-      (t
-       (let ((w (window-by-id tr)))
-         (append (list w) (transients-of w)))))))
+     ((or (not tr)
+	  (eq tr root-id))
+      (window-gang window))
+     (t
+      (let ((w (window-by-id tr)))
+	(if w
+	    (append (list w) (transients-of w))
+	  '()))))))
 
 (defun only-transients (windows)
   "Out of WINDOWS, return a list of those which are transient."
@@ -613,8 +615,8 @@ and bottom_end_x."
 (defun set-normal-gravity (gravity)
   "Set the default gravity for normal windows. Possible values are
 @code{:center} @code{:top} @code{:left} @code{:right} @code{:bottom}
-@code{:top-left} @code{:top-right} @code{:bottom-left} and
-@code{:bottom-right}."
+@code{:top-left} @code{:top-right} @code{:bottom-left} @code{:bottom-right}.
+and @code{'(<gravity> <x-offset> <y-offset>)}"
   (setf *normal-gravity* gravity)
   (update-window-gravity))
 
@@ -670,26 +672,37 @@ and bottom_end_x."
   ;; the mapnotify event before the reparent event. that's what fvwm
   ;; says.
   (xlib:with-server-grabbed (*display*)
-    (let ((master-window (xlib:create-window
-                          :parent (screen-root screen)
-                          :x (xlib:drawable-x (window-xwin window)) :y (xlib:drawable-y (window-xwin window))
-                          :width (window-width window)
-                          :height (window-height window)
-                          :background (if (eq (window-type window) :normal)
-                                          (screen-win-bg-color screen)
-                                          :none)
-                          :border (screen-unfocus-color screen)
-                          :border-width (default-border-width-for-type window)
-                          :event-mask *window-parent-events*)))
-      (unless (eq (xlib:window-map-state (window-xwin window)) :unmapped)
-        (incf (window-unmap-ignores window)))
-      (xlib:reparent-window (window-xwin window) master-window 0 0)
-      (xwin-grab-buttons master-window)
-      ;;     ;; we need to update these values since they get set to 0,0 on reparent
-      ;;     (setf (window-x window) 0
-      ;;          (window-y window) 0)
-      (xlib:add-to-save-set (window-xwin window))
-      (setf (window-parent window) master-window))))
+			    (let* ((xwin (window-xwin window))
+				   (args (list
+					  :parent (screen-root screen)
+					  :x (xlib:drawable-x (window-xwin window))
+					  :y (xlib:drawable-y (window-xwin window))
+					  :width (window-width window)
+					  :height (window-height window)
+					  :background (if (eq (window-type window) :normal)
+							  (screen-win-bg-color screen)
+							:none)
+					  :border (screen-unfocus-color screen)
+					  :border-width (default-border-width-for-type window)
+					  :event-mask *window-parent-events*))
+				   (args1 (if (= 32 (xlib:drawable-depth xwin))
+					      (append args
+						      (list
+						       :depth 32
+						       :visual (xlib:window-visual-info xwin)
+						       :colormap (xlib:window-colormap xwin)))
+					    args))
+				   (master-window (apply 'xlib:create-window args1)))
+
+			      (unless (eq (xlib:window-map-state (window-xwin window)) :unmapped)
+				(incf (window-unmap-ignores window)))
+			      (xlib:reparent-window (window-xwin window) master-window 0 0)
+			      (xwin-grab-buttons master-window)
+			      ;;     ;; we need to update these values since they get set to 0,0 on reparent
+			      ;;     (setf (window-x window) 0
+			      ;;          (window-y window) 0)
+			      (xlib:add-to-save-set (window-xwin window))
+			      (setf (window-parent window) master-window))))
 
 (defun process-existing-windows (screen)
   "Windows present when dswm starts up must be absorbed by dswm."
@@ -721,34 +734,68 @@ and bottom_end_x."
     (setf (window-state w) +normal-state+)
     (xwin-hide w)))
 
-(defun xwin-grab-keys (win screen)
-  (labels ((grabit (w key)
-             (loop for code in (multiple-value-list (xlib:keysym->keycodes *display* (key-keysym key))) do
-               ;; some keysyms aren't mapped to keycodes so just ignore them.
-               (when code
-                 ;; Some keysyms, such as upper case letters, need the
-                 ;; shift modifier to be set in order to grab properly.
-                 (when (and (not (eql (key-keysym key) (xlib:keycode->keysym *display* code 0)))
-                            (eql (key-keysym key) (xlib:keycode->keysym *display* code 1)))
-                   ;; don't butcher the caller's structure
-                   (setf key (copy-structure key)
-                         (key-shift key) t))
-                 (xlib:grab-key w code
-                                :modifiers (x11-mods key) :owner-p t
-                                :sync-pointer-p nil :sync-keyboard-p nil)
-                 ;; Ignore capslock and numlock by also grabbing the
-                 ;; keycombos with them on.
-                 (xlib:grab-key w code :modifiers (x11-mods key nil t) :owner-p t
-                                :sync-keyboard-p nil :sync-keyboard-p nil)
-                 (when (modifiers-numlock *modifiers*)
-                   (xlib:grab-key w code
-                                  :modifiers (x11-mods key t nil) :owner-p t
-                                  :sync-pointer-p nil :sync-keyboard-p nil)
-                   (xlib:grab-key w code :modifiers (x11-mods key t t) :owner-p t
-                                  :sync-keyboard-p nil :sync-keyboard-p nil))))))
-    (dolist (map (dereference-kmaps (top-maps screen)))
-      (dolist (i (kmap-bindings map))
-        (grabit win (binding-key i))))))
+(defun xwin-grab-keys (win group)
+  (labels ((add-shift-modifier (key)
+						 ;; don't butcher the caller's structure
+						 (let ((key (copy-structure key)))
+							 (setf (key-shift key) t)
+							 key))
+					 (grabit (w key)
+						 (loop for code in (multiple-value-list (xlib:keysym->keycodes *display* (key-keysym key))) do
+								;; some keysyms aren't mapped to keycodes so just ignore them.
+									(when code
+										;; Some keysyms, such as upper case letters, need the
+										;; shift modifier to be set in order to grab properly.
+										(let ((key
+													 (if (and (not (eql (key-keysym key) (xlib:keycode->keysym *display* code 0)))
+																		(eql (key-keysym key) (xlib:keycode->keysym *display* code 1)))
+															 (add-shift-modifier key)
+															 key)))
+											(xlib:grab-key w code
+																		 :modifiers (x11-mods key) :owner-p t
+																		 :sync-pointer-p nil :sync-keyboard-p nil)
+											;; Ignore capslock and numlock by also grabbing the
+											;; keycombos with them on.
+											(xlib:grab-key w code :modifiers (x11-mods key nil t) :owner-p t
+																		 :sync-keyboard-p nil :sync-keyboard-p nil)
+											(when (modifiers-numlock *modifiers*)
+												(xlib:grab-key w code
+																			 :modifiers (x11-mods key t nil) :owner-p t
+																			 :sync-pointer-p nil :sync-keyboard-p nil)
+												(xlib:grab-key w code :modifiers (x11-mods key t t) :owner-p t
+																			 :sync-keyboard-p nil :sync-keyboard-p nil)))))))
+		(dolist (map (dereference-kmaps (top-maps group)))
+			(dolist (i (kmap-bindings map))
+				(grabit win (binding-key i))))))
+
+;; (defun xwin-grab-keys (win screen)
+;;   (labels ((grabit (w key)
+;;              (loop for code in (multiple-value-list (xlib:keysym->keycodes *display* (key-keysym key))) do
+;;                ;; some keysyms aren't mapped to keycodes so just ignore them.
+;;                (when code
+;;                  ;; Some keysyms, such as upper case letters, need the
+;;                  ;; shift modifier to be set in order to grab properly.
+;;                  (when (and (not (eql (key-keysym key) (xlib:keycode->keysym *display* code 0)))
+;;                             (eql (key-keysym key) (xlib:keycode->keysym *display* code 1)))
+;;                    ;; don't butcher the caller's structure
+;;                    (setf key (copy-structure key)
+;;                          (key-shift key) t))
+;;                  (xlib:grab-key w code
+;;                                 :modifiers (x11-mods key) :owner-p t
+;;                                 :sync-pointer-p nil :sync-keyboard-p nil)
+;;                  ;; Ignore capslock and numlock by also grabbing the
+;;                  ;; keycombos with them on.
+;;                  (xlib:grab-key w code :modifiers (x11-mods key nil t) :owner-p t
+;;                                 :sync-keyboard-p nil :sync-keyboard-p nil)
+;;                  (when (modifiers-numlock *modifiers*)
+;;                    (xlib:grab-key w code
+;;                                   :modifiers (x11-mods key t nil) :owner-p t
+;;                                   :sync-pointer-p nil :sync-keyboard-p nil)
+;;                    (xlib:grab-key w code :modifiers (x11-mods key t t) :owner-p t
+;;                                   :sync-keyboard-p nil :sync-keyboard-p nil))))))
+;;     (dolist (map (dereference-kmaps (top-maps screen)))
+;;       (dolist (i (kmap-bindings map))
+;;         (grabit win (binding-key i))))))
 
 (defun grab-keys-on-window (win)
   (xwin-grab-keys (window-xwin win) (window-group win)))
@@ -782,8 +829,8 @@ and bottom_end_x."
                  do (xwin-ungrab-keys j))
         do (xlib:display-finish-output *display*)
         do (loop for j in (screen-mapped-windows i)
-                 do (xwin-grab-keys j i))
-        do (xwin-grab-keys (screen-focus-window i) i))
+                 do (xwin-grab-keys j (window-group (find-window j))))
+        do (xwin-grab-keys (screen-focus-window i) (screen-current-group i)))
   (xlib:display-finish-output *display*))
 
 (defun netwm-remove-window (window)
@@ -809,8 +856,9 @@ needed."
       ;; one (if it isn't already) if :raise is T.
       (when placement-data
         (if (getf placement-data :raise)
-          (switch-to-group (window-group window))
-          (message "Placing window ~a in group ~a" (window-name window) (group-name (window-group window))))
+						(switch-to-group (window-group window))
+						(unless *suppress-window-placement-indicator*
+							(message "Placing window ~a in group ~a" (window-name window) (group-name (window-group window)))))
         (apply 'run-hook-with-args *place-window-hook* window (window-group window) placement-data)))
     ;; must call this after the group slot is set for the window.
     (grab-keys-on-window window)
@@ -927,18 +975,33 @@ needed."
   (dformat 3 "focus-window: ~s~%" window)
   (let* ((group (window-group window))
          (screen (group-screen group))
-         (cw (screen-focus screen)))
-    ;; If window to focus is already focused then our work is done.
-    (unless (eq window cw)
-      (raise-window window)
-      (screen-set-focus screen window)
-      ;;(send-client-message window :WM_PROTOCOLS +wm-take-focus+)
-      (update-decoration window)
-      (when cw
-        (update-decoration cw))
-      ;; Move the window to the head of the mapped-windows list
-      (move-window-to-head group window)
-      (run-hook-with-args *focus-window-hook* window cw))))
+				 (cw (screen-focus screen))
+				 (xwin (window-xwin window)))
+		(cond
+			((eq window cw)
+			 ;; If window to focus is already focused then our work is done.
+			 )
+			((and *current-event-time*
+						(member :WM_TAKE_FOCUS (xlib:wm-protocols xwin) :test #'eq))
+			 (raise-window window)
+			 (screen-set-focus screen window)
+			 (update-decoration window)
+			 (when cw
+				 (update-decoration cw))
+			 (move-window-to-head group window)
+			 (send-client-message window :WM_PROTOCOLS
+														(xlib:intern-atom *display* :WM_TAKE_FOCUS)
+														*current-event-time*)
+			 (run-hook-with-args *focus-window-hook* window cw))
+			(t
+			 (raise-window window)
+			 (screen-set-focus screen window)
+			 (update-decoration window)
+			 (when cw
+				 (update-decoration cw))
+			 ;; Move the window to the head of the mapped-windows list
+			 (move-window-to-head group window)
+			 (run-hook-with-args *focus-window-hook* window cw)))))
 
 ;; In the future, this window will raise the window into the current
 ;; frame.

@@ -1,0 +1,6 @@
+?package(dswm): \
+  needs="wm" \
+  section="Window Managers" \
+  title="DSWM" \
+  longtitle="a Common Lisp window manager" \
+  command="dswm"

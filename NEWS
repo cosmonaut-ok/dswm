@@ -1,6 +1,16 @@
 -*- outline -*-
 
 This file documents user visible changes between versions of DSWM
+* Changes since 0.1
+
+** Rewrite build system with full autotools support
+** add keys in ./configure script:
+   --with-ql[=DIR] to support resolve dependencies with quicklisp
+   --enable-dbus DBUS native support
+   --enable-[gnome|cinnamon|kde|xfce|lxde] to run as window manager in most popular desktop environments
+   --enable-debug to support lisp debug mode while build
+
+
 * Changes since 0.0.5
 
 ** add remember-forget-reacll subsystem

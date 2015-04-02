@@ -52,6 +52,7 @@
 	  *group-number-map*
 	  *hidden-window-color*
 	  *honor-window-moves*
+		*ignore-wm-inc-hints*
 	  *initializing*
 	  *input-window-gravity*
 	  *internal-loop-hook*
@@ -98,7 +99,8 @@
 	  *run-or-raise-all-groups*
 	  *run-or-raise-all-screens*
 	  *scratchpad-group-name*
-	  *screen-list*
+		*screen-list*
+		*suppress-window-placement-indicator*
 	  *mode-line-format*
 	  *mode-line-formatters*
 	  *info-line-format*
@@ -289,11 +291,33 @@ be an integer.")
 (defvar *suppress-frame-indicator* nil
   "Set this to T if you never want to see the frame indicator.")
 
+(defvar *suppress-window-placement-indicator* nil
+	"Set to T if you never want to see messages that windows were placed according to rules.")
+
 (defvar *message-window-timer* nil
   "Keep track of the timer that hides the message window.")
 
+;;; Grabbed pointer
+
 (defvar *grab-pointer-count* 0
-  "The number of times the pointer has been grabbed")
+	"The number of times the pointer has been grabbed.")
+
+(defvar *grab-pointer-font* "cursor"
+	"The font used for the grabbed pointer.")
+
+(defvar *grab-pointer-character* 64
+	"ID of a character used for the grabbed pointer.")
+
+(defvar *grab-pointer-character-mask* 65
+	"ID of a character mask used for the grabbed pointer.")
+
+(defvar *grab-pointer-foreground*
+	(xlib:make-color :red 0.0 :green 0.0 :blue 0.0) ;; TODO: hardcoded?
+	"The foreground color of the grabbed pointer.")
+
+(defvar *grab-pointer-background*
+	(xlib:make-color :red 1.0 :green 1.0 :blue 1.0) ;; TODO: hardcoded?
+	"The background color of the grabbed pointer.")
 
 ;;; Hooks
 
@@ -569,12 +593,14 @@ Include only those we are ready to support.")
 
   "The events to listen for on managed windows' parents.")
 
+(defvar *current-event-time* nil)
+
 ;; Message window variables
 (defvar *message-window-padding* 5
   "The number of pixels that pad the text in the message window.")
 
 (defvar *message-window-gravity* :top
-  "This variable controls where the message window appears. The follow
+  "This variable controls where the message window appears. The following
 are valid values.
 @table @asis
 @item :top-left
@@ -582,10 +608,15 @@ are valid values.
 @item :bottom-left
 @item :bottom-right
 @item :center
+@item :top
+@item :left
+@item :right
+@item :bottom
++@item '(<gravity> <x-offset> <y-offset>)
 @end table")
 
 (defvar *menu-window-gravity* :bottom-left
-  "This variable controls where the message window appears. The follow
+  "This variable controls where the message window appears. The following
 are valid values.
 @table @asis
 @item :top-left
@@ -593,6 +624,11 @@ are valid values.
 @item :bottom-left
 @item :bottom-right
 @item :center
+@item :top
+@item :left
+@item :right
+@item :bottom
++@item '(<gravity> <x-offset> <y-offset>)
 @end table")
 
 ;; line editor
@@ -714,6 +750,9 @@ alphanumeric characters, starting with numbers 0-9.")
 
 (defvar *screen-list* '()
   "The list of screens managed by dswm.")
+
+(defvar *ignore-wm-inc-hints* nil
+	"Set this to T if you never want windows to resize based on incremental WM_HINTs, like xterm and emacs.")
 
 (defvar *initializing* nil
   "True when starting dswm. Use this variable in your rc file to
@@ -1039,7 +1078,7 @@ input focus is transfered to the window you click on.")
 
 (defvar *root-click-focuses-frame* t
   "Set to NIL if you don't want clicking the root window to focus the frame
-  containing the pointer when *mouse-focus-policy* is :click.")
+  containing the pointer")
 
 (defvar *banish-pointer-to* :head
   "Where to put the pointer when no argument is given to (banish-pointer) or the banish

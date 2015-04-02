@@ -122,18 +122,19 @@
   "Re-arrange window according to placement rules" ;; TODO: make rules restoration for floating windows!
   (let ((screen (window-screen window)))
     (multiple-value-bind (to-group frame raise)
-			 (with-current-screen screen
-					      (get-window-placement screen window))
-			 (declare (ignore raise))
-			 (when to-group
-			   (cond ((eq (type-of to-group) 'tile-group)
-				  (unless (eq (window-group window) to-group)
-				    (move-window-to-group window to-group))
-				  (unless (eq (window-frame window) frame)
-				    (pull-window window frame)))
-				 ((eq (type-of to-group) 'float-group)
-				  (message "~a" frame)
-				  ))))))
+				(with-current-screen screen
+					(get-window-placement screen window))
+			(declare (ignore raise))
+			(when to-group
+				(cond ((eq (type-of to-group) 'tile-group)
+							 (unless (eq (window-group window) to-group)
+								 (move-window-to-group window to-group))
+							 (when frame
+								 (unless (eq (window-frame window) frame)
+								 (pull-window window frame))))
+							((eq (type-of to-group) 'float-group)
+							 (message "~a" frame) ;; TODO: is it debug?
+							 ))))))
 
 (defun sync-windows-placement ()
   "Re-arrange existing windows according to placement rules"

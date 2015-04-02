@@ -1,0 +1,3 @@
+?package(dswm):needs="wm" section="Window Managers" \
+  title="DSWM" command="/usr/bin/dswm" \
+  icon="/usr/share/pixmaps/dswm.xpm"

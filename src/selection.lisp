@@ -46,13 +46,16 @@
 
 (defun send-selection (requestor property selection target time)
   (dformat 1 "send-selection ~s ~s ~s ~s ~s~%" requestor property selection target time)
-  (cond
+  (case target
     ;; they're requesting what targets are available
-    ((eq target :targets)
-     (xlib:change-property requestor property (list :targets :string) target 8 :mode :replace))
+    (:targets
+     (xlib:change-property requestor property (list :targets :string :utf8_string) target 8 :mode :replace))
     ;; send them a string
-    ((find target '(:string ))
-     (xlib:change-property requestor property *x-selection* :string 8 :mode :replace :transform #'xlib:char->card8))
+    (:string
+     (xlib:change-property requestor property (getf *x-selection* selection)
+                           :string 8 :mode :replace :transform #'xlib:char->card8))
+    (:utf8_string
+     (xlib:change-property requestor property (string-to-utf8 (getf *x-selection* selection)) target 8 :mode :replace))
     ;; we don't know how to handle anything else
     (t
      (setf property nil)))
@@ -65,27 +68,26 @@
                    :time time)
   (xlib:display-finish-output *display*))
 
-(defun get-x-selection (&optional timeout)
+(defun get-x-selection (&optional timeout (selection :primary))
   "Return the x selection no matter what client own it."
   (labels ((wait-for-selection (&rest event-slots &key display event-key &allow-other-keys)
              (declare (ignore display))
              (when (eq event-key :selection-notify)
                (destructuring-bind (&key window property &allow-other-keys) event-slots
                  (if property
-                     (xlib:get-property window property :type :string :result-type 'string :transform #'xlib:card8->char :delete-p t)
+                     (utf8-to-string (xlib:get-property window property :type :utf8_string :result-type 'vector :delete-p t))
                      "")))))
-    (if *x-selection*
-        *x-selection*
+    (or (getf *x-selection* selection)
         (progn
-          (xlib:convert-selection :primary :string (screen-input-window (current-screen)) :dswm-selection)
+          (xlib:convert-selection selection :utf8_string (screen-input-window (current-screen)) :dswm-selection)
           ;; Note: this may spend longer than timeout in this loop but it will eventually return.
           (let ((time (get-internal-real-time)))
             (loop for ret = (xlib:process-event *display* :handler #'wait-for-selection :timeout timeout :discard-p nil)
-                  when (or ret
-                           (> (/ (- time (get-internal-real-time)) internal-time-units-per-second)
-                              timeout))
-                  ;; make sure we return a string
-                  return (or ret "")))))))
+							 when (or ret
+												(> (/ (- time (get-internal-real-time)) internal-time-units-per-second)
+													 timeout))
+							 ;; make sure we return a string
+							 return (or ret "")))))))
 
 ;;; Commands
 

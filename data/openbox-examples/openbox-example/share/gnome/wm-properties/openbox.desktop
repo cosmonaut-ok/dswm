@@ -1,0 +1,18 @@
+[Desktop Entry]
+Type=Application
+Name=DSWM
+Exec=dswm
+Type=Application
+Categories=System;
+
+# name we put on the WM spec check window
+X-GNOME-WMName=DSWM
+
+X-GNOME-Provides=windowmanager
+NoDisplay=true
+
+# our config tool
+ConfigExec=obconf
+
+[Window Manager]
+SessionManaged=true

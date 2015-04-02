@@ -25,124 +25,63 @@
 
 (in-package :xlib)
 
-;; ;;; SBCL workaround for a clx caching bug. This is taken from portable-clx's display.lisp.
+;;; CLISP can't handle non-compliant (and even compliant) wm-class strings. See
+;;; test-wm-class in test-wm.lisp.
 
-;; ;;; NOTE! The latest clx in Rhodes' repository has fixed this in a far
-;; ;;; better way by only caching XIDs created by the client.
+;; This redefines decod-wm-size-hints in clisp because "It seems clisp
+;; tries to be sneaky and represent the min and max aspect ratios as a
+;; ratio number, which works except when the 0/0 is how you specify
+;; that there is no aspect ratio, as mplayer/mpv/mplayer2 does."
+;; http://lists.gnu.org/archive/html/stumpwm-devel/2009-08/msg00025.html
 
-;; ;; Define functions to find the CLX data types given a display and resource-id
-;; ;; If the data type is being cached, look there first.
-;; #+sbcl
-;; (macrolet ((generate-lookup-functions (useless-name &body types)
-;; `(within-definition (,useless-name generate-lookup-functions)
-;; ,@(mapcar
-;; #'(lambda (type)
-;; `(defun ,(xintern 'lookup- type)
-;; (display id)
-;; (declare (type display display)
-;; (type resource-id id))
-;; (declare (clx-values ,type))
-;; ,(if (member type +clx-cached-types+)
-;; `(let ((,type (lookup-resource-id display id)))
-;; (cond ((null ,type) ;; Not found, create and save it.
-;; (setq ,type (,(xintern 'make- type)
-;; :display display :id id))
-;; (save-id display id ,type))
-;; ;; Found. Check the type
-;;                                         ((type? ,type ',type) ,type)
-;;                                         (t
-;;                                          (restart-case
-;;                                              (x-error 'lookup-error
-;;                                                       :id id
-;;                                                       :display display
-;;                                                       :type ',type
-;;                                                       :object ,type)
-;;                                            (:one ()
-;;                                              :report "Invalidate this cache entry"
-;;                                              (save-id display id (,(xintern 'make- type) :display display :id id)))
-;;                                            (:all ()
-;;                                              :report "Invalidate all display cache"
-;;                                              (clrhash (display-resource-id-map display))
-;;                                              (save-id display id (,(xintern 'make- type) :display display :id id)))))))
-;; ;; Not being cached. Create a new one each time.
-;; `(,(xintern 'make- type)
-;; :display display :id id))))
-;; types))))
-;;   (generate-lookup-functions ignore
-;;     drawable
-;;     window
-;;     pixmap
-;;     gcontext
-;;     cursor
-;;     colormap
-;;     font))
-
-;; ;;; Both clisp and SBCL can't handle incompliant (and in clisp's case,
-;; ;;; even compliant) wm-class strings. See test-wm-class in test-wm.lisp.
-
-;; #+sbcl
-;; (defun get-wm-class (window)
-;;   (declare (type window window))
-;;   (declare (clx-values (or null name-string) (or null class-string)))
-;;   (let ((value (get-property window :WM_CLASS :type :STRING :result-type '(vector card8))))
-;;     (declare (type (or null (vector card8)) value))
-;;     (when value
-;;       ;; Buggy clients may not comply with the format, so deal with
-;;       ;; the unexpected.
-;;       (let* ((first-zero (position 0 (the (vector card8) value)))
-;;              (second-zero (and first-zero
-;;                                (position 0 (the (vector card8) value) :start (1+ first-zero))))
-;; (name (subseq (the (vector card8) value) 0 first-zero))
-;; (class (and first-zero
-;;                          (subseq (the (vector card8) value) (1+ first-zero) second-zero))))
-;; (values (and (plusp (length name)) (map 'string #'card8->char name))
-;; (and (plusp (length class)) (map 'string #'card8->char class)))))))
-
-;; #+clisp
-;; (defun get-wm-class (window)
-;;   (let ((value (get-property window :WM_CLASS :type :STRING :result-type 'string :transform #'card8->char)))
-;;     (when value
-;;       ;; Buggy clients may not comply with the format, so deal with
-;;       ;; the unexpected.
-;;       (let* ((first-zero (position (load-time-value (card8->char 0)) (the string value)))
-;;              (second-zero (and first-zero
-;;                                (position (load-time-value (card8->char 0)) (the string value) :start (1+ first-zero))))
-;;              (name (subseq (the string value) 0 first-zero))
-;;              (class (and first-zero
-;;                          (subseq (the string value) (1+ first-zero) second-zero))))
-;;         (values (and (plusp (length name)) name)
-;;                 (and (plusp (length class)) class))))))
-
-
-;; ;;;; fixed in new clisp?
-;; ;; #+clisp
-;; ;; (when (fboundp '%gcontext-key->mask)
-;; ;;   (defmacro WITH-GCONTEXT ((gcontext &rest options) &body body)
-;; ;;     (let ((saved (gensym)) (gcon (gensym)) (g0 (gensym)) (g1 (gensym))
-;; ;; 	  (comps 0)
-;; ;; 	  (setf-forms nil)
-;; ;; 	  dashes? clip-mask?)
-;; ;;       (do ((q options (cddr q)))
-;; ;; 	  ((null q))
-;; ;; 	  (cond ((eq (car q) :dashes) (setf dashes? t))
-;; ;; 		((eq (car q) :clip-mask) (setf clip-mask? t)))
-;; ;; 	  (setf comps (logior comps (%gcontext-key->mask (car q)))
-;; ;; 		setf-forms (nconc setf-forms
-;; ;; 				  (list (list (find-symbol (ext:string-concat "GCONTEXT-" (symbol-name (car q))) :xlib)
-;; ;; 					      gcon)
-;; ;; 					(cadr q)))))
-;; ;;       `(LET* ((,gcon ,gcontext)
-;; ;; 	      (,saved (%SAVE-GCONTEXT-COMPONENTS ,gcon ,comps))
-;; ;; 	      ,@(if dashes? (list `(,g0 (GCONTEXT-DASHES ,gcon))))
-;; ;; 	      ,@(if clip-mask? (list `(,g1 (GCONTEXT-CLIP-MASK ,gcon)))))
-;; ;; 	     (UNWIND-PROTECT
-;; ;; 	      (PROGN
-;; ;; 	       (SETF ,@setf-forms)
-;; ;; 	       ,@body)
-;; ;; 	      (PROGN
-;; ;; 	       (%RESTORE-GCONTEXT-COMPONENTS ,gcon ,saved)
-;; ;; 	       ,@(if dashes? (list `(SETF (GCONTEXT-DASHES ,gcon) ,g0)))
-;; ;; 	       ,@(if clip-mask? (list `(SETF (GCONTEXT-CLIP-MASK ,gcon) ,g1)))))))))
+#+clisp
+(defun decode-wm-size-hints (vector)
+  (declare (type (or null (simple-vector *)) vector))
+  (declare (values (or null wm-size-hints)))
+  (when vector
+    (let ((flags (aref vector 0))
+          (hints (make-wm-size-hints)))
+      (declare (type card16 flags)
+               (type wm-size-hints hints))
+      (setf (wm-size-hints-user-specified-position-p hints) (logbitp 0 flags))
+      (setf (wm-size-hints-user-specified-size-p hints) (logbitp 1 flags))
+      (setf (wm-size-hints-program-specified-position-p hints)
+            (logbitp 2 flags))
+      (setf (wm-size-hints-program-specified-size-p hints) (logbitp 3 flags))
+      (when (logbitp 4 flags)
+        (setf (wm-size-hints-min-width hints) (aref vector 5)
+              (wm-size-hints-min-height hints) (aref vector 6)))
+      (when (logbitp 5 flags)
+        (setf (wm-size-hints-max-width hints) (aref vector 7)
+              (wm-size-hints-max-height hints) (aref vector 8)))
+      (when (logbitp 6 flags)
+        (setf (wm-size-hints-width-inc hints) (aref vector 9)
+              (wm-size-hints-height-inc hints) (aref vector 10)))
+      (when (logbitp 7 flags)
+        (setf (wm-size-hints-min-aspect hints) (ignore-errors (/ (aref
+                                                                  vector 11) (aref vector 12)))
+              (wm-size-hints-max-aspect hints) (ignore-errors (/ (aref
+                                                                  vector 13) (aref vector 14)))))
+      (when (> (length vector) 15)
+        ;; This test is for backwards compatibility since old Xlib programs
+        ;; can set a size-hints structure that is too small.  See ICCCM.
+        (when (logbitp 8 flags)
+          (setf (wm-size-hints-base-width hints) (aref vector 15)
+                (wm-size-hints-base-height hints) (aref vector 16)))
+        (when (logbitp 9 flags)
+          (setf (wm-size-hints-win-gravity hints)
+                (decode-type (member :unmap :north-west :north :north-east :west
+                                     :center :east :south-west :south
+                                     :south-east :static)
+                             (aref vector 17)))))
+      ;; Obsolete fields
+      (when (or (logbitp 0 flags) (logbitp 2 flags))
+        (setf (wm-size-hints-x hints) (aref vector 1)
+              (wm-size-hints-y hints) (aref vector 2)))
+      (when (or (logbitp 1 flags) (logbitp 3 flags))
+        (setf (wm-size-hints-width hints) (aref vector 3)
+              (wm-size-hints-height hints) (aref vector 4)))
+      hints)))
 
 #+ecl (defun make-color (&key (red 1.0) (green 1.0) (blue 1.0) &allow-other-keys)
 	(declare (type rgb-val red green blue))

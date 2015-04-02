@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=MATE/DSWM
+Comment=Use the Dswm window manager inside of the MATE desktop environment
+Exec=@LIBEXECDIR@/dswm-mate-session
+TryExec=mate-session
+Icon=dswm.png
+Type=XSession

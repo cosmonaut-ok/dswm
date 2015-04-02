@@ -1,0 +1,13 @@
+Index: dswm/contrib/dsish
+===================================================================
+--- dswm.orig/contrib/dsish	2014-05-14 20:22:43.000000001 +0200
++++ dswm/contrib/dsish	2014-07-02 17:40:07.000000001 +0200
+@@ -180,7 +180,7 @@
+         tput me sgr0
+         echo \ for a list of commands.
+ 
+-	while read -p '> ' REPLY
++	while { echo -n '> '; read REPLY; }
+ 	do
+ 	    tput md bold
+ 	    tput AF setaf 2

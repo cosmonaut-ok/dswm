@@ -1,6 +1,12 @@
 AUTOMAKE_OPTIONS = foreign
-SUBDIRS = src doc examples man scripts etc
+SUBDIRS = src @DOC_DIR@ scripts etc data
+CLEANFILES = config.log config.status aclocal.m4 autom4te.cache *~
+DISTCLEANFILES = Makefile.in acdir/compile acdir/config.guess acdir/config.sub \
+	acdir/install-sh acdir/libtool.m4 acdir/ltmain.sh acdir/lt~obsolete.m4 \
+	acdir/ltoptions.m4 acdir/ltsugar.m4 acdir/ltversion.m4 acdir/missing \
+	acdir/texinfo.tex configure
 
-clean-local:
-	rm -rf compile depcomp install-sh missing config.log config.status configure aclocal.m4  autom4te.cache Makefile.in autom4te.cache *~ @QL_PATH@ Makefile Makefile.in
-
+distclean-local:
+	if test ! -z @QL_DIR@ && test -d @QL_DIR@; then \
+		rm -rf @QL_DIR@; \
+	fi

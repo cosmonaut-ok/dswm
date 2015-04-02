@@ -49,7 +49,7 @@
 	  directory-pathname-p
 	  directory-wildcard
 	  dirname
-	  eval-with-message 
+	  eval-with-message
 	  file-exists-p
 	  find-free-number
 	  font-height
@@ -105,7 +105,7 @@
   #+ecl (ext:setenv (string var) (string val))
   #-(or allegro clisp cmu gcl lispworks lucid sbcl scl openmcl ecl)
   (error 'not-implemented))
- 
+
 ;;;; Pathname operations
 (defun pathname-is-executable-p (pathname)
   "Return T if the pathname describes an executable file."
@@ -188,7 +188,7 @@ is neither NIL nor the keyword :UNSPECIFIC."
   "Returns NIL if PATHSPEC \(a pathname designator) does not designate
 a directory, PATHSPEC otherwise.  It is irrelevant whether file or
 directory designated by PATHSPEC does actually exist."
-  (and 
+  (and
     (not (component-present-p (pathname-name pathspec)))
     (not (component-present-p (pathname-type pathspec)))
     pathspec))
@@ -578,9 +578,9 @@ ITEM. Return the new list."
               (if (null cur)
                   (format t "%~a~@[~a~]" len from-left-p)
                   (let* ((fmt (cadr (assoc (car cur) fmt-alist :test 'char=)))
-                         (str (cond (fmt
-                                     ;; it can return any type, not jut as string.
-                                     (format nil "~a" (apply fmt args)))
+												 (str (cond (fmt (escape-caret
+																					;; it can return any type, not just a string.
+																					(format nil "~a" (apply fmt args))))
                                     ((char= (car cur) #\%)
                                      (string #\%))
                                     (t
@@ -764,10 +764,10 @@ display a message whenever you switch frames:
 (defun get-frame-number-translation (frame)
   "Given a frame return its number translation using *frame-number-map* as a char."
   (let ((num (frame-number frame)))
-    (or (and (< num (length *frame-number-map*))
-             (char *frame-number-map* num))
-        ;; translate the frame number to a char. FIXME: it loops after 9
-        (char (prin1-to-string num) 0))))
+    (if (< num (length *frame-number-map*))
+	(char *frame-number-map* num)
+      ;; translate the frame number to a char. FIXME: it loops after 9
+      (char (prin1-to-string num) 0))))
 
 (defmethod print-object ((object frame) stream)
   (format stream "#S(frame ~d ~a ~d ~d ~d ~d)"
@@ -834,3 +834,13 @@ display a message whenever you switch frames:
 			      :name file))
 	      (t (car-exists-p (cdr list))))))
       (when (not (null file)) (car-exists-p pathlist)))))
+
+(defun escape-caret (str)
+	"Escape carets by doubling them"
+	(let (buf)
+		(map nil #'(lambda (ch)
+								 (push ch buf)
+								 (when (char= ch #\^)
+									 (push #\^ buf)))
+				 str)
+		(coerce (reverse buf) 'string)))

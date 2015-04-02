@@ -1,0 +1,23 @@
+1. make dswm
+2. make dswm data
+3. make dswm config
+
+4. make dswm install
+5. make dswm install data
+6. make dswm install config
+
+add configure options:
+--enable-dbus +-
+--enable-debug ++
+--with-ql ++
+--with-info ++
+
+add: additional dbus build dependencies ++
+add: manual dependencies ++
+
+add: --with-gnome
+add: --with-mate
+add: --with-kde
+add: --with-xfce
+add: --with-lxde
+

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=DSWM
+Comment=Log in using the DSWM window manager (without a session manager)
+Exec=@bindir@/dswm
+TryExec=@bindir@/dswm
+Icon=dswm.png
+Type=XSession

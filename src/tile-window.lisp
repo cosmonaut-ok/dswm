@@ -167,19 +167,19 @@ than the root window's width and height."
       (t
        ;; if they have inc hints then start with the size and adjust
        ;; based on those increments until the window fits in the frame
-       (when (and hints-inc-x (plusp hints-inc-x))
+       (when (and (not *ignore-wm-inc-hints*) hints-inc-x (plusp hints-inc-x))
          (let ((w (or hints-width (window-width win))))
            (setf width (+ w (* hints-inc-x
                                (+ (floor (- fwidth w) hints-inc-x)))))))
-       (when (and hints-inc-y (plusp hints-inc-y))
+       (when (and (not *ignore-wm-inc-hints*) hints-inc-y (plusp hints-inc-y))
          (let ((h (or hints-height (window-height win))))
            (setf height (+ h (* hints-inc-y
                                 (+ (floor (- fheight h -1) hints-inc-y)))))))))
     ;; adjust for gravity
-    (multiple-value-bind (wx wy) (get-gravity-coords (gravity-for-window win)
-                                                     width height
-                                                     0 0
-                                                     fwidth fheight)
+    (multiple-value-bind (wx wy) (gravity-coords (gravity-for-window win)
+																								 width height
+																								 0 0
+																								 fwidth fheight)
       (when (or center
                 (find *window-border-style* '(:tight :none)))
         (setf x (+ wx (frame-x f))
@@ -219,7 +219,8 @@ than the root window's width and height."
                             (list wx wy
                                   (- (xlib:drawable-width (window-parent win)) width wx)
                                   (- (xlib:drawable-height (window-parent win)) height wy))
-                            :cardinal 32))))
+                            :cardinal 32))
+		(update-configuration win)))
 
 ;;;
 

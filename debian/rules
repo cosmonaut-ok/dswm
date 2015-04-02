@@ -1,0 +1,71 @@
+#!/usr/bin/make -f
+
+
+pkg		:= dswm
+debpkg  	:= $(pkg)
+
+clc-source	:= usr/share/common-lisp/source
+clc-systems	:= usr/share/common-lisp/systems
+clc-files	:= $(clc-source)/$(pkg)
+doc-dir		:= usr/share/doc/$(debpkg)
+bin-dir		:= usr/bin
+
+
+DEBIAN_VERSION	:= Debian Git checkout $(shell echo -n `head -1 debian/changelog | sed -e 's/^.*(\(.*\)).*$$/\\1/'`)
+
+configure:
+	./autogen.sh
+	./configure --with-lisp=sbcl --with-contrib-dir=/$(clc-files)/contrib
+
+build-indep: configure
+	XDG_CACHE_HOME=$(shell pwd)/.cache $(MAKE) dswm.info
+
+build-arch:
+
+build: build-indep
+
+clean:
+	dh_testdir
+	dh_testroot
+	[ ! -f Makefile ] || $(MAKE) clean
+	rm -rf autom4te.cache Makefile make-image.lisp config.log config.status configure
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean
+	dh_installdirs $(clc-files) $(clc-files)/contrib $(doc-dir)/examples $(bin-dir) usr/share/xsessions
+	dh_install $(pkg).asd $(clc-files)
+	dh_install *.lisp $(clc-files)
+	dh_install debian/dswm.desktop usr/share/xsessions/
+	rm debian/$(debpkg)/$(clc-files)/make-image.lisp
+	mv debian/$(debpkg)/$(clc-files)/sample-dswmrc.lisp debian/$(debpkg)/$(doc-dir)/examples/
+	dh_install contrib/*.lisp $(clc-files)/contrib
+	cp debian/dswm.bin debian/$(debpkg)/$(bin-dir)/dswm
+	dh_install contrib/dsish $(bin-dir)
+	dh_install contrib/dswm-mode.el $(doc-dir)
+
+binary-indep: install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs ChangeLog
+	dh_installdocs README.md NEWS
+	dh_installinfo dswm.info
+	dh_installman debian/dswm.1 debian/dsish.1
+	dh_installmenu
+	dh_installwm /usr/bin/dswm
+	dh_lisp
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary-arch:
+
+binary: binary-indep
+
+
+.PHONY: configure build clean install binary-indep binary-arch binary
