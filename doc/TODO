@@ -415,3 +415,5 @@ On Sun, Jan 19, 2014 at 2:45 PM,  <yggdrasil@gmx.co.uk> wrote:
 - process stumpwm pull request #181
 
 configure build for https://travis-ci.org/dss-project/dswm
+
+Add dswm-like keybindings for emacs (like "M-x :", "M-x !" etc)

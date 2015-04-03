@@ -18,7 +18,7 @@
 ;; <http://www.gnu.org/licenses/>.
 
 (defpackage :dswm
-  (:use :cl)
+  (:use :cl :alexandria)
   (:shadow #:yes-or-no-p #:y-or-n-p))
 
 (defpackage :dswm-user

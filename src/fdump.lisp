@@ -101,8 +101,7 @@
 	    (copy-file file
 		       (make-pathname
 			:directory directory
-			:name (concat name suffix))
-		       :overwrite t)))
+			:name (concat name suffix)))))
 	(with-open-file (fp file :direction :output :if-exists :supersede)
 		      (with-standard-io-syntax
 		       (let ((*package* (find-package :dswm))

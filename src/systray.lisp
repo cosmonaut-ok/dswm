@@ -714,7 +714,7 @@ passed to `xlib:process-event'."
 (defmethod tray-client-list ((tray tray))
   (mapcar #'xembed:client (tray-socket-list tray)))
 ;(in-package :dswm)
-(defun new-mode-line-hook (mode-line)
+(defun mode-line-new-hook (mode-line)
   "If *tray-autoshow*, then creates tray window"
   (let ((dswm-screen (mode-line-screen mode-line)))
     (unless (screen-tray dswm-screen)
@@ -729,7 +729,7 @@ passed to `xlib:process-event'."
           (setf (tray-event-processing-fn tray) event-handler)
           (add-hook *event-processing-hook* event-handler))))))
 
-(defun destroy-mode-line-hook (mode-line)
+(defun mode-line-destroy-hook (mode-line)
   "Destroys tray, when mode-line is destroyed"
   (let* ((dswm-screen (mode-line-screen mode-line))
          (tray (screen-tray dswm-screen)))
@@ -741,13 +741,13 @@ passed to `xlib:process-event'."
       (destroy-tray tray))))
 
 (defun add-mode-line-hooks ()
-  (add-hook *new-mode-line-hook* #'new-mode-line-hook)
-  (add-hook *destroy-mode-line-hook* #'destroy-mode-line-hook)
+  (add-hook *mode-line-new-hook* #'mode-line-new-hook)
+  (add-hook *mode-line-destroy-hook* #'mode-line-destroy-hook)
   nil)
 
 (defun remove-mode-line-hooks ()
-  (remove-hook *new-mode-line-hook* #'new-mode-line-hook)
-  (remove-hook *destroy-mode-line-hook* #'destroy-mode-line-hook)
+  (remove-hook *mode-line-new-hook* #'mode-line-new-hook)
+  (remove-hook *mode-line-destroy-hook* #'mode-line-destroy-hook)
   nil)
 
 (defcommand systray () ()

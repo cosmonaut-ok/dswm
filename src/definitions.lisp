@@ -52,7 +52,7 @@
 	  *group-number-map*
 	  *hidden-window-color*
 	  *honor-window-moves*
-		*ignore-wm-inc-hints*
+	  *ignore-wm-inc-hints*
 	  *initializing*
 	  *input-window-gravity*
 	  *internal-loop-hook*
@@ -74,6 +74,8 @@
 	  *min-frame-height*
 	  *min-frame-width*
 	  *mode-line-click-hook*
+	  *mode-line-destroy-hook*
+	  *mode-line-new-hook*
 	  *mode-line-pad-x*
 	  *mode-line-pad-y*
 	  *mode-line-position*
@@ -99,8 +101,8 @@
 	  *run-or-raise-all-groups*
 	  *run-or-raise-all-screens*
 	  *scratchpad-group-name*
-		*screen-list*
-		*suppress-window-placement-indicator*
+	  *screen-list*
+	  *suppress-window-placement-indicator*
 	  *mode-line-format*
 	  *mode-line-formatters*
 	  *info-line-format*
@@ -128,8 +130,8 @@
 	  *window-parent-events*
 	  *x-selection*
 	  *xwin-to-window*
-		conf-dir
-		conf-dir-file
+	  conf-dir
+	  conf-dir-file
 	  data-dir
 	  data-dir-file
 	  find-etc-file
@@ -400,6 +402,13 @@ window, the button clicked, and the x and y of the pointer.")
 (defvar *mode-line-click-hook* '()
   "Called whenever the mode-line is clicked. It is called with 4 arguments,
 the mode-line, the button clicked, and the x and y of the pointer.")
+
+(defvar *mode-line-destroy-hook* '()
+  "Called whenever the mode-line is destroyed.")
+
+(defvar *mode-line-new-hook* '()
+  "Called whenever the mode-line is created.")
+
 
 (defvar *event-processing-hook* '()
   "A hook, called, when any event occurs")
