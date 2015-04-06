@@ -301,9 +301,10 @@ critical."
   (when (eq (mode-line-mode ml) :ds)
     ;; This is a DSWM mode-line
     (setf (xlib:drawable-height (mode-line-window ml))
-          (+ (* (1+ (count #\Newline (mode-line-contents ml) :test #'equal))
-                (font-height (xlib:gcontext-font (mode-line-gc ml))))
-             (* *mode-line-pad-y* 2))))
+					 (+ (* 2 *mode-line-pad-y*)
+							(nth-value 1 (rendered-size (split-string (mode-line-contents ml)
+																												(string #\Newline))
+																					(mode-line-cc ml))))))
   (setf (xlib:drawable-width (mode-line-window ml)) (- (frame-width (mode-line-head ml))
                                                        (* 2 (xlib:drawable-border-width (mode-line-window ml))))
         (xlib:drawable-height (mode-line-window ml)) (min (xlib:drawable-height (mode-line-window ml))
@@ -356,18 +357,15 @@ critical."
 
 (defun make-mode-line-gc (window screen)
   (xlib:create-gcontext :drawable window
-                        :font (screen-font screen)
+                        :font (when (typep (screen-font screen) 'xlib:font) (screen-font screen))
                         :foreground (alloc-color screen *mode-line-foreground-color*)
                         :background (alloc-color screen *mode-line-background-color*)))
-
 
 (defun update-mode-line-color-context (ml)
   (let* ((cc (mode-line-cc ml))
          (screen (mode-line-screen ml))
-         (bright (if (stringp *mode-line-foreground-color*)
-                     (lookup-color screen *mode-line-foreground-color*)
-		   *mode-line-foreground-color*)))
-    ;; (adjust-color bright 0.25)
+         (bright (lookup-color screen *mode-line-foreground-color*)))
+    (adjust-color bright 0.25)
     (setf (ccontext-default-bright cc) (alloc-color screen bright))))
 
 (defun make-head-mode-line (screen head format)
@@ -379,6 +377,8 @@ critical."
                     :format format
                     :position *mode-line-position*
                     :cc (make-ccontext :gc gc
+																			 :screen screen
+																			 :font (screen-font screen)
                                        :win w
                                        :default-fg (xlib:gcontext-foreground gc)
                                        :default-bg (xlib:gcontext-background gc)))))
@@ -411,7 +411,7 @@ critical."
 
 (defun set-mode-line-window (ml xwin)
   "Use an external window as mode-line."
-  (run-hook-with-args *mode-line-destroy-hook* ml)
+	(run-hook-with-args *mode-line-destroy-hook* ml)
   (xlib:destroy-window (mode-line-window ml))
   (setf (mode-line-window ml) xwin
         (mode-line-mode ml) :visible
@@ -420,7 +420,7 @@ critical."
   (sync-mode-line ml))
 
 (defun destroy-mode-line-window (ml)
-  (run-hook-with-args *mode-line-destroy-hook* ml)
+	(run-hook-with-args *mode-line-destroy-hook* ml)
   (xlib:destroy-window (mode-line-window ml))
   (setf (head-mode-line (mode-line-head ml)) nil)
   (sync-mode-line ml))
@@ -512,7 +512,7 @@ critical."
            (xlib:map-window (mode-line-window ml)))
           (:ds
            ;; Delete it
-	   (run-hook-with-args *mode-line-destroy-hook* ml)
+					 (run-hook-with-args *mode-line-destroy-hook* ml)
            (xlib:destroy-window (mode-line-window ml))
            (xlib:free-gcontext (mode-line-gc ml))
            (setf (head-mode-line head) nil)
@@ -526,7 +526,7 @@ critical."
           (dformat 3 "modeline: ~s~%" (head-mode-line head))
           ;; setup the timer
           (turn-on-mode-line-timer)
-	  (run-hook-with-args *mode-line-new-hook* (head-mode-line head))))
+					(run-hook-with-args *mode-line-new-hook* (head-mode-line head))))
     (dolist (group (screen-groups screen))
       (group-sync-head group head))))
 

@@ -50,7 +50,6 @@
 	  eval-with-message
 	  file-exists-p
 	  find-free-number
-	  font-height
 	  format-expand
 	  getenv
 	  get-frame-number-translation
@@ -349,45 +348,6 @@ signaled if the directory DIRNAME does not exist."
          (error "IF-DOES-NOT-EXIST must be one of :ERROR or :IGNORE."))))
     (values)))
 
-;; (defun copy-stream (from to &optional (checkp t))
-;;   "Copies into TO \(a stream) from FROM \(also a stream) until the end
-;; of FROM is reached, in blocks of *stream-buffer-size*.  The streams
-;; should have the same element type.  If CHECKP is true, the streams are
-;; checked for compatibility of their types."
-;;   (when checkp
-;;     (unless (subtypep (stream-element-type to) (stream-element-type from))
-;;       (error "Incompatible streams ~A and ~A." from to)))
-;;   (let ((buf (make-array *stream-buffer-size*
-;;                          :element-type (stream-element-type from))))
-;;     (loop
-;;        (let ((pos #-(or :clisp :cmu) (read-sequence buf from)
-;;                   #+:clisp (ext:read-byte-sequence buf from :no-hang nil)
-;; 		  #+:cmu (sys:read-n-bytes from buf 0 *stream-buffer-size* nil)
-;; 		  ))
-;;          (when (zerop pos) (return))
-;;          (write-sequence buf to :end pos))))
-;;   (values))
-
-;; (defun copy-file (from to &key overwrite)
-;;   "Copies the file designated by the non-wild pathname designator FROM
-;; to the file designated by the non-wild pathname designator TO.  If
-;; OVERWRITE is true overwrites the file designtated by TO if it exists."
-;;   (let ((element-type '(unsigned-byte 8)))
-;;     (with-open-file (in from :element-type element-type)
-;;       (with-open-file (out to :element-type element-type
-;;                               :direction :output
-;;                               :if-exists (if overwrite
-;; 					     :supersede
-;; 					     #-:cormanlisp :error
-;; 					     #+:cormanlisp nil))
-;;         #+:cormanlisp
-;;         (unless out
-;;           (error (make-condition 'file-error
-;;                                  :pathname to
-;;                                  :format-control "File already exists.")))
-;;         (copy-stream in out))))
-;;   (values))
-
 ;; (defun delete-directory-and-files (dirname &key (if-does-not-exist :error))
 ;;   "Recursively deletes all files and directories within the directory
 ;; designated by the non-wild pathname designator DIRNAME including
@@ -550,10 +510,6 @@ ITEM. Return the new list."
     (if p
         (nconc (subseq list 0 p) replacements (subseq list (1+ p)))
         list)))
-
-(defun font-height (font)
-  (+ (xlib:font-descent font)
-     (xlib:font-ascent font)))
 
 (defun format-expand (fmt-alist fmt &rest args)
   (let* ((chars (coerce fmt 'list))

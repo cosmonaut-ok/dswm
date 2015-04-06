@@ -495,14 +495,14 @@ FIXME: do it around builtin timers")
   "Variable for blink urgent windows, or widgets")
 
 (defvar *mode-line-formatters* '((#\w fmt-window-list)
-                                        (#\g fmt-group-list)
-                                        (#\h fmt-head)
-                                        (#\n fmt-group)
-                                        (#\W fmt-head-window-list)
-                                        (#\u fmt-urgent-window-list)
-					(#\U fmt-blink-urgent-window-list)
-                                        (#\v fmt-head-window-list-hidden-windows)
-                                        (#\d fmt-modeline-time))
+																 (#\g fmt-group-list)
+																 (#\h fmt-head)
+																 (#\n fmt-group)
+																 (#\W fmt-head-window-list)
+																 (#\u fmt-urgent-window-list)
+																 (#\U fmt-blink-urgent-window-list)
+																 (#\v fmt-head-window-list-hidden-windows)
+																 (#\d fmt-modeline-time))
   "An alist containing format character format function pairs for
 formatting screen mode-lines. functions are passed the screen's
 current group.")
@@ -660,7 +660,7 @@ are valid values.
 (defparameter +default-background-color+ (make-color-hex "#113355"))
 (defparameter +default-window-background-color+ (make-color-hex "#113355"))
 (defparameter +default-border-color+ (make-color-hex "#443333"))
-(defparameter +default-font-name+ "9x15bold")
+(defparameter +default-font-name+ "9x15")
 (defparameter +default-focus-color+ (make-color-hex "#557799"))
 (defparameter +default-unfocus-color+ (make-color-hex "#443333"))
 (defparameter +default-frame-outline-width+ 2)
@@ -718,13 +718,19 @@ interactive:         set behavior, which will propose alternative, actions
   window)
 
 (defstruct ccontext
+	screen
   win
   px
   gc
   default-fg
   default-bright
-  default-bg)
-
+  default-bg
+	fg
+	bg
+	brightp
+	reversep
+	color-stack
+	font)
 
 (defvar *window-number-map* "0123456789"
   "Set this to a string to remap the window numbers to something more convenient.")

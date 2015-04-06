@@ -630,12 +630,14 @@ dswm.common:
 
 dswm.shared:
 
-dswm.static: $(FILES)
+dswm.static:
 	if test @QLP@ == yes && test ! -z "@QL_DIR@"; then if test wget -O - quicklisp.org 1>/dev/null 2>/dev/null; then \
 		echo "No internet connection for quicklisp working"; \
 		exit 1; \
 	fi; fi
-	@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@
+	if test ! -x dswm$(EXEEXT); then \
+		@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@; \
+	fi
 
 deps:
 #	@LISP_PROGRAM@ @LISP_BUILD_OPTIONS@

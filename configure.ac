@@ -293,7 +293,7 @@ if test "x$LISP_NAME" = "xsbcl"; then
    if test $DEBUG = no; then
       LISP_DEBUG="--disable-debugger"
    fi
-   LISP_COMMON_OPTIONS="$LISP_DEBUG $LISP_EXTRA_OPTIONS $LISP_EVAL '(require :asdf)' $LISP_LOAD \$(abs_top_srcdir)/src/dswm.asd"
+   LISP_COMMON_OPTIONS="$LISP_DEBUG $LISP_EVAL '(require :asdf)' $LISP_LOAD \$(abs_top_srcdir)/src/dswm.asd"
 dnl elif test "x$LISP_NAME" = "xcmucl"; then
 dnl    LISP_PROGRAM=$CMUCL
 dnl    LISP_EVAL="-eval"
@@ -307,13 +307,13 @@ elif test "x$LISP_NAME" = "xclisp"; then
    LISP_EVAL="-x"
    LISP_LOAD="-i"
    LISP_EXIT="(quit)"
-   LISP_COMMON_OPTIONS="-K $CLISP_LINK $LISP_EXTRA_OPTIONS -modern -on-error exit $LISP_LOAD $ASDFDIR/build/asdf.lisp $LISP_EVAL \"(require :asdf)\" $LISP_LOAD dswm.asd"
+   LISP_COMMON_OPTIONS="-K $CLISP_LINK -modern -on-error exit $LISP_LOAD $ASDFDIR/build/asdf.lisp $LISP_EVAL \"(require :asdf)\" $LISP_LOAD dswm.asd"
 elif test "x$LISP_NAME" = "xccl"; then
    LISP_PROGRAM=$CCL
    LISP_EVAL="--eval"
    LISP_LOAD="--load"
    LISP_EXIT="(quit)"
-   LISP_COMMON_OPTIONS="$LISP_EXTRA_OPTIONS $LISP_LOAD $ASDFDIR/build/asdf.lisp $LISP_EVAL '(require :asdf)' $LISP_LOAD \$(abs_top_srcdir)/src/dswm.asd"
+   LISP_COMMON_OPTIONS="$LISP_LOAD $ASDFDIR/build/asdf.lisp $LISP_EVAL '(require :asdf)' $LISP_LOAD \$(abs_top_srcdir)/src/dswm.asd"
 dnl elif test "x$LISP_NAME" = "xecl"; then
 dnl    LISP_PROGRAM=$ECL
 dnl       LISP_EVAL=
@@ -341,8 +341,8 @@ if test "$QLP" = "yes"; then
    LISP_QL_INFO_OPTIONS="$LISP_LOAD $QL_INFO_LOAD_FILE $LISP_EVAL '$QUICKINSTALL_INFO' $LISP_EVAL '(dolist (v (list $DSWM_INFO_DEPS)) (ql:quickload v))'"
 fi
 
-LISP_BUILD_OPTIONS="$LISP_COMMON_OPTIONS $LISP_QL_OPTIONS $LISP_LOAD ./make-image.lisp"
-LISP_INFO_OPTIONS="$LISP_COMMON_OPTIONS $LISP_QL_INFO_OPTIONS $LISP_EVAL '(progn (require :dswm) (load \"manual.lisp\"))' $LISP_EVAL \"(progn (dswm::generate-manual) $LISP_EXIT)\""
+LISP_BUILD_OPTIONS="$LISP_COMMON_OPTIONS $LISP_QL_OPTIONS $LISP_EXTRA_OPTIONS $LISP_LOAD ./make-image.lisp"
+LISP_INFO_OPTIONS="$LISP_COMMON_OPTIONS $LISP_QL_INFO_OPTIONS $LISP_EXTRA_OPTIONS $LISP_EVAL '(progn (require :dswm) (load \"manual.lisp\"))' $LISP_EVAL \"(progn (dswm::generate-manual) $LISP_EXIT)\""
 
 AC_MSG_NOTICE([Using $LISP_NAME at $LISP_PROGRAM])
 

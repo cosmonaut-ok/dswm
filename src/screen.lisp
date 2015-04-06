@@ -61,7 +61,7 @@
    (msg-border-width :initform nil :accessor screen-msg-border-width)
    (frame-outline-width :initform nil :accessor screen-frame-outline-width)
    (float-window-title-height :initform nil :accessor screen-float-window-title-height)
-   (font :initform nil :accessor screen-font)
+   (fonts :initform '(nil) :accessor screen-fonts)
    (mapped-windows :initform nil :accessor screen-mapped-windows :documentation
     "A list of all mapped windows. These are the raw xlib:window's. window structures are stored in groups.")
    (withdrawn-windows :initform nil :accessor screen-withdrawn-windows :documentation
@@ -94,6 +94,9 @@ exist, in which case they go into the current group.")
    (current-msg-highlights :initform nil :accessor screen-current-msg-highlights)
    (last-msg :initform nil :accessor screen-last-msg)
    (last-msg-highlights :initform nil :accessor screen-last-msg-highlights)))
+
+(defun screen-font (screen)
+	(first (screen-fonts screen)))
 
 (defun screen-message-window (screen)
   (ccontext-win (screen-message-cc screen)))
@@ -385,20 +388,17 @@ there is more than one frame."
   t)
 
 (defun set-font (font)
-  "Set the font for the message bar and input bar."
-  (when (font-exists-p font)
-    (dolist (i *screen-list*)
-      (let ((fobj (xlib:open-font *display* (first (xlib:list-font-names *display* font :max-fonts 1)))))
-        (xlib:close-font (screen-font i))
-        (setf (screen-font i) fobj
-              (xlib:gcontext-font (screen-message-gc i)) fobj)
-        ;; update the modelines too
-        (dolist (h (screen-heads i))
-          (when (and (head-mode-line h)
-                     (eq (mode-line-mode (head-mode-line h)) :ds))
-            (setf (xlib:gcontext-font (mode-line-gc (head-mode-line h))) fobj)
-            (resize-mode-line (head-mode-line h))
-            (sync-mode-line (head-mode-line h))))))
+  "Set the font(s) for the message bar and input bar."
+  (when (if (listp font)
+            (every #'identity (mapcar #'font-exists-p font))
+            (font-exists-p font))
+    (dolist (screen *screen-list*)
+      (let ((fonts (if (listp font)
+                       (mapcar (lambda (font) (open-font *display* font))
+                               font)
+                       (list (open-font *display* font)))))
+        (mapc #'close-font (screen-fonts screen))
+        (setf (screen-fonts screen) fonts)))
     t))
 
 (defmacro with-current-screen (screen &body body)
@@ -520,7 +520,7 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
             (screen-host screen) host
             (screen-groups screen) (list group)
             (screen-current-group screen) group
-            (screen-font screen) font
+            (screen-fonts screen) (list font)
             (screen-fg-color screen) fg
             (screen-bg-color screen) bg
             (screen-win-bg-color screen) win-bg
@@ -536,6 +536,8 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
             (screen-frame-window screen) frame-window
             (screen-ignore-msg-expose screen) 0
             (screen-message-cc screen) (make-ccontext :win message-window
+																											:screen screen
+																											:font font
                                                       :gc (xlib:create-gcontext
                                                            :drawable message-window
                                                            :font font

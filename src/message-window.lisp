@@ -87,11 +87,8 @@ function expects to be wrapped in a with-state for win."
 				(setf (xlib:drawable-y win) (max head-y y)
 							(xlib:drawable-x win) (max head-x x))))))
 
-(defun setup-message-window (screen lines width)
-  (let ((height (* lines
-                   (+ (xlib:font-ascent (screen-font screen))
-                      (xlib:font-descent (screen-font screen)))))
-        (win (screen-message-window screen)))
+(defun setup-message-window (screen width height)
+  (let ((win (screen-message-window screen)))
     ;; Now that we know the dimensions, raise and resize it.
     (xlib:with-state (win)
       (setf (xlib:drawable-height win) height
@@ -232,8 +229,9 @@ function expects to be wrapped in a with-state for win."
   the nth entry to highlight."
   (when strings
     (unless *executing-dswm-command*
-      (let ((width (render-strings screen (screen-message-cc screen) *message-window-padding* 0 strings '() nil)))
-        (setup-message-window screen (length strings) width)
+			(multiple-value-bind (width height)
+					(rendered-size strings (screen-message-cc screen))
+				(setup-message-window screen width height)
         (render-strings screen (screen-message-cc screen) *message-window-padding* 0 strings highlights))
       (setf (screen-current-msg screen)
             strings
