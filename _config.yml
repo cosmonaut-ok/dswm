@@ -3,3 +3,5 @@ permalink: /:title
 
 gems:
   - jekyll-pandoc
+
+source: _pages
