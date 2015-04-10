@@ -1,7 +1,4 @@
 highlighter: pygments
 permalink: /:title
 
-gems:
-  - jekyll-pandoc
-
 source: _pages
