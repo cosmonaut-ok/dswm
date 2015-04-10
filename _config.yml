@@ -1,4 +1,4 @@
 highlighter: pygments
-permalink: /:title
+permalink: /:title.html
 
 source: _pages
