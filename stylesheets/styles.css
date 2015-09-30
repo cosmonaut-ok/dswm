@@ -565,7 +565,7 @@ strong {
 }
 
 .wrapper {
-  width: 650px;
+  /* width: 650px; */
   margin: 0 auto;
   position: relative;
 }
@@ -820,7 +820,7 @@ nav {
   position: fixed;
   top: 220px;
   left: 50%;
-  margin-left: -580px;
+  margin-left: -610px;
   text-align: right;
 }
 nav ul {
@@ -851,10 +851,10 @@ nav ul a:hover {
 }
 
 footer {
-  width: 180px;
+  width: 230px;
   position: fixed;
   left: 50%;
-  margin-left: -530px;
+  margin-left: -610px;
   bottom: 20px;
   text-align: right;
   line-height: 16px;
