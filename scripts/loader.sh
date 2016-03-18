@@ -1,0 +1,68 @@
+#!/bin/sh
+
+# Copyright (C) 2013 Alexander aka 'CosmonauT' Vynnyk
+#
+# Maintainer: Alexander aka 'CosmonauT' Vynnyk
+#
+# DSWM Test Tool is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2, or (at your option)
+# any later version.
+#
+# DSWM Test Tool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this software; see the file COPYING.  If not, see
+# <http://www.gnu.org/licenses/>.
+
+## Code
+
+prefix=/usr/local
+datarootdir=${prefix}/share
+ME="$0"
+LOADER="/usr/local/share/dswm/source//loader.lisp"
+[ ! -z $LISP ] || LISP=/usr/bin/sbcl
+
+load_lisp() {
+    lisp_exec="$1"
+    shift
+    lisp_options="$@"
+    case "$lisp_exec" in
+	*sbcl)
+	    $lisp_exec $lisp_options --load "$LOADER"
+	    ;;
+	*clisp)
+	    $lisp_exec $lisp_options -modern -i "$LOADER"
+	    ;;
+	*ccl)
+	    echo "Dynamic CCL loading is not supported yet"
+	    echo $lisp_exec -b $lisp_options --load "$LOADER"
+	    ;;
+	*)
+	    echo "Unkown Common Lisp implementation."
+	    exit 1
+	    ;;
+    esac
+}
+
+if [ -z "$LISP" ]; then
+    LISP=`which sbcl 2>/dev/null || which clisp 2>/dev/null || which ccl 2>/dev/null`
+fi
+
+if [ -z "$LISP" ]; then
+    echo "CL implementation $LISP not found in your \$PATH."
+    exit 1
+fi
+
+if [ ! -z $1 ] && ([ $1 = "-h" ] || [ $1 = "--help" ]); then
+    echo "USAGE: [LISP=<sbcl/clisp>] $ME [other lisp options]"
+    echo " NOTE: if you don't set LISP variable,"
+    echo "       $LISP will be used"
+else
+    load_lisp $LISP $@
+fi
+
+exit 0
